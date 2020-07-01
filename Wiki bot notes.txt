@@ -1,0 +1,52 @@
+Wiki bot notes
+
+Parameters: page list, valueToMatch(could be reg ex), replacement, 
+
+Requests will be read in from a Wiki page and marked as processed when each one finishes.
+Look into how a list of differences can be provided for manual inspection before final editing.
+--> Two step process: 1. Produce a list of all edits for manual inspection. 2. Make final edits if approved. (Potentially, remove bad edits from list. Save list against job id, with each entry having it's own id)
+UI page to view currently scheduled jobs
+
+Development notes: Start by creating a service app shell that can schedule "tasks" and test by scheduling a set of simple dummy tasks at various times. Utilize injection dependency, design patterns, unit testing and, if possible, test driven development.
+
+
+
+On demand:
+Link fixing
+Category tagging/untagging
+Section reordering by header level
+Mass page moving
+Apply CSS?
+
+Daily:
+Remove stale dated templates
+
+At least once a day:
+Page deletion
+Welcoming users
+Fix redirects
+
+Unknown frequency:
+Check for dead external links
+
+
+WikiJob
+ID# -> Name of schedule
+Job Type -> 
+Parameters
+Interval
+Onetime/Recurring
+
+
+{{deceptitran	
+|textfrom=<nowiki>W:User_talk:</nowiki>	
+|textto=<nowiki>http://www.wikia.com/wiki/User_talk:</nowiki>	
+|namefrom=$CurrentName$	
+|nameto=$CurrentName_(BW)
+|pages=Commercial;Commercial/Japan;Transformers_(2019_comic)	
+|username=[[User:Tigerpaw28|Tigerpaw28]] 17:54, 17 September 2009 (EDT)	
+|comment=The Wikia link removal (at least I presume this to be the culprit) created a whole bunch of invalid talk page links on talk pages, which are now in the Wanted Pages list. Removing the link mark-up while still indicating what the link was, will work too. So long as we get them off the Wanted list.	
+|status=Open	
+}}
+
+Switch captionbastard templates to captionhappy
