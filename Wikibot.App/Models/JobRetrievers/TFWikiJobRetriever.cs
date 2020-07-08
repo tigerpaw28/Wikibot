@@ -80,7 +80,7 @@ namespace Wikibot.App.JobRetrievers
                 //var content = fullRev.Content;
                 var ast = parser.Parse(page.Content);
                 var templates = ast.Lines.First<LineNode>().EnumDescendants().OfType<Template>();
-                var jobFactory = new WikiJobFactory(_context, _config);
+                var jobFactory = new WikiJobFactory(_context);
                 jobs = templates.Select(template => jobFactory.GetWikiJob((JobType)Enum.Parse(typeof(JobType),template.Arguments.Single(arg => arg.Name.ToPlainText() == "type").Value.ToPlainText().Replace(" ","")+"Job"), template));
                 
                 Console.WriteLine(templates.First().ToString());
