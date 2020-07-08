@@ -16,6 +16,8 @@ using FluentScheduler;
 using Wikibot.App.Jobs;
 using Wikibot.App.Models.Jobs;
 using Microsoft.Data.SqlClient;
+using LinqToWiki.Generated;
+using Wikibot.App.Models.UserRetrievers;
 
 namespace Wikibot.App
 {
@@ -38,7 +40,7 @@ namespace Wikibot.App
         {
             var builder = new SqlConnectionStringBuilder(
             Configuration.GetConnectionString("JobDB"));
-            builder.Password = Configuration["DbPassword"];
+            builder.Password = Configuration.GetSection("JobDb")["DbPassword"];
 
             services.AddDbContext<JobContext>(options =>
                 options.UseSqlServer(
@@ -47,6 +49,20 @@ namespace Wikibot.App
                 .AddEntityFrameworkStores<JobContext>();
             services.AddControllersWithViews();
             services.AddRazorPages();
+
+            var wikiLoginConfig = Configuration.GetSection("WikiLogin");
+            var username = wikiLoginConfig["Username"];
+            var password = wikiLoginConfig["Password"];
+            var wiki = new Wiki("WikiBot", "https://tfwiki.net", "/mediawiki/api.php");
+            var result = wiki.login(username, password);
+
+            if (result.result == loginresult.NeedToken)
+                result = wiki.login(username, password, token: result.token);
+
+            if (result.result != loginresult.Success)
+                throw new Exception(result.result.ToString());
+            var userRetriever = new TFWikiUserRetriever(wiki);
+            services.AddSingleton(userRetriever);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

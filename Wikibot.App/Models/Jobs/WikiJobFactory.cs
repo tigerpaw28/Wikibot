@@ -18,8 +18,7 @@ namespace Wikibot.App.Jobs
     public class WikiJobFactory
     {
         private JobContext _context;
-        private IConfiguration _config;
-        public WikiJobFactory(JobContext context, IConfiguration config)
+        public WikiJobFactory(JobContext context)
         {
             _context = context;
         }
@@ -28,9 +27,6 @@ namespace Wikibot.App.Jobs
             WikiJob job;
             switch(type)
             {
-                case JobType.JobRetrievalJob:
-                    job = new JobRetrievalJob(new TFWikiJobRetriever(_context, _config), _context);
-                    break;
                 case JobType.TextReplacementJob:
                     job = new TextReplacementJob();
                     ((TextReplacementJob)job).FromText = template.Arguments.Single(arg => arg.Name.ToPlainText() == "before").Value.ToPlainText();

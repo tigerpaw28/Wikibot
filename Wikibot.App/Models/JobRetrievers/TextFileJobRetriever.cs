@@ -20,7 +20,6 @@ namespace Wikibot.App.JobRetrievers
         private List<WikiJob> _jobDefinitions;
         private JobContext _context;
         private string _pathToTextFile;
-        private IConfiguration _config;
 
         public List<WikiJob> JobDefinitions 
         {
@@ -31,26 +30,17 @@ namespace Wikibot.App.JobRetrievers
             }
         }
         
-        public TextFileJobRetriever(JobContext context, IConfiguration config, string pathToTextFile)
+        public TextFileJobRetriever(JobContext context, string pathToTextFile)
         {
             _context = context;
             _pathToTextFile = pathToTextFile;
-            _config = config;
-        }
-
-        public void GetDefinitions(string pathToTextFile, Wiki wiki)
-        {
-            Task<string> task = File.ReadAllTextAsync(pathToTextFile);
-            string contents = task.Result;
-            Regex regex = new Regex("^{{.*}}$");
-            throw new NotImplementedException();
         }
 
         public async Task<List<WikiJob>> GetNewJobDefinitions()
         {
-            var ast = parseFile().Result;
+            var ast = await parseFile();
             var templates = ast.Lines.SelectMany(x=> x.EnumDescendants().OfType<Template>());
-            var jobFactory = new WikiJobFactory(_context, _config);
+            var jobFactory = new WikiJobFactory(_context);
             var jobs = templates.Select(template => jobFactory.GetWikiJob(JobType.TextReplacementJob, template));
             return jobs.ToList();
         }
