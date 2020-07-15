@@ -18,5 +18,12 @@ namespace Wikibot.App.Logic
         {
             return _userRetriever.GetAutoApprovedUsers().Where(user => user == userToValidate).Any();
         }
+
+        public bool IsUserAuthentic(User userToValidate, string pageName)
+        {
+            bool isAuthentic = false;
+
+            return isAuthentic;
+        }
     }
 }

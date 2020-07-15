@@ -11,6 +11,9 @@ using Microsoft.Extensions.Configuration;
 using LinqToWiki.Generated;
 using System.Linq;
 using Wikibot.App.Models.UserRetrievers;
+using WikiClientLibrary.Sites;
+using WikiClientLibrary;
+using WikiClientLibrary.Client;
 
 namespace Wikibot.Tests
 {
@@ -44,6 +47,35 @@ namespace Wikibot.Tests
             return wiki;
         }
 
+        public static WikiSite GetWikiSite(IConfiguration config)
+        {
+            var client = new WikiClient
+            {
+                ClientUserAgent = "WCLQuickStart/1.0 (your user name or contact information here)"
+            };
+            var WikiConfig = config.GetSection("WikiLogin");
+            var username = WikiConfig["Username"];
+            var password = WikiConfig["Password"];
+            var url = WikiConfig["APIUrl"];
+            // You can create multiple WikiSite instances on the same WikiClient to share the state.
+            var site = new WikiSite(client, url);
+
+            // Wait for initialization to complete.
+            // Throws error if any.
+            site.Initialization.Wait();
+            try
+            {
+                site.LoginAsync(username, password).Wait();
+            }
+            catch (WikiClientException ex)
+            {
+                Console.WriteLine(ex.Message);
+                // Add your exception handler for failed login attempt.
+                throw;
+            }
+            return site;
+        }
+    
         public static IUserRetriever GetUserRetriever(IConfiguration config)
         {
             var wiki = GetWiki(config);
@@ -82,7 +114,7 @@ namespace Wikibot.Tests
             var dbContextOptions = new DbContextOptionsBuilder().UseSqlServer(connectionString).Options;
             var jobContext = new JobContext(dbContextOptions);
             var retriever = new TextFileJobRetriever(jobContext, "D:\\Wikibot\\WikiJobTest.txt");
-            var job = new JobRetrievalJob(retriever, GetUserRetriever(iConfig), jobContext);
+            var job = new JobRetrievalJob(iConfig);
             job.Execute();
         }
 
@@ -93,19 +125,19 @@ namespace Wikibot.Tests
             var connectionString = iConfig.GetConnectionString("JobDb");
             var dbContextOptions = new DbContextOptionsBuilder().UseSqlServer(connectionString).Options;
             var jobContext = new JobContext(dbContextOptions);
-            var retriever = new TFWikiJobRetriever(jobContext, iConfig);
+            var retriever = new TFWikiJobRetriever(iConfig, GetWikiSite(iConfig));
             retriever.GetNewJobDefinitions().Wait();
         }
 
         [Fact]
         public void RunJobRetrievalJobWithTFWikiRetriever()
         {
-            var iConfig = GetIConfigurationRoot("D:\\Wikibot\\Wikibot.Tests\\");
+            var iConfig = GetIConfigurationRoot("D:\\Wikibot\\Wikibot\\Wikibot.Tests\\");
             var connectionString = iConfig.GetConnectionString("JobDb");
             var dbContextOptions = new DbContextOptionsBuilder().UseSqlServer(connectionString).Options;
             var jobContext = new JobContext(dbContextOptions);
-            var retriever = new TFWikiJobRetriever(jobContext, iConfig);
-            var job = new JobRetrievalJob(retriever, GetUserRetriever(iConfig), jobContext);
+            var retriever = new TFWikiJobRetriever(iConfig, GetWikiSite(iConfig));
+            var job = new JobRetrievalJob(iConfig);
             job.Execute();
         }
 

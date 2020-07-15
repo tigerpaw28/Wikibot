@@ -22,8 +22,8 @@ namespace Wikibot.App.JobRetrievers
     public class TFWikiJobRetriever:IWikiJobRetriever
     {
         private List<WikiJob> _jobDefinitions;
-        private JobContext _context;
         private IConfiguration _config;
+        private WikiSite _site;
         public List<WikiJob> JobDefinitions
         {
             get
@@ -34,60 +34,34 @@ namespace Wikibot.App.JobRetrievers
             }
         }
 
-        public TFWikiJobRetriever(JobContext context, IConfiguration configuration)
+        public TFWikiJobRetriever(IConfiguration configuration, WikiSite site)
         {
-            _context = context;
             _config = configuration;
+            _site = site;
         }
 
         public async Task<List<WikiJob>> GetNewJobDefinitions()
         {
             IEnumerable<WikiJob> jobs;
-            using (var client = new WikiClient
-            {
-                ClientUserAgent = "WCLQuickStart/1.0 (your user name or contact information here)"
-            })
-            {
-                var wikiLoginConfig = _config.GetSection("WikiLogin");
-                // You can create multiple WikiSite instances on the same WikiClient to share the state.
-                var site = new WikiSite(client, wikiLoginConfig["APIUrl"]);
+
+            var page = new WikiPage(_site, "User:Tigerpaw28/Sandbox/WikibotRequests");
+
+            // Fetch basic information and content of 1 page from server
+            await page.RefreshAsync(PageQueryOptions.FetchContent
+                                    | PageQueryOptions.ResolveRedirects );
+
+            var parser = new WikitextParser();
+            //var text = "Paragraph.\n* Item1\n* Item2\n";
+            //var revision = page.CreateRevisionsGenerator().EnumItemsAsync().LastAsync().Result;
+            //var fullRev = await Revision.FetchRevisionAsync(site, revision.Id);
+            //var content = fullRev.Content;
+            var ast = parser.Parse(page.Content);
+            var templates = ast.Lines.First<LineNode>().EnumDescendants().OfType<Template>();
+            var jobFactory = new WikiJobFactory();
+            jobs = templates.Select(template => jobFactory.GetWikiJob((JobType)Enum.Parse(typeof(JobType),template.Arguments.Single(arg => arg.Name.ToPlainText() == "type").Value.ToPlainText().Replace(" ","")+"Job"), template));
                 
-                var username = wikiLoginConfig["Username"];
-                var password = wikiLoginConfig["Password"];
+            Console.WriteLine(templates.First().ToString());
 
-                // Wait for initialization to complete.
-                // Throws error if any.
-                await site.Initialization;
-                try
-                {
-                    await site.LoginAsync(username, password);
-                }
-                catch (WikiClientException ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    // Add your exception handler for failed login attempt.
-                }
-                var page = new WikiPage(site, "User:Tigerpaw28/Sandbox/WikibotRequests");
-
-                // Fetch basic information and content of 1 page from server
-                await page.RefreshAsync(PageQueryOptions.FetchContent
-                                        | PageQueryOptions.ResolveRedirects );
-
-                var parser = new WikitextParser();
-                //var text = "Paragraph.\n* Item1\n* Item2\n";
-                //var revision = page.CreateRevisionsGenerator().EnumItemsAsync().LastAsync().Result;
-                //var fullRev = await Revision.FetchRevisionAsync(site, revision.Id);
-                //var content = fullRev.Content;
-                var ast = parser.Parse(page.Content);
-                var templates = ast.Lines.First<LineNode>().EnumDescendants().OfType<Template>();
-                var jobFactory = new WikiJobFactory(_context);
-                jobs = templates.Select(template => jobFactory.GetWikiJob((JobType)Enum.Parse(typeof(JobType),template.Arguments.Single(arg => arg.Name.ToPlainText() == "type").Value.ToPlainText().Replace(" ","")+"Job"), template));
-                
-                Console.WriteLine(templates.First().ToString());
-
-                // We're done here
-                await site.LogoutAsync();
-            }
             return jobs.ToList();
         }
 
