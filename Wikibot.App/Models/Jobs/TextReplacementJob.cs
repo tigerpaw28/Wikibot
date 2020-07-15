@@ -6,12 +6,12 @@ using Wikibot.App.Jobs;
 
 namespace Wikibot.App.Jobs
 {
-    public class TextReplacementJob: WikiJob
+    public class TextReplacementJob: AbstractJob
     {
 
         public string FromText { get; set; }
         public string ToText { get; set; }
-        public List<string> PageNames { get; set; }
+        public List<Page> PageNames { get; set; }
 
         public void Execute()
         {
