@@ -18,6 +18,10 @@ using Wikibot.App.Models.Jobs;
 using Microsoft.Data.SqlClient;
 using LinqToWiki.Generated;
 using Wikibot.App.Models.UserRetrievers;
+using WikiClientLibrary.Client;
+using WikiClientLibrary.Sites;
+using WikiClientLibrary;
+using Wikibot.App.JobRetrievers;
 
 namespace Wikibot.App
 {
@@ -29,8 +33,6 @@ namespace Wikibot.App
             Configuration = configuration;
             JobManager.Initialize(new Registry());
             JobManager.UseUtcTime();
-            //JobManager.AddJob(() => Console.WriteLine("Late job!"), (s) => s.ToRunEvery(5).Seconds());
-            JobManager.AddJob(() => new TestJob().Execute(), (s) => s.ToRunEvery(5).Seconds());
         }
 
         public IConfiguration Configuration { get; }
@@ -50,19 +52,14 @@ namespace Wikibot.App
             services.AddControllersWithViews();
             services.AddRazorPages();
 
-            var wikiLoginConfig = Configuration.GetSection("WikiLogin");
-            var username = wikiLoginConfig["Username"];
-            var password = wikiLoginConfig["Password"];
-            var wiki = new Wiki("WikiBot", "https://tfwiki.net", "/mediawiki/api.php");
-            var result = wiki.login(username, password);
+            
+            //var userRetriever = new TFWikiUserRetriever(wiki);
+            //services.AddSingleton<IUserRetriever>(userRetriever);
 
-            if (result.result == loginresult.NeedToken)
-                result = wiki.login(username, password, token: result.token);
+           
 
-            if (result.result != loginresult.Success)
-                throw new Exception(result.result.ToString());
-            var userRetriever = new TFWikiUserRetriever(wiki);
-            services.AddSingleton(userRetriever);
+            //services.AddSingleton(client);
+            //services.AddSingleton(site);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

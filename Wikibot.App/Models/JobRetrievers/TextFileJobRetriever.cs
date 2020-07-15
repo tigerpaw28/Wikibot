@@ -40,7 +40,7 @@ namespace Wikibot.App.JobRetrievers
         {
             var ast = await parseFile();
             var templates = ast.Lines.SelectMany(x=> x.EnumDescendants().OfType<Template>());
-            var jobFactory = new WikiJobFactory(_context);
+            var jobFactory = new WikiJobFactory();
             var jobs = templates.Select(template => jobFactory.GetWikiJob(JobType.TextReplacementJob, template));
             return jobs.ToList();
         }

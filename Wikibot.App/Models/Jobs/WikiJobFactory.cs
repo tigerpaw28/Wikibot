@@ -10,17 +10,10 @@ using Wikibot.App.Models.Jobs;
 
 namespace Wikibot.App.Jobs
 {
-    public enum JobType
-    {
-        JobRetrievalJob,
-        TextReplacementJob
-    }
     public class WikiJobFactory
     {
-        private JobContext _context;
-        public WikiJobFactory(JobContext context)
+        public WikiJobFactory()
         {
-            _context = context;
         }
         public WikiJob GetWikiJob(JobType type, Template template = null)
         {
@@ -31,7 +24,7 @@ namespace Wikibot.App.Jobs
                     job = new TextReplacementJob();
                     ((TextReplacementJob)job).FromText = template.Arguments.Single(arg => arg.Name.ToPlainText() == "before").Value.ToPlainText();
                     ((TextReplacementJob)job).ToText = template.Arguments.Single(arg => arg.Name.ToPlainText() == "after").Value.ToPlainText();
-                    ((TextReplacementJob)job).PageNames = template.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText() == "pages")?.Value.ToPlainText().Split(';').ToList();
+                    ((TextReplacementJob)job).PageNames = template.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText() == "pages")?.Value.ToPlainText().Split(';').Select(val=> new Page { Name = val, ID = 0 }).ToList(); 
                     break;
                 default:
                     throw new Exception("Job type is undefined");
@@ -39,7 +32,15 @@ namespace Wikibot.App.Jobs
 
             if (template != null)
             {
-                job.Status = (JobStatus)Enum.Parse(typeof(JobStatus),template.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText() == "status")?.Value.ToPlainText() ?? JobStatus.ToBeProcessed.ToString());
+                //Check for tampered with jobs
+                if (template.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText() == "status")?.Value.ToPlainText() == JobStatus.ToBeProcessed.ToString())
+                {
+                    job.Status = JobStatus.Rejected;
+                }
+                else
+                {
+                    job.Status = (JobStatus)Enum.Parse(typeof(JobStatus), template.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText() == "status")?.Value.ToPlainText() ?? JobStatus.ToBeProcessed.ToString());
+                }
                 job.UserName = template.Arguments.Single(arg => arg.Name.ToPlainText() == "username").Value.ToPlainText();
                 job.Comment = template.Arguments.Single(arg => arg.Name.ToPlainText() == "comment").Value.ToPlainText();
             }
