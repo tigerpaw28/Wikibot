@@ -6,7 +6,7 @@ using FluentScheduler;
 
 namespace Wikibot.App.Jobs
 {
-    public class TestJob : WikiJob
+    public class TestJob : AbstractJob
     {
         public void Execute() {
             Console.WriteLine("Test Job writing to console.");

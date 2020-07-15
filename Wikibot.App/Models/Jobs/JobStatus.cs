@@ -12,6 +12,7 @@ namespace Wikibot.App.Jobs
         Processing,
         PendingApproval,
         Approved,
+        Rejected,
         ScheduledForPosting,
         Done
     }

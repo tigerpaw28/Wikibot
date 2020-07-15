@@ -12,5 +12,6 @@ namespace Wikibot.App.Models.Jobs
         public JobContext(DbContextOptions options) : base(options) { }
 
         public DbSet<WikiJob> Jobs { get; set; }
+        public DbSet<TextReplacementJob> TextReplacementJobs { get; set; }
     }
 }

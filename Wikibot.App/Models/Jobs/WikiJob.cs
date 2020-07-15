@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using Wikibot.App.Models.Jobs;
 
 namespace Wikibot.App.Jobs
 {
@@ -18,6 +19,9 @@ namespace Wikibot.App.Jobs
         public JobType RequestType { get; set; }
         public string RawRequest { get; set; }
         public string UserName { get; set; } //TODO: Make this a user object
+        public DateTime SubmittedDate { get; set; }
+        public string ProposedChanges { get; set; }
+        public string Notes { get; set; }
 
         public virtual void Execute() { }
     }
