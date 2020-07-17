@@ -10,6 +10,8 @@ namespace Wikibot.App.Jobs
         ToBeProcessed,
         ScheduledForProcessing,
         Processing,
+        PendingPreApproval,
+        PreApproved,
         PendingApproval,
         Approved,
         Rejected,

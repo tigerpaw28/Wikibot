@@ -58,7 +58,7 @@ namespace Wikibot.App.JobRetrievers
             var ast = parser.Parse(page.Content);
             var templates = ast.Lines.First<LineNode>().EnumDescendants().OfType<Template>();
             var jobFactory = new WikiJobFactory();
-            jobs = templates.Select(template => jobFactory.GetWikiJob((JobType)Enum.Parse(typeof(JobType),template.Arguments.Single(arg => arg.Name.ToPlainText() == "type").Value.ToPlainText().Replace(" ","")+"Job"), template));
+            jobs = templates.Select(template => jobFactory.GetWikiJob((JobType)Enum.Parse(typeof(JobType),template.Arguments.Single(arg => arg.Name.ToPlainText() == "type").Value.ToPlainText().Replace(" ","")+"Job"), GetTimeZone(), template));
                 
             Console.WriteLine(templates.First().ToString());
 
@@ -123,6 +123,11 @@ namespace Wikibot.App.JobRetrievers
                 await site.LogoutAsync();
             }
             //File.WriteAllText(_pathToTextFile, wikiText.ToString());
+        }
+
+        private TimeZoneInfo GetTimeZone()
+        {
+            return TimeZoneInfo.FindSystemTimeZoneById(_config["RequestTimezoneID"]);
         }
     }
 }

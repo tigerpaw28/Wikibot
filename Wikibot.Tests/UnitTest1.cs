@@ -102,7 +102,7 @@ namespace Wikibot.Tests
             var connectionString = iConfig.GetConnectionString("JobDb");
             var dbContextOptions = new DbContextOptionsBuilder().UseSqlServer(connectionString).Options;
             var jobContext = new JobContext(dbContextOptions);
-            var retriever = new TextFileJobRetriever(jobContext, "D:\\Wikibot\\WikiJobTest.txt");
+            var retriever = new TextFileJobRetriever(jobContext, iConfig, "D:\\Wikibot\\WikiJobTest.txt");
             Assert.NotNull(retriever.GetNewJobDefinitions().Result);
         }
 
@@ -113,7 +113,7 @@ namespace Wikibot.Tests
             var connectionString = iConfig.GetConnectionString("JobDb");
             var dbContextOptions = new DbContextOptionsBuilder().UseSqlServer(connectionString).Options;
             var jobContext = new JobContext(dbContextOptions);
-            var retriever = new TextFileJobRetriever(jobContext, "D:\\Wikibot\\WikiJobTest.txt");
+            var retriever = new TextFileJobRetriever(jobContext, iConfig, "D:\\Wikibot\\WikiJobTest.txt");
             var job = new JobRetrievalJob(iConfig);
             job.Execute();
         }

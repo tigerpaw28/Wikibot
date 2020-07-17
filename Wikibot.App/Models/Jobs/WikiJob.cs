@@ -20,6 +20,10 @@ namespace Wikibot.App.Jobs
         public string RawRequest { get; set; }
         public string UserName { get; set; } //TODO: Make this a user object
         public DateTime SubmittedDate { get; set; }
+        public DateTime TimePreStarted { get; set; }
+        public DateTime TimePreFinished { get; set; }
+        public DateTime TimeStarted { get; set; }
+        public DateTime TimeFinished { get; set; }
         public string ProposedChanges { get; set; }
         public string Notes { get; set; }
 
