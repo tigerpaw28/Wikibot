@@ -1,9 +1,12 @@
 ﻿using LinqToWiki.Generated;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Wikibot.App.Models.Jobs;
 using WikiClientLibrary;
 using WikiClientLibrary.Client;
 using WikiClientLibrary.Sites;
@@ -13,6 +16,21 @@ namespace Wikibot.App.Jobs
     public class AbstractJob : WikiJob
     {
         public IConfiguration Configuration;
+
+        private DbContextOptions _dboptions;
+        public DbContextOptions DBOptions
+        {
+            get
+            {
+                if(_dboptions == null)
+                {
+                    var builder = new SqlConnectionStringBuilder(Configuration.GetConnectionString("JobDB"));
+                    builder.Password = Configuration.GetSection("JobDb")["DbPassword"];
+                    _dboptions = new DbContextOptionsBuilder().UseSqlServer(builder.ConnectionString).Options;
+                }
+                return _dboptions;
+            }
+        }
 
         public IConfigurationSection WikiConfig
         {
@@ -64,6 +82,8 @@ namespace Wikibot.App.Jobs
             }
         }
         private WikiSite _site;
+        private object builder;
+
         public WikiSite Site
         {
             get {
@@ -90,6 +110,43 @@ namespace Wikibot.App.Jobs
                     }
                 }
                 return _site;
+            }
+        }
+
+        public void SetJobStart()
+        {
+            if(Status == JobStatus.PreApproved)
+            {
+                TimePreStarted = DateTime.UtcNow;
+                
+            }
+            else
+            {
+                TimeStarted = DateTime.UtcNow;
+            }
+        }
+
+        public void SetJobEnd()
+        {
+            if (Status == JobStatus.PreApproved)
+            {
+                TimePreFinished = DateTime.UtcNow;
+                Status = JobStatus.PendingApproval;
+            }
+            else
+            {
+                TimeFinished = DateTime.UtcNow;
+                Status = JobStatus.Done;
+            }
+            
+        }
+
+        public void SaveJob()
+        {
+            using(JobContext context = new JobContext(DBOptions))
+            {
+                context.Jobs.Update(this);
+                context.SaveChanges();
             }
         }
     }

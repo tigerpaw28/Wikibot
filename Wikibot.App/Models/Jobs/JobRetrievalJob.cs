@@ -17,16 +17,12 @@ namespace Wikibot.App.Jobs
         private IWikiJobRetriever _jobRetriever;
         private IUserRetriever _userRetriever;
         private JobContext _context;
-        private DbContextOptions _options;
 
         public JobRetrievalJob(IConfiguration config)
         {
             Configuration = config;
             _jobRetriever = new TFWikiJobRetriever(Configuration, Site);
             _userRetriever = new TFWikiUserRetriever(Wiki);
-            var builder = new SqlConnectionStringBuilder(Configuration.GetConnectionString("JobDB"));
-            builder.Password = Configuration.GetSection("JobDb")["DbPassword"];
-            _options = new DbContextOptionsBuilder().UseSqlServer(builder.ConnectionString).Options;
         }
 
         public override void Execute() {
@@ -35,7 +31,7 @@ namespace Wikibot.App.Jobs
             var jobApprovalLogic = new JobApprovalLogic(_userRetriever);
             int offset = 1;
             int runin = 5;
-            using (JobContext _context = new JobContext(_options))
+            using (JobContext _context = new JobContext(DBOptions))
             {
                 foreach (WikiJob jorb in jobs)
                 {
