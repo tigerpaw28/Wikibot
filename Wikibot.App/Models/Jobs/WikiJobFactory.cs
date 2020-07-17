@@ -2,6 +2,7 @@
 using MwParserFromScratch.Nodes;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Wikibot.App.JobRetrievers;
@@ -15,8 +16,11 @@ namespace Wikibot.App.Jobs
         public WikiJobFactory()
         {
         }
-        public WikiJob GetWikiJob(JobType type, Template template = null)
+        public WikiJob GetWikiJob(JobType type, TimeZoneInfo timezone, Template template = null)
         {
+
+            var timeZoneString = GetTimeZoneString(timezone);
+
             WikiJob job;
             switch(type)
             {
@@ -43,16 +47,29 @@ namespace Wikibot.App.Jobs
                 }
                 job.UserName = template.Arguments.Single(arg => arg.Name.ToPlainText() == "username").Value.ToPlainText();
                 job.Comment = template.Arguments.Single(arg => arg.Name.ToPlainText() == "comment").Value.ToPlainText();
+
+                //WikiMedia timestamp example: 14:58, 30 June 2020-04:00:00
+                job.SubmittedDate = DateTime.ParseExact(template.Arguments.Single(arg => arg.Name.ToPlainText() == "timestamp").Value.ToPlainText().Substring(0, 19) + timeZoneString, "HH:mm, dd MMMM yyyyKKKK", new CultureInfo("en-US")).ToUniversalTime();
             }
             else
-            {
+            { 
                 job.Status = JobStatus.ToBeProcessed;
                 job.UserName = "Wikibot";
                 job.Comment = "Internally scheduled job";
+                job.SubmittedDate = DateTime.UtcNow;
             }
 
             job.RawRequest = template.ToString();
             return job;
+
+        }
+
+        private string GetTimeZoneString(TimeZoneInfo timezone)
+        {
+            var offset = timezone.GetUtcOffset(DateTime.Now);
+            var prefix = offset < TimeSpan.Zero ? "\\-" : "";
+            var timeZoneFormat = prefix + "hh\\:mm";
+            return offset.ToString(timeZoneFormat);
 
         }
     }

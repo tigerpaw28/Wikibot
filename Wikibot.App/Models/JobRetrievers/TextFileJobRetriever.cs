@@ -20,6 +20,7 @@ namespace Wikibot.App.JobRetrievers
         private List<WikiJob> _jobDefinitions;
         private JobContext _context;
         private string _pathToTextFile;
+        private IConfiguration _config;
 
         public List<WikiJob> JobDefinitions 
         {
@@ -30,10 +31,11 @@ namespace Wikibot.App.JobRetrievers
             }
         }
         
-        public TextFileJobRetriever(JobContext context, string pathToTextFile)
+        public TextFileJobRetriever(JobContext context, IConfiguration configuration, string pathToTextFile)
         {
             _context = context;
             _pathToTextFile = pathToTextFile;
+            _config = configuration;
         }
 
         public async Task<List<WikiJob>> GetNewJobDefinitions()
@@ -41,7 +43,7 @@ namespace Wikibot.App.JobRetrievers
             var ast = await parseFile();
             var templates = ast.Lines.SelectMany(x=> x.EnumDescendants().OfType<Template>());
             var jobFactory = new WikiJobFactory();
-            var jobs = templates.Select(template => jobFactory.GetWikiJob(JobType.TextReplacementJob, template));
+            var jobs = templates.Select(template => jobFactory.GetWikiJob(JobType.TextReplacementJob, GetTimeZone(), template));
             return jobs.ToList();
         }
 
@@ -62,6 +64,11 @@ namespace Wikibot.App.JobRetrievers
             string contents = await File.ReadAllTextAsync(_pathToTextFile);
             var parser = new WikitextParser();
            return parser.Parse(contents);
+        }
+
+        private TimeZoneInfo GetTimeZone()
+        {
+            return TimeZoneInfo.FindSystemTimeZoneById(_config["RequestTimezoneID"]);
         }
 
     }

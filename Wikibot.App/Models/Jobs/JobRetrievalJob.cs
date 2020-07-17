@@ -44,14 +44,14 @@ namespace Wikibot.App.Jobs
 
                     if (jobApprovalLogic.IsUserAutoApproved(user))
                     {
-                        jorb.Status = JobStatus.Approved;
+                        jorb.Status = JobStatus.PreApproved;
                     }
                     else
-                        jorb.Status = JobStatus.PendingApproval;
+                        jorb.Status = JobStatus.PendingPreApproval;
 
 
                     //Save Job
-                    _context.Jobs.Add((WikiJob)jorb);
+                    _context.Jobs.Add(jorb);
                     _context.SaveChanges();
 
                     //Set JobID
