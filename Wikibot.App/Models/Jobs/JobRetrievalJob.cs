@@ -54,7 +54,7 @@ namespace Wikibot.App.Jobs
                     jorb.ID = _context.Jobs.AsEnumerable().Last().ID;
 
 
-                    if (jorb.Status == JobStatus.Approved)
+                    if (jorb.Status == JobStatus.Approved || jorb.Status == JobStatus.PreApproved)
                     {
                         //Schedule job 
                         //Scheduling logic goes here
