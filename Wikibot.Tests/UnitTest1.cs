@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Wikibot.App.JobRetrievers;
 using Wikibot.App.Jobs;
 using Wikibot.App.Models.Jobs;
+using Wikibot.App.Extensions;
 using Microsoft.EntityFrameworkCore;
 using System.Configuration;
 using Microsoft.Extensions.Configuration;
@@ -14,6 +15,10 @@ using Wikibot.App.Models.UserRetrievers;
 using WikiClientLibrary.Sites;
 using WikiClientLibrary;
 using WikiClientLibrary.Client;
+using System.Collections.Generic;
+using System.Threading;
+using MwParserFromScratch.Nodes;
+using MwParserFromScratch;
 
 namespace Wikibot.Tests
 {
@@ -158,6 +163,39 @@ namespace Wikibot.Tests
             var users = userRetriever.GetAutoApprovedUsers();
             Assert.NotNull(users);
             Assert.NotEmpty(users);
+        }
+
+        [Fact]
+        public void TestSearchResults()
+        {
+            var iConfig = GetIConfigurationRoot("D:\\Wikibot\\Wikibot\\Wikibot.Tests\\");
+            var wiki = GetWiki(iConfig);
+            var results = from s in wiki.Query.search("Deceptitran")
+            select new { s.title, snippet = s.snippet };
+            var count1 = results.ToList().Count;
+            var resultlist = results.ToList();
+
+            var wikiSite = GetWikiSite(iConfig);
+            var results2 = wikiSite.OpenSearchAsync("Optimus Prime").Result;
+            var count2 = results2.Count;
+
+            var result3 = wikiSite.Search("{{Deceptitran", 10, BuiltInNamespaces.Main, WikiSiteExtension.SearchOptions.text, CancellationToken.None).Result;
+
+            Assert.Equal(count1, count2);
+        }
+
+        [Fact]
+        public void ExecuteTextReplacementJob()
+        {
+            var iConfig = GetIConfigurationRoot("D:\\Wikibot\\Wikibot\\Wikibot.Tests\\");
+            var factory = new WikiJobFactory();
+            var parser = new WikitextParser();
+            var ast = parser.Parse("{{User:Tigerpaw28/Sandbox/Template:WikiBotRequest|type=Text Replacement|username=Tigerpaw28|timestamp=14:58, 30 June 2020 (EDT)|before=Deceptitran|after=not a Robot|comment=Test job|status=PendingPreApproval}}");
+            var templates = ast.Lines.First<LineNode>().EnumDescendants().OfType<Template>();
+            TextReplacementJob job = (TextReplacementJob)factory.GetWikiJob(JobType.TextReplacementJob, TimeZoneInfo.Local, templates.First());
+            job.Configuration = iConfig;
+            
+            job.Execute();
         }
     }
 }
