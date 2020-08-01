@@ -22,6 +22,8 @@ using WikiClientLibrary.Client;
 using WikiClientLibrary.Sites;
 using WikiClientLibrary;
 using Wikibot.App.JobRetrievers;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Wikibot.App.Services;
 
 namespace Wikibot.App
 {
@@ -44,19 +46,28 @@ namespace Wikibot.App
             Configuration.GetConnectionString("JobDB"));
             builder.Password = Configuration.GetSection("JobDb")["DbPassword"];
 
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(
+                            builder.ConnectionString
+                )
+            ) ;
+
             services.AddDbContext<JobContext>(options =>
                 options.UseSqlServer(
                     builder.ConnectionString));
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<JobContext>();
+                .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews();
             services.AddRazorPages();
 
-            
+            services.AddTransient<IEmailSender, EmailSender>();
+            services.Configure<AuthMessageSenderOptions>(Configuration);
+            //services.AddAuthentication().
+
             //var userRetriever = new TFWikiUserRetriever(wiki);
             //services.AddSingleton<IUserRetriever>(userRetriever);
 
-           
+
 
             //services.AddSingleton(client);
             //services.AddSingleton(site);
