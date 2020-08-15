@@ -2,12 +2,14 @@ using FluentScheduler;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using Wikibot.App.JobRetrievers;
 using Wikibot.App.Logic;
 using Wikibot.App.Models.Jobs;
 using Wikibot.App.Models.UserRetrievers;
+using Serilog;
 
 namespace Wikibot.App.Jobs
 {
@@ -16,21 +18,25 @@ namespace Wikibot.App.Jobs
 
         private IWikiJobRetriever _jobRetriever;
         private IUserRetriever _userRetriever;
-        private JobContext _context;
 
-        public JobRetrievalJob(IConfiguration config)
+        public JobRetrievalJob(IConfiguration config, Serilog.ILogger log)
         {
             Configuration = config;
-            _jobRetriever = new TFWikiJobRetriever(Configuration, Site);
-            _userRetriever = new TFWikiUserRetriever(Wiki);
+            Log = log;
+            _jobRetriever = new TFWikiJobRetriever(Configuration, Log, Site);
+            _userRetriever = new TFWikiUserRetriever(Wiki);          
         }
 
         public override void Execute() {
-            Console.WriteLine("Job starting");
-            var jobs = _jobRetriever.JobDefinitions;
+            Log.Information("Job retrieval job starting");
+
             var jobApprovalLogic = new JobApprovalLogic(_userRetriever);
             int offset = 1;
             int runin = 5;
+
+            //Get job definitions
+            var jobs = _jobRetriever.JobDefinitions;
+
             using (JobContext _context = new JobContext(DBOptions))
             {
                 foreach (WikiJob jorb in jobs)
@@ -56,8 +62,6 @@ namespace Wikibot.App.Jobs
 
                     if (jorb.Status == JobStatus.Approved || jorb.Status == JobStatus.PreApproved)
                     {
-                        //Schedule job 
-                        //Scheduling logic goes here
                         //Schedule jobs in 5 minute intervals
                         //How to deal with potential page edit overlaps? -> Check page lists and id overlaps;
                         if (offset == 5)
@@ -70,6 +74,8 @@ namespace Wikibot.App.Jobs
                     }
                 }  
             }
+
+            //Update job status on the wiki page the job was retreived from
             _jobRetriever.MarkJobStatuses(jobs);
 
         }

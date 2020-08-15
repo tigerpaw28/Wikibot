@@ -16,7 +16,7 @@ namespace Wikibot.App.Jobs
         public WikiJobFactory()
         {
         }
-        public WikiJob GetWikiJob(JobType type, TimeZoneInfo timezone, Template template = null)
+        public WikiJob GetWikiJob(JobType type, TimeZoneInfo timezone, Serilog.ILogger log, Template template = null)
         {
 
             var timeZoneString = GetTimeZoneString(timezone);
@@ -25,7 +25,7 @@ namespace Wikibot.App.Jobs
             switch(type)
             {
                 case JobType.TextReplacementJob:
-                    job = new TextReplacementJob();
+                    job = new TextReplacementJob(log);
                     ((TextReplacementJob)job).FromText = template.Arguments.Single(arg => arg.Name.ToPlainText() == "before").Value.ToPlainText();
                     ((TextReplacementJob)job).ToText = template.Arguments.Single(arg => arg.Name.ToPlainText() == "after").Value.ToPlainText();
                     ((TextReplacementJob)job).PageNames = template.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText() == "pages")?.Value.ToPlainText().Split(';').Select(val=> new Page { Name = val, ID = 0 }).ToList(); 

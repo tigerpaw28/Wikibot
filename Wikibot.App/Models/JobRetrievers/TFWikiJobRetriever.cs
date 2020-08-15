@@ -16,6 +16,7 @@ using Wikibot.App.Models.Jobs;
 using System.Security.Cryptography.X509Certificates;
 using Wikibot.App.Extensions;
 using Microsoft.Extensions.Configuration;
+using Serilog;
 
 namespace Wikibot.App.JobRetrievers
 {
@@ -24,6 +25,7 @@ namespace Wikibot.App.JobRetrievers
         private List<WikiJob> _jobDefinitions;
         private IConfiguration _config;
         private WikiSite _site;
+        private ILogger _log;
         public List<WikiJob> JobDefinitions
         {
             get
@@ -34,10 +36,11 @@ namespace Wikibot.App.JobRetrievers
             }
         }
 
-        public TFWikiJobRetriever(IConfiguration configuration, WikiSite site)
+        public TFWikiJobRetriever(IConfiguration configuration, Serilog.ILogger log, WikiSite site)
         {
             _config = configuration;
             _site = site;
+            _log = log;
         }
 
         public async Task<List<WikiJob>> GetNewJobDefinitions()
@@ -46,7 +49,8 @@ namespace Wikibot.App.JobRetrievers
 
             var page = new WikiPage(_site, "User:Tigerpaw28/Sandbox/WikibotRequests");
 
-            // Fetch basic information and content of 1 page from server
+            _log.Information("Fetching content from job request page.");
+            // Fetch content from the job request page so we can build jobs from it
             await page.RefreshAsync(PageQueryOptions.FetchContent
                                     | PageQueryOptions.ResolveRedirects );
 
@@ -57,10 +61,10 @@ namespace Wikibot.App.JobRetrievers
             //var content = fullRev.Content;
             var ast = parser.Parse(page.Content);
             var templates = ast.Lines.First<LineNode>().EnumDescendants().OfType<Template>();
+
+            _log.Information("Building jobs.");
             var jobFactory = new WikiJobFactory();
-            jobs = templates.Select(template => jobFactory.GetWikiJob((JobType)Enum.Parse(typeof(JobType),template.Arguments.Single(arg => arg.Name.ToPlainText() == "type").Value.ToPlainText().Replace(" ","")+"Job"), GetTimeZone(), template));
-                
-            Console.WriteLine(templates.First().ToString());
+            jobs = templates.Select(template => jobFactory.GetWikiJob((JobType)Enum.Parse(typeof(JobType),template.Arguments.Single(arg => arg.Name.ToPlainText() == "type").Value.ToPlainText().Replace(" ","")+"Job"), GetTimeZone(), _log, template));
 
             return jobs.ToList();
         }
@@ -79,20 +83,24 @@ namespace Wikibot.App.JobRetrievers
                 var username = wikiLoginConfig["Username"];
                 var password = wikiLoginConfig["Password"];
 
-                // Wait for initialization to complete.
-                // Throws error if any.
-                await site.Initialization;
+
                 try
                 {
+                    // Wait for initialization to complete.
+                    // Throws error if any.
+                    await site.Initialization;
+                    
                     await site.LoginAsync(username, password);
                 }
-                catch (WikiClientException ex)
+                catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    _log.Error(ex, "Error occurred while initializing or logging into WikiSite");
                     // Add your exception handler for failed login attempt.
                 }
                 var page = new WikiPage(site, "User:Tigerpaw28/Sandbox/WikibotRequests");
-                // Fetch basic information and content of 1 page from server
+
+                _log.Information("Fetching content from job request page.");
+                // Fetch content of job request page so we can update it
                 await page.RefreshAsync(PageQueryOptions.FetchContent
                                         | PageQueryOptions.ResolveRedirects);
 
@@ -101,28 +109,31 @@ namespace Wikibot.App.JobRetrievers
 
                 foreach (WikiJob job in jobs)
                 {
+                    //Find corresponding template in the page content
                     var templates = wikiText.Lines.SelectMany(x => x.EnumDescendants().OfType<Template>());
                     var singletemplate = templates.First(x => x.Name.ToPlainText().Equals("User:Tigerpaw28/Sandbox/Template:WikiBotRequest") && x.EqualsJob(job));
-                    if (singletemplate.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText().Equals("status")) == null)
+
+                    if (singletemplate.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText().Equals("status")) == null) //Status argument doesn't exist in the template
                     {
                         var templateArgument = new TemplateArgument();
                         templateArgument.Name = parser.Parse("status");
                         templateArgument.Value = parser.Parse(job.Status.ToString());
                         singletemplate.Arguments.Add(templateArgument);
                     }
-                    else
+                    else //Status argument exists
                     {
                         singletemplate.Arguments.Single(arg => arg.Name.ToPlainText().Equals("status")).Value = new WikitextParser().Parse(job.Status.ToString());
                     }
 
 
                 }
+                //Update the content of the page object and push it live
                 page.Content = wikiText.ToString();
                 await page.UpdateContentAsync("Test page update");
+
                 // We're done here
                 await site.LogoutAsync();
             }
-            //File.WriteAllText(_pathToTextFile, wikiText.ToString());
         }
 
         private TimeZoneInfo GetTimeZone()

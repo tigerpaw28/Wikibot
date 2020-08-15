@@ -21,6 +21,7 @@ namespace Wikibot.App.JobRetrievers
         private JobContext _context;
         private string _pathToTextFile;
         private IConfiguration _config;
+        private Serilog.ILogger log;
 
         public List<WikiJob> JobDefinitions 
         {
@@ -43,7 +44,7 @@ namespace Wikibot.App.JobRetrievers
             var ast = await parseFile();
             var templates = ast.Lines.SelectMany(x=> x.EnumDescendants().OfType<Template>());
             var jobFactory = new WikiJobFactory();
-            var jobs = templates.Select(template => jobFactory.GetWikiJob(JobType.TextReplacementJob, GetTimeZone(), template));
+            var jobs = templates.Select(template => jobFactory.GetWikiJob(JobType.TextReplacementJob, GetTimeZone(), log, template));
             return jobs.ToList();
         }
 

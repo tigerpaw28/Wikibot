@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Threading;
 using MwParserFromScratch.Nodes;
 using MwParserFromScratch;
+using Serilog;
 
 namespace Wikibot.Tests
 {
@@ -80,6 +81,13 @@ namespace Wikibot.Tests
             }
             return site;
         }
+
+        public Serilog.ILogger GetLogger(IConfiguration config)
+        {
+            return new LoggerConfiguration()
+                .ReadFrom.Configuration(config)
+                .CreateLogger();
+        }
     
         public static IUserRetriever GetUserRetriever(IConfiguration config)
         {
@@ -119,7 +127,8 @@ namespace Wikibot.Tests
             var dbContextOptions = new DbContextOptionsBuilder().UseSqlServer(connectionString).Options;
             var jobContext = new JobContext(dbContextOptions);
             var retriever = new TextFileJobRetriever(jobContext, iConfig, "D:\\Wikibot\\WikiJobTest.txt");
-            var job = new JobRetrievalJob(iConfig);
+            var logger = GetLogger(iConfig);
+            var job = new JobRetrievalJob(iConfig, logger);
             job.Execute();
         }
 
@@ -130,7 +139,8 @@ namespace Wikibot.Tests
             var connectionString = iConfig.GetConnectionString("JobDb");
             var dbContextOptions = new DbContextOptionsBuilder().UseSqlServer(connectionString).Options;
             var jobContext = new JobContext(dbContextOptions);
-            var retriever = new TFWikiJobRetriever(iConfig, GetWikiSite(iConfig));
+            var logger = GetLogger(iConfig);
+            var retriever = new TFWikiJobRetriever(iConfig, logger, GetWikiSite(iConfig));
             retriever.GetNewJobDefinitions().Wait();
         }
 
@@ -141,8 +151,9 @@ namespace Wikibot.Tests
             var connectionString = iConfig.GetConnectionString("JobDb");
             var dbContextOptions = new DbContextOptionsBuilder().UseSqlServer(connectionString).Options;
             var jobContext = new JobContext(dbContextOptions);
-            var retriever = new TFWikiJobRetriever(iConfig, GetWikiSite(iConfig));
-            var job = new JobRetrievalJob(iConfig);
+            var logger = GetLogger(iConfig);
+            var retriever = new TFWikiJobRetriever(iConfig, logger, GetWikiSite(iConfig));
+            var job = new JobRetrievalJob(iConfig, logger);
             job.Execute();
         }
 
@@ -192,7 +203,8 @@ namespace Wikibot.Tests
             var parser = new WikitextParser();
             var ast = parser.Parse("{{User:Tigerpaw28/Sandbox/Template:WikiBotRequest|type=Text Replacement|username=Tigerpaw28|timestamp=14:58, 30 June 2020 (EDT)|before=Deceptitran|after=not a Robot|comment=Test job|status=PendingPreApproval}}");
             var templates = ast.Lines.First<LineNode>().EnumDescendants().OfType<Template>();
-            TextReplacementJob job = (TextReplacementJob)factory.GetWikiJob(JobType.TextReplacementJob, TimeZoneInfo.Local, templates.First());
+            var log = GetLogger(iConfig);
+            TextReplacementJob job = (TextReplacementJob)factory.GetWikiJob(JobType.TextReplacementJob, TimeZoneInfo.Local, log, templates.First());
             job.Configuration = iConfig;
             
             job.Execute();

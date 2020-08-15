@@ -2,8 +2,11 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Serilog;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using Wikibot.App.Models.Jobs;
@@ -16,6 +19,9 @@ namespace Wikibot.App.Jobs
     public class AbstractJob : WikiJob
     {
         public IConfiguration Configuration;
+
+        [NotMapped]
+        public Serilog.ILogger Log { get; set; }
 
         private DbContextOptions _dboptions;
         public DbContextOptions DBOptions
@@ -58,7 +64,10 @@ namespace Wikibot.App.Jobs
                     if (result.result == loginresult.Success)
                         return _wiki;
                     else
+                    {
+                        Log.Error("Login for Wiki failed with result {result}", result.result.ToString());
                         throw new Exception(result.result.ToString());
+                    }
                 }
                 else
                     return _wiki;
@@ -81,9 +90,8 @@ namespace Wikibot.App.Jobs
                 return _client;
             }
         }
-        private WikiSite _site;
-        private object builder;
 
+        private WikiSite _site;
         public WikiSite Site
         {
             get {
@@ -95,16 +103,17 @@ namespace Wikibot.App.Jobs
                     // You can create multiple WikiSite instances on the same WikiClient to share the state.
                     _site = new WikiSite(Client, url);
 
-                    // Wait for initialization to complete.
-                    // Throws error if any.
-                    _site.Initialization.Wait();
                     try
                     {
+                        // Wait for initialization to complete.
+                        // Throws error if any.
+                        _site.Initialization.Wait();
+                        
                         _site.LoginAsync(username, password).Wait();
                     }
                     catch (WikiClientException ex)
                     {
-                        Console.WriteLine(ex.Message);
+                        Log.Error(ex, "Error occurred while initializing or logging into WikiSite");
                         // Add your exception handler for failed login attempt.
                         throw;
                     }
@@ -115,14 +124,15 @@ namespace Wikibot.App.Jobs
 
         public void SetJobStart()
         {
-            if(Status == JobStatus.PreApproved)
+            if (Status == JobStatus.PreApproved)
             {
                 TimePreStarted = DateTime.UtcNow;
-                
+                Log.Information("Job started at {DateTime}", TimePreStarted);
             }
             else
             {
                 TimeStarted = DateTime.UtcNow;
+                Log.Information("Job started at {DateTime}", TimeStarted);
             }
         }
 
@@ -132,22 +142,31 @@ namespace Wikibot.App.Jobs
             {
                 TimePreFinished = DateTime.UtcNow;
                 Status = JobStatus.PendingApproval;
+                Log.Information("Job ended at {DateTime}", TimePreFinished);
             }
-            else
+            else if(Status == JobStatus.Approved)
             {
                 TimeFinished = DateTime.UtcNow;
                 Status = JobStatus.Done;
+                Log.Information("Job ended at {DateTime}", TimeFinished);
             }
-            
+
         }
 
         public void SaveJob()
         {
-            using(JobContext context = new JobContext(DBOptions))
+            Log.Information("Saving job.");
+            using (JobContext context = new JobContext(DBOptions))
             {
                 context.Jobs.Update(this);
                 context.SaveChanges();
             }
+        }
+
+        public void CleanUp()
+        {
+            Log.Information("Cleaning up.");
+            _client.Dispose();
         }
     }
 }

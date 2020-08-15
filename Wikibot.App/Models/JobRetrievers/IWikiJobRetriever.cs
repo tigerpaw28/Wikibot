@@ -11,7 +11,6 @@ namespace Wikibot.App.JobRetrievers
     {
         public List<WikiJob> JobDefinitions { get; }
         public Task<List<WikiJob>> GetNewJobDefinitions();
-
         public void MarkJobStatuses(List<WikiJob> jobs);
 
     }
