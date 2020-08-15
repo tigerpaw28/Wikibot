@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
 using Wikibot.App.JobRetrievers;
 using Wikibot.App.Jobs;
 using Wikibot.App.Models.Jobs;
@@ -21,25 +22,55 @@ namespace Wikibot.App
     {
         public static void Main(string[] args)
         {
-           var host = CreateHostBuilder(args).Build();
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
 
-            //JobManager.AddJob(() => Console.WriteLine("Late job!"), (s) => s.ToRunEvery(5).Seconds());
-            using (var serviceScope = host.Services.CreateScope())
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .CreateLogger();
+
+            try
             {
-                var services = serviceScope.ServiceProvider;
-                var config = host.Services.GetRequiredService<IConfiguration>();
+                var host = CreateHostBuilder(args).Build();
 
-                JobManager.AddJob(() => new JobRetrievalJob(config).Execute(), (s) => s.ToRunEvery(15).Minutes());
+                using (var serviceScope = host.Services.CreateScope())
+                {
+                    var services = serviceScope.ServiceProvider;
+                    var config = host.Services.GetRequiredService<IConfiguration>();
+
+                    Log.Information("Starting background job retrieval job");
+                    JobManager.AddJob(() => new JobRetrievalJob(config, Log.Logger).Execute(), (s) => s.ToRunEvery(15).Minutes());
+                }
+                
+                Log.Information("Application Start");
+                host.Run();
             }
-            host.Run();
+            catch(Exception ex)
+            {
+                Log.Fatal(ex, "Wikibot failed to start correctly.");
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            return Host.CreateDefaultBuilder(args)
+                .UseSerilog()
+            //.ConfigureLogging((context, logging) => {
+            //    logging.ClearProviders();
+            //    logging.AddConfiguration(context.Configuration.GetSection("Logging"));
+            //    logging.AddDebug();
+            //    logging.AddConsole();
+            //})
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                webBuilder.UseStartup<Startup>();
 
                 });
+        }
     }
 }

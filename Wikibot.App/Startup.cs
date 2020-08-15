@@ -24,6 +24,7 @@ using WikiClientLibrary;
 using Wikibot.App.JobRetrievers;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Wikibot.App.Services;
+using Serilog;
 
 namespace Wikibot.App
 {
@@ -46,31 +47,25 @@ namespace Wikibot.App
             Configuration.GetConnectionString("JobDB"));
             builder.Password = Configuration.GetSection("JobDb")["DbPassword"];
 
+            //TODO: Add seperate connection string for this context
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                             builder.ConnectionString
                 )
             ) ;
+            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddDbContext<JobContext>(options =>
                 options.UseSqlServer(
                     builder.ConnectionString));
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+
             services.AddControllersWithViews();
             services.AddRazorPages();
 
             services.AddTransient<IEmailSender, EmailSender>();
             services.Configure<AuthMessageSenderOptions>(Configuration);
-            //services.AddAuthentication().
 
-            //var userRetriever = new TFWikiUserRetriever(wiki);
-            //services.AddSingleton<IUserRetriever>(userRetriever);
-
-
-
-            //services.AddSingleton(client);
-            //services.AddSingleton(site);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -89,6 +84,8 @@ namespace Wikibot.App
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            app.UseSerilogRequestLogging();
 
             app.UseRouting();
 

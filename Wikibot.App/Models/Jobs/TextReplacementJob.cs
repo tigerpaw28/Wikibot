@@ -9,6 +9,7 @@ using WikiClientLibrary.Pages;
 using MwParserFromScratch;
 using WikiFunctions;
 using System.IO;
+using Microsoft.Extensions.Configuration;
 
 namespace Wikibot.App.Jobs
 {
@@ -19,13 +20,23 @@ namespace Wikibot.App.Jobs
         public string ToText { get; set; }
         public List<Page> PageNames { get; set; }
 
+        public TextReplacementJob()
+        { }
+
+        public TextReplacementJob(Serilog.ILogger log)
+        {
+            Log = log;
+        }
+
         public override void Execute()
         {
             SetJobStart();
+
             try
             {
                 if (PageNames == null || PageNames.Count == 0)
                 {
+                    Log.Information("Searching for relevant pages for job {JobID}", ID);
                     //Search for relevant pages
                     PageNames = Site.Search(FromText, 0).Result.Select(x=> new Page { ID = 0, Name = x.Title }).ToList(); //Search Main namespace by default
                 }
@@ -38,6 +49,7 @@ namespace Wikibot.App.Jobs
 
                 foreach(WikiPage page in PageList)
                 {
+                    Log.Information("Processing page {PageName}", page.Title);
                     filename = "Diff-" + page.Title + "-" + this.ID + "-" + counter + ".txt"; //Set filename for this page
                     page.RefreshAsync(PageQueryOptions.FetchContent | PageQueryOptions.ResolveRedirects).Wait(); //Load page content
                         
@@ -46,13 +58,14 @@ namespace Wikibot.App.Jobs
                     
                     if (Status != JobStatus.Approved) //Create diffs for approval
                     {
-
+                        Log.Information("Generating diff for page {PageName}", page.Title);
                         fileContent = new WikiDiff().GetDiff(beforeContent, afterContent, 1);
                         var filePath = Path.Combine(Configuration["DiffDirectory"], filename);
                         File.WriteAllText(filePath, fileContent);
                     }
                     else //Apply changes
                     {
+                        Log.Information("Applying replacement for page {PageName}", page.Title);
                         var parser = new WikitextParser();
                         var wikiText = parser.Parse(afterContent);
                         page.Content = wikiText.ToString();
@@ -63,12 +76,12 @@ namespace Wikibot.App.Jobs
             }
             catch(Exception ex)
             {
-                //Set status to Error
-                //Add logging here
+                Status = JobStatus.Failed;
+                Log.Error(ex, $"TextReplacementJob {this.ID} failed.");
             }
             finally
             {
-                //CleanUp();
+                CleanUp();
                 SetJobEnd();
                 SaveJob();
             }

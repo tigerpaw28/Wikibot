@@ -16,6 +16,7 @@ namespace Wikibot.App.Jobs
         Approved,
         Rejected,
         ScheduledForPosting,
-        Done
+        Done,
+        Failed
     }
 }
