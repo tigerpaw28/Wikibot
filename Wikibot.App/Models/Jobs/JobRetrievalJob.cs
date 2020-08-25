@@ -7,9 +7,10 @@ using System;
 using System.Linq;
 using Wikibot.App.JobRetrievers;
 using Wikibot.App.Logic;
-using Wikibot.App.Models.Jobs;
 using Wikibot.App.Models.UserRetrievers;
 using Serilog;
+using LinqToWiki.Generated;
+using Wikibot.App.Data;
 
 namespace Wikibot.App.Jobs
 {
@@ -23,8 +24,11 @@ namespace Wikibot.App.Jobs
         {
             Configuration = config;
             Log = log;
-            _jobRetriever = new TFWikiJobRetriever(Configuration, Log, Site);
-            _userRetriever = new TFWikiUserRetriever(Wiki);          
+            _jobRetriever = new TFWikiJobRetriever(Configuration, Log);
+            var wikiConfig = Configuration.GetSection("WikiLogin");
+
+            var wiki = WikiAccessLogic.GetLoggedInWiki(wikiConfig);
+            _userRetriever = new TFWikiUserRetriever(wiki);          
         }
 
         public override void Execute() {
@@ -42,21 +46,13 @@ namespace Wikibot.App.Jobs
                 foreach (WikiJob jorb in jobs)
                 {
                     //Check For Automatic Approval
-                    var user = _userRetriever.GetUser(jorb.UserName);
-
-                    if (jobApprovalLogic.IsUserAutoApproved(user))
-                    {
-                        jorb.Status = JobStatus.PreApproved;
-                    }
-                    else
-                        jorb.Status = JobStatus.PendingPreApproval;
-
+                    CheckForUserApproval(jorb, jobApprovalLogic);
 
                     //Save Job
                     _context.Jobs.Add(jorb);
                     _context.SaveChanges();
 
-                    //Set JobID
+                    //Set JobID so we have it available when the job runs
                     jorb.ID = _context.Jobs.AsEnumerable().Last().ID;
 
 
@@ -78,6 +74,20 @@ namespace Wikibot.App.Jobs
             //Update job status on the wiki page the job was retreived from
             _jobRetriever.MarkJobStatuses(jobs);
 
+        }
+
+        private void CheckForUserApproval(WikiJob jorb, JobApprovalLogic jobApprovalLogic)
+        {
+            var user = _userRetriever.GetUser(jorb.UserName);
+
+            if (jobApprovalLogic.IsUserAutoApproved(user))
+            {
+                jorb.Status = JobStatus.PreApproved;
+            }
+            else
+            {
+                jorb.Status = JobStatus.PendingPreApproval;
+            }
         }
     }
 }

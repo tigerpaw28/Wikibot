@@ -10,8 +10,8 @@ using Wikibot.App.Data;
 namespace Wikibot.App.Migrations
 {
     [DbContext(typeof(JobContext))]
-    [Migration("20200716201728_Wikibot.App.Models.Jobs.JobContext3")]
-    partial class WikibotAppModelsJobsJobContext3
+    [Migration("20200816044602_Wikibot.App.Data.JobContext2")]
+    partial class WikibotAppDataJobContext2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

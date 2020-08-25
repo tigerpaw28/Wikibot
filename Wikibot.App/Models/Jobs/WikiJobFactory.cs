@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Wikibot.App.JobRetrievers;
 using Wikibot.App.Jobs;
-using Wikibot.App.Models.Jobs;
+using Wikibot.App.Data;
 
 namespace Wikibot.App.Jobs
 {

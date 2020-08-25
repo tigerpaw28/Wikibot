@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Wikibot.App.Jobs;
 
-namespace Wikibot.App.Models.Jobs
+namespace Wikibot.App.Data
 {
     public class JobContext : DbContext
     {

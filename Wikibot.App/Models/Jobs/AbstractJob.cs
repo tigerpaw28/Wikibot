@@ -6,22 +6,37 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
-using Wikibot.App.Models.Jobs;
+using Wikibot.App.Data;
 using WikiClientLibrary;
 using WikiClientLibrary.Client;
 using WikiClientLibrary.Sites;
 
 namespace Wikibot.App.Jobs
 {
-    public class AbstractJob : WikiJob
+    public class AbstractJob
     {
-        public IConfiguration Configuration;
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long ID { get; set; }
+        public string Comment { get; set; }
+        public JobStatus Status { get; set; }
+        public string UserName { get; set; } //TODO: Make this a user object
+        public DateTime SubmittedDate { get; set; }
+        public DateTime TimeStarted { get; set; }
+        public DateTime TimeFinished { get; set; }
+        public DateTime TimePreStarted { get; set; }
+        public DateTime TimePreFinished { get; set; }
+        
+        [NotMapped]
+        public IConfiguration Configuration { get; set; }
 
         [NotMapped]
         public Serilog.ILogger Log { get; set; }
+        public virtual void Execute() { }
 
         private DbContextOptions _dboptions;
         public DbContextOptions DBOptions
@@ -35,90 +50,6 @@ namespace Wikibot.App.Jobs
                     _dboptions = new DbContextOptionsBuilder().UseSqlServer(builder.ConnectionString).Options;
                 }
                 return _dboptions;
-            }
-        }
-
-        public IConfigurationSection WikiConfig
-        {
-            get
-            {
-                return Configuration.GetSection("WikiLogin");
-            }
-        }
-        private Wiki _wiki;
-        public Wiki Wiki
-        {
-            get
-            {
-                if (_wiki == null)
-                {
-                    var wikiLoginConfig = Configuration.GetSection("WikiLogin");
-                    var username = WikiConfig["Username"];
-                    var password = WikiConfig["Password"];
-                    _wiki = new Wiki("WikiBot", "https://tfwiki.net", "/mediawiki/api.php");
-                    var result = _wiki.login(username, password);
-
-                    if (result.result == loginresult.NeedToken)
-                        result = _wiki.login(username, password, token: result.token);
-
-                    if (result.result == loginresult.Success)
-                        return _wiki;
-                    else
-                    {
-                        Log.Error("Login for Wiki failed with result {result}", result.result.ToString());
-                        throw new Exception(result.result.ToString());
-                    }
-                }
-                else
-                    return _wiki;
-            }
-        }
-
-        private WikiClient _client;
-        public WikiClient Client
-        {
-            get
-            {
-                if (_client == null)
-                {
-                    var client = new WikiClient
-                    {
-                        ClientUserAgent = "WCLQuickStart/1.0 (your user name or contact information here)"
-                    };
-                    _client = client;
-                }
-                return _client;
-            }
-        }
-
-        private WikiSite _site;
-        public WikiSite Site
-        {
-            get {
-                if (_site == null)
-                {
-                    var username = WikiConfig["Username"];
-                    var password = WikiConfig["Password"];
-                    var url = WikiConfig["APIUrl"];
-                    // You can create multiple WikiSite instances on the same WikiClient to share the state.
-                    _site = new WikiSite(Client, url);
-
-                    try
-                    {
-                        // Wait for initialization to complete.
-                        // Throws error if any.
-                        _site.Initialization.Wait();
-                        
-                        _site.LoginAsync(username, password).Wait();
-                    }
-                    catch (WikiClientException ex)
-                    {
-                        Log.Error(ex, "Error occurred while initializing or logging into WikiSite");
-                        // Add your exception handler for failed login attempt.
-                        throw;
-                    }
-                }
-                return _site;
             }
         }
 
@@ -158,15 +89,9 @@ namespace Wikibot.App.Jobs
             Log.Information("Saving job.");
             using (JobContext context = new JobContext(DBOptions))
             {
-                context.Jobs.Update(this);
+                context.Jobs.Update((WikiJob)this);
                 context.SaveChanges();
             }
-        }
-
-        public void CleanUp()
-        {
-            Log.Information("Cleaning up.");
-            _client.Dispose();
         }
     }
 }

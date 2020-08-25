@@ -14,7 +14,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using FluentScheduler;
 using Wikibot.App.Jobs;
-using Wikibot.App.Models.Jobs;
 using Microsoft.Data.SqlClient;
 using LinqToWiki.Generated;
 using Wikibot.App.Models.UserRetrievers;

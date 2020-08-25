@@ -10,10 +10,12 @@ using MwParserFromScratch;
 using WikiFunctions;
 using System.IO;
 using Microsoft.Extensions.Configuration;
+using Wikibot.App.Logic;
+using WikiClientLibrary.Client;
 
 namespace Wikibot.App.Jobs
 {
-    public class TextReplacementJob: AbstractJob
+    public class TextReplacementJob: WikiJob
     {
 
         public string FromText { get; set; }
@@ -34,57 +36,71 @@ namespace Wikibot.App.Jobs
 
             try
             {
-                if (PageNames == null || PageNames.Count == 0)
+                using (var client = new WikiClient())
                 {
-                    Log.Information("Searching for relevant pages for job {JobID}", ID);
-                    //Search for relevant pages
-                    PageNames = Site.Search(FromText, 0).Result.Select(x=> new Page { ID = 0, Name = x.Title }).ToList(); //Search Main namespace by default
-                }
-                var PageList = PageNames.Select(page=> new WikiPage(Site, page.Name));
+                    var site = WikiAccessLogic.GetLoggedInWikiSite(WikiConfig, client);
+                    var PageList = GetPageList(site);
 
-                
-                int counter = 0;
-                string filename = "";
-                string fileContent = "";
+                    int counter = 0;
+                    string filename = "";
+                    string diff = "";
+                    string filePath = "";
 
-                foreach(WikiPage page in PageList)
-                {
-                    Log.Information("Processing page {PageName}", page.Title);
-                    filename = "Diff-" + page.Title + "-" + this.ID + "-" + counter + ".txt"; //Set filename for this page
-                    page.RefreshAsync(PageQueryOptions.FetchContent | PageQueryOptions.ResolveRedirects).Wait(); //Load page content
-                        
-                    var beforeContent = page.Content;
-                    var afterContent = page.Content.Replace(FromText, ToText);
-                    
-                    if (Status != JobStatus.Approved) //Create diffs for approval
+                    foreach (WikiPage page in PageList)
                     {
-                        Log.Information("Generating diff for page {PageName}", page.Title);
-                        fileContent = new WikiDiff().GetDiff(beforeContent, afterContent, 1);
-                        var filePath = Path.Combine(Configuration["DiffDirectory"], filename);
-                        File.WriteAllText(filePath, fileContent);
-                    }
-                    else //Apply changes
-                    {
-                        Log.Information("Applying replacement for page {PageName}", page.Title);
-                        var parser = new WikitextParser();
-                        var wikiText = parser.Parse(afterContent);
-                        page.Content = wikiText.ToString();
-                        var editMessage = String.Format("Wikibot Text Replacement {0} => {1}", FromText, ToText);
-                        page.UpdateContentAsync(editMessage).Wait();
+                        Log.Information("Processing page {PageName}", page.Title);
+                        filename = "Diff-" + page.Title + "-" + ID + "-" + counter + ".txt"; //Set filename for this page
+                        page.RefreshAsync(PageQueryOptions.FetchContent | PageQueryOptions.ResolveRedirects).Wait(); //Load page content
+
+                        var beforeContent = page.Content;
+                        var afterContent = page.Content.Replace(FromText, ToText);
+
+                        if (Status != JobStatus.Approved) //Create diffs for approval
+                        {
+                            Log.Information("Generating diff for page {PageName}", page.Title);
+                            diff = new WikiDiff().GetDiff(beforeContent, afterContent, 1);
+                            filePath = Path.Combine(Configuration["DiffDirectory"], filename);
+                            File.WriteAllText(filePath, diff);
+                        }
+                        else //Apply changes
+                        {
+                            Log.Information("Applying replacement for page {PageName}", page.Title);
+                            var editMessage = $"Wikibot Text Replacement {FromText} => {ToText}";
+                            UpdatePageContentWithMessage(page, afterContent, editMessage);
+                        }
+
                     }
                 }
             }
             catch(Exception ex)
             {
                 Status = JobStatus.Failed;
-                Log.Error(ex, $"TextReplacementJob {this.ID} failed.");
+                Log.Error(ex, $"TextReplacementJob with ID: {ID} failed.");
             }
             finally
             {
-                CleanUp();
                 SetJobEnd();
                 SaveJob();
             }
+        }
+
+        private IEnumerable<WikiPage> GetPageList(WikiSite site)
+        {
+            if (PageNames == null || PageNames.Count == 0)
+            {
+                Log.Information("Searching for relevant pages for job {JobID}", ID);
+                //Search for relevant pages
+                PageNames = site.Search(FromText, 0).Result.Select(x => new Page { ID = 0, Name = x.Title }).ToList(); //Search Main namespace by default
+            }
+            return PageNames.Select(page => new WikiPage(site, page.Name));
+        }
+
+        private void UpdatePageContentWithMessage(WikiPage page, string content, string editMessage)
+        {
+            var parser = new WikitextParser();
+            var wikiText = parser.Parse(content);
+            page.Content = wikiText.ToString();
+            page.UpdateContentAsync(editMessage).Wait();
         }
     }
 }

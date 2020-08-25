@@ -13,7 +13,7 @@ namespace Wikibot.App.Jobs
             Configuration = config;
         }
 
-        public void Execute() {
+        public override void Execute() {
 
             SetJobStart();
             try
