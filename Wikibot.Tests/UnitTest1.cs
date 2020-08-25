@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Hosting;
 using Wikibot.App.JobRetrievers;
 using Wikibot.App.Jobs;
-using Wikibot.App.Models.Jobs;
+using Wikibot.App.Data;
 using Wikibot.App.Extensions;
 using Microsoft.EntityFrameworkCore;
 using System.Configuration;
@@ -140,7 +140,7 @@ namespace Wikibot.Tests
             var dbContextOptions = new DbContextOptionsBuilder().UseSqlServer(connectionString).Options;
             var jobContext = new JobContext(dbContextOptions);
             var logger = GetLogger(iConfig);
-            var retriever = new TFWikiJobRetriever(iConfig, logger, GetWikiSite(iConfig));
+            var retriever = new TFWikiJobRetriever(iConfig, logger);
             retriever.GetNewJobDefinitions().Wait();
         }
 
@@ -152,7 +152,7 @@ namespace Wikibot.Tests
             var dbContextOptions = new DbContextOptionsBuilder().UseSqlServer(connectionString).Options;
             var jobContext = new JobContext(dbContextOptions);
             var logger = GetLogger(iConfig);
-            var retriever = new TFWikiJobRetriever(iConfig, logger, GetWikiSite(iConfig));
+            var retriever = new TFWikiJobRetriever(iConfig, logger);
             var job = new JobRetrievalJob(iConfig, logger);
             job.Execute();
         }

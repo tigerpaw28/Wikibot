@@ -9,7 +9,7 @@ using MwParserFromScratch;
 using MwParserFromScratch.Nodes;
 using System.Linq;
 using Wikibot.App.Jobs;
-using Wikibot.App.Models.Jobs;
+using Wikibot.App.Data;
 using Wikibot.App.Extensions;
 using Microsoft.Extensions.Configuration;
 

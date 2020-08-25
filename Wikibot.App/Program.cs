@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using Wikibot.App.JobRetrievers;
 using Wikibot.App.Jobs;
-using Wikibot.App.Models.Jobs;
+using Wikibot.App.Data;
 using Wikibot.App.Models.UserRetrievers;
 using WikiClientLibrary.Sites;
 

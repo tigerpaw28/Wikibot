@@ -12,18 +12,19 @@ using MwParserFromScratch.Nodes;
 using Wikibot.App.Jobs;
 using WikiClientLibrary;
 using WikiClientLibrary.Generators;
-using Wikibot.App.Models.Jobs;
 using System.Security.Cryptography.X509Certificates;
 using Wikibot.App.Extensions;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+using Wikibot.App.Logic;
 
 namespace Wikibot.App.JobRetrievers
 {
-    public class TFWikiJobRetriever:IWikiJobRetriever
+    public class TFWikiJobRetriever: IWikiJobRetriever
     {
         private List<WikiJob> _jobDefinitions;
-        private IConfiguration _config;
+        private IConfigurationSection _wikiLoginConfig;
+        private string _timeZoneID;
         private WikiSite _site;
         private ILogger _log;
         public List<WikiJob> JobDefinitions
@@ -36,36 +37,42 @@ namespace Wikibot.App.JobRetrievers
             }
         }
 
-        public TFWikiJobRetriever(IConfiguration configuration, Serilog.ILogger log, WikiSite site)
+        public TFWikiJobRetriever(IConfiguration configuration, Serilog.ILogger log)
         {
-            _config = configuration;
-            _site = site;
+            _wikiLoginConfig = configuration.GetSection("WikiLogin");
+            _timeZoneID = configuration["RequestTimezoneID"];
             _log = log;
         }
 
         public async Task<List<WikiJob>> GetNewJobDefinitions()
         {
             IEnumerable<WikiJob> jobs;
+            
+            using (var client = new WikiClient
+            {
+                ClientUserAgent = "WCLQuickStart/1.0 (your user name or contact information here)"
+            })
+            {
+                var site = WikiAccessLogic.GetLoggedInWikiSite(_wikiLoginConfig, client); //new WikiSite(client, _wikiLoginConfig["APIUrl"]);
+                var page = new WikiPage(site, "User:Tigerpaw28/Sandbox/WikibotRequests");
 
-            var page = new WikiPage(_site, "User:Tigerpaw28/Sandbox/WikibotRequests");
+                _log.Information("Fetching content from job request page.");
+                // Fetch content from the job request page so we can build jobs from it
+                await page.RefreshAsync(PageQueryOptions.FetchContent
+                                        | PageQueryOptions.ResolveRedirects);
 
-            _log.Information("Fetching content from job request page.");
-            // Fetch content from the job request page so we can build jobs from it
-            await page.RefreshAsync(PageQueryOptions.FetchContent
-                                    | PageQueryOptions.ResolveRedirects );
+                var parser = new WikitextParser();
+                //var text = "Paragraph.\n* Item1\n* Item2\n";
+                //var revision = page.CreateRevisionsGenerator().EnumItemsAsync().LastAsync().Result;
+                //var fullRev = await Revision.FetchRevisionAsync(site, revision.Id);
+                //var content = fullRev.Content;
+                var ast = parser.Parse(page.Content);
+                var templates = ast.Lines.First<LineNode>().EnumDescendants().OfType<Template>();
 
-            var parser = new WikitextParser();
-            //var text = "Paragraph.\n* Item1\n* Item2\n";
-            //var revision = page.CreateRevisionsGenerator().EnumItemsAsync().LastAsync().Result;
-            //var fullRev = await Revision.FetchRevisionAsync(site, revision.Id);
-            //var content = fullRev.Content;
-            var ast = parser.Parse(page.Content);
-            var templates = ast.Lines.First<LineNode>().EnumDescendants().OfType<Template>();
-
-            _log.Information("Building jobs.");
-            var jobFactory = new WikiJobFactory();
-            jobs = templates.Select(template => jobFactory.GetWikiJob((JobType)Enum.Parse(typeof(JobType),template.Arguments.Single(arg => arg.Name.ToPlainText() == "type").Value.ToPlainText().Replace(" ","")+"Job"), GetTimeZone(), _log, template));
-
+                _log.Information("Building jobs.");
+                var jobFactory = new WikiJobFactory();
+                jobs = templates.Select(template => jobFactory.GetWikiJob((JobType)Enum.Parse(typeof(JobType), template.Arguments.Single(arg => arg.Name.ToPlainText() == "type").Value.ToPlainText().Replace(" ", "") + "Job"), GetTimeZone(), _log, template));
+            }
             return jobs.ToList();
         }
 
@@ -76,27 +83,9 @@ namespace Wikibot.App.JobRetrievers
                 ClientUserAgent = "WCLQuickStart/1.0 (your user name or contact information here)"
             })
             {
-                var wikiLoginConfig = _config.GetSection("WikiLogin");
                 // You can create multiple WikiSite instances on the same WikiClient to share the state.
-                var site = new WikiSite(client, wikiLoginConfig["APIUrl"]);
+                var site = WikiAccessLogic.GetLoggedInWikiSite(_wikiLoginConfig, client);  //new WikiSite(client, _wikiLoginConfig["APIUrl"]);
 
-                var username = wikiLoginConfig["Username"];
-                var password = wikiLoginConfig["Password"];
-
-
-                try
-                {
-                    // Wait for initialization to complete.
-                    // Throws error if any.
-                    await site.Initialization;
-                    
-                    await site.LoginAsync(username, password);
-                }
-                catch (Exception ex)
-                {
-                    _log.Error(ex, "Error occurred while initializing or logging into WikiSite");
-                    // Add your exception handler for failed login attempt.
-                }
                 var page = new WikiPage(site, "User:Tigerpaw28/Sandbox/WikibotRequests");
 
                 _log.Information("Fetching content from job request page.");
@@ -127,18 +116,25 @@ namespace Wikibot.App.JobRetrievers
 
 
                 }
+
+                await UpdatePageContent(wikiText.ToString(), "Test page update", page);
                 //Update the content of the page object and push it live
-                page.Content = wikiText.ToString();
-                await page.UpdateContentAsync("Test page update");
+
 
                 // We're done here
                 await site.LogoutAsync();
             }
         }
 
+        private async Task UpdatePageContent(string content, string message, WikiPage page)
+        {
+            page.Content = content;
+            await page.UpdateContentAsync(message);
+        }
+
         private TimeZoneInfo GetTimeZone()
         {
-            return TimeZoneInfo.FindSystemTimeZoneById(_config["RequestTimezoneID"]);
+            return TimeZoneInfo.FindSystemTimeZoneById(_timeZoneID);
         }
     }
 }
