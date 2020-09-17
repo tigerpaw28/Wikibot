@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="95b344af-478c-429a-b3a0-718a0149597a" ChangeDateTime="09/12/2020 18:06:26">
+    <Property Name="ElementName" Value="[dbo].[Page].[TextReplacementJobID]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Page]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="JobID" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="0293e474-d97f-40e9-8918-5bd121e44211" ChangeDateTime="09/14/2020 18:21:12">
+    <Property Name="ElementName" Value="[dbo].[Page].[JobID]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Page]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="WikiJobRequestID" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="faee01bc-d804-410b-8d61-62c78c01caa3" ChangeDateTime="09/14/2020 22:32:44">
+    <Property Name="ElementName" Value="[dbo].[Page].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Page]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="PageId" />
+  </Operation>
+</Operations>

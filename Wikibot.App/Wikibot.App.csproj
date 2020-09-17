@@ -32,7 +32,8 @@
 
 
   <ItemGroup>
-    <Folder Include="Diff\" />
+    <ProjectReference Include="..\Wikibot.DataAccess\Wikibot.DataAccess.csproj" />
+    <ProjectReference Include="..\Wikibot.Jobs\Wikibot.Logic.csproj" />
   </ItemGroup>
 
 </Project>

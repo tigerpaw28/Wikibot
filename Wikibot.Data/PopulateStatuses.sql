@@ -1,0 +1,7 @@
+﻿INSERT INTO Status VALUES (1,'PendingPreApproval')
+INSERT INTO Status VALUES (2,'PreApproved')
+INSERT INTO Status VALUES (3,'PendingApproval')
+INSERT INTO Status VALUES (4,'Approved')
+INSERT INTO Status VALUES (5,'Rejected')
+INSERT INTO Status VALUES (6,'Done')
+INSERT INTO Status VALUES (7,'Failed')
