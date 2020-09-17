@@ -1,29 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using FluentScheduler;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Wikibot.App.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using FluentScheduler;
-using Wikibot.App.Jobs;
-using Microsoft.Data.SqlClient;
-using LinqToWiki.Generated;
-using Wikibot.App.Models.UserRetrievers;
-using WikiClientLibrary.Client;
-using WikiClientLibrary.Sites;
-using WikiClientLibrary;
-using Wikibot.App.JobRetrievers;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Wikibot.App.Services;
 using Serilog;
+using Wikibot.App.Data;
+using Wikibot.Logic.JobRetrievers;
+using Wikibot.Logic.Logic;
+using Wikibot.App.Services;
 
 namespace Wikibot.App
 {
@@ -55,15 +44,20 @@ namespace Wikibot.App
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            services.AddDbContext<JobContext>(options =>
-                options.UseSqlServer(
-                    builder.ConnectionString));
-
             services.AddControllersWithViews();
             services.AddRazorPages();
 
+            var logConfig = new LoggerConfiguration().ReadFrom.Configuration(Configuration);
+            var logger = logConfig.CreateLogger();
+            services.AddSingleton<Serilog.ILogger>(logger);
+
             services.AddTransient<IEmailSender, EmailSender>();
+            services.AddTransient<IWikiAccessLogic, WikiAccessLogic>();
+            services.AddTransient<IWikiJobRetriever, TFWikiJobRetriever>();
+
             services.Configure<AuthMessageSenderOptions>(Configuration);
+
+           
 
         }
 

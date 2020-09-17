@@ -18,6 +18,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Wikibot.App\Wikibot.App.csproj" />
+    <ProjectReference Include="..\Wikibot.DataAccess\Wikibot.DataAccess.csproj" />
+    <ProjectReference Include="..\Wikibot.Jobs\Wikibot.Logic.csproj" />
   </ItemGroup>
 
 </Project>

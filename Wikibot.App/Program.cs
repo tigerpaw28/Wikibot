@@ -1,20 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using FluentScheduler;
-using LinqToWiki.Generated;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Serilog;
-using Wikibot.App.JobRetrievers;
-using Wikibot.App.Jobs;
-using Wikibot.App.Data;
-using Wikibot.App.Models.UserRetrievers;
-using WikiClientLibrary.Sites;
+using System;
+using Wikibot.DataAccess;
+using Wikibot.Logic.JobRetrievers;
+using Wikibot.Logic.Jobs;
+using Wikibot.Logic.Logic;
 
 namespace Wikibot.App
 {
@@ -37,10 +31,15 @@ namespace Wikibot.App
                 using (var serviceScope = host.Services.CreateScope())
                 {
                     var services = serviceScope.ServiceProvider;
-                    var config = host.Services.GetRequiredService<IConfiguration>();
+                    var config = services.GetRequiredService<IConfiguration>();
+                    var wikiAccessLogic = services.GetRequiredService<IWikiAccessLogic>();
+                    var jobRetriever = services.GetRequiredService<IWikiJobRetriever>();//new TFWikiJobRetriever(config, Log.Logger, wikiAccessLogic);
+                    var logger = services.GetRequiredService<Serilog.ILogger>();
+                    //var dbContext = services.GetRequiredService<JobContext>();
+                    var jobData = new RequestData();
 
                     Log.Information("Starting background job retrieval job");
-                    JobManager.AddJob(() => new JobRetrievalJob(config, Log.Logger).Execute(), (s) => s.ToRunEvery(15).Minutes());
+                    JobManager.AddJob(() => new JobRetrievalJob(config, logger, jobRetriever, wikiAccessLogic, jobData).Execute(), (s) => s.ToRunEvery(15).Minutes());
                 }
                 
                 Log.Information("Application Start");
