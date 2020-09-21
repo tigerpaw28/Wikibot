@@ -35,8 +35,9 @@ namespace Wikibot.App
                     var wikiAccessLogic = services.GetRequiredService<IWikiAccessLogic>();
                     var jobRetriever = services.GetRequiredService<IWikiJobRetriever>();//new TFWikiJobRetriever(config, Log.Logger, wikiAccessLogic);
                     var logger = services.GetRequiredService<Serilog.ILogger>();
+                    var dataAccess = services.GetRequiredService<IDataAccess>();
                     //var dbContext = services.GetRequiredService<JobContext>();
-                    var jobData = new RequestData();
+                    var jobData = new RequestData(dataAccess);
 
                     Log.Information("Starting background job retrieval job");
                     JobManager.AddJob(() => new JobRetrievalJob(config, logger, jobRetriever, wikiAccessLogic, jobData).Execute(), (s) => s.ToRunEvery(15).Minutes());

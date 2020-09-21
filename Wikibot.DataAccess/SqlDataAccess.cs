@@ -36,7 +36,7 @@ namespace Wikibot.DataAccess
             }
         }
 
-        public List<T> LoadData2<T, U>(string storedProcedure, U parameters, string connectionStringName, Type[] typeArray, Func<object[],T> map, string splitOnString)
+        public List<T> LoadDataComplex<T, U>(string storedProcedure, U parameters, string connectionStringName, Type[] typeArray, Func<object[],T> map, string splitOnString)
         {
             string connectionString = GetConnectionString(connectionStringName);
             

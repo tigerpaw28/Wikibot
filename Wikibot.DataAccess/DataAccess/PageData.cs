@@ -11,28 +11,32 @@ namespace Wikibot.DataAccess
 {
     public class PageData
     {
+        private IDataAccess _database;
+        public PageData(IDataAccess dataAccess)
+        {
+            _database = dataAccess;
+        }
+
         public void SavePages(List<Page> pageList, long jobRequestID)
         {
-            SqlDataAccess sql = new SqlDataAccess();
             var p = new
             {
                 pages = pageList.ToList().ToDataSet().Tables[0].AsTableValuedParameter("PageUDT"),
                 jobid = jobRequestID
             };
 
-            sql.SaveData("dbo.spCreatePages", p, "JobDb");
+            _database.SaveData("dbo.spCreatePages", p, "JobDb");
         }
 
         public void UpdatePagesForWikiJobRequest(List<Page> pageList, long jobRequestID)
         {
-            SqlDataAccess sql = new SqlDataAccess();
             var p = new
             {
                 pages = pageList.ToList().ToDataSet().Tables[0].AsTableValuedParameter("PageUDT"),
                 jobid = jobRequestID
             };
 
-            sql.SaveData("dbo.spUpdatePagesForWikiJobRequest", p, "JobDb");
+            _database.SaveData("dbo.spUpdatePagesForWikiJobRequest", p, "JobDb");
         }
     }
 }
