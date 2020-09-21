@@ -541,3 +541,5 @@ Wikibot.Tests/bin/Debug/netcoreapp3.1/Wikibot.Logic.dll
 Wikibot.Tests/bin/Debug/netcoreapp3.1/Wikibot.Logic.pdb
 Wikibot.Tests/bin/Debug/netcoreapp3.1/runtimes/unix/lib/netcoreapp2.1/System.Data.SqlClient.dll
 Wikibot.Tests/bin/Debug/netcoreapp3.1/runtimes/win/lib/netcoreapp2.1/System.Data.SqlClient.dll
+Wikibot.Tests/bin/Debug/netcoreapp3.1/Castle.Core.dll
+Wikibot.Tests/bin/Debug/netcoreapp3.1/Moq.dll

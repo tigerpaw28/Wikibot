@@ -13,6 +13,7 @@ using Wikibot.App.Data;
 using Wikibot.Logic.JobRetrievers;
 using Wikibot.Logic.Logic;
 using Wikibot.App.Services;
+using Wikibot.DataAccess;
 
 namespace Wikibot.App
 {
@@ -51,9 +52,10 @@ namespace Wikibot.App
             var logger = logConfig.CreateLogger();
             services.AddSingleton<Serilog.ILogger>(logger);
 
-            services.AddTransient<IEmailSender, EmailSender>();
+            //services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<IWikiAccessLogic, WikiAccessLogic>();
             services.AddTransient<IWikiJobRetriever, TFWikiJobRetriever>();
+            services.AddTransient<IDataAccess, SqlDataAccess>();
 
             services.Configure<AuthMessageSenderOptions>(Configuration);
 
