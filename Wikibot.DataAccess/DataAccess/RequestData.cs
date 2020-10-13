@@ -28,14 +28,14 @@ namespace Wikibot.DataAccess
             return output;
         }
 
-        public List<WikiJobRequest> GetWikiJobRequestsWithPages()
+        public List<WikiJobRequest> GetWikiJobRequestsWithPages(int pageNumber, int pageSize, string sortDirection, string sortColumn)
         {
             var p = new
             {
-                PageNumber = 1,
-                PageSize = 10,
-                SortDirection = "ASC",
-                SortColumn = "ID"
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                SortDirection = sortDirection,
+                SortColumn = sortColumn
             };
             Type[] types = new Type[] { typeof(WikiJobRequest), typeof(Page) };
 
