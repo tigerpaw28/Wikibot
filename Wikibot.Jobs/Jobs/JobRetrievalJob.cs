@@ -37,7 +37,7 @@ namespace Wikibot.Logic.Jobs
             int runin = 5;
 
             //Get job definitions
-            var requests = _jobRetriever.JobDefinitions;
+             var requests = _jobRetriever.JobDefinitions;
 
             //using (JobContext _context = new JobContext(DBOptions))
             //{
