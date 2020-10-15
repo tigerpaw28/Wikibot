@@ -38,7 +38,7 @@ namespace Wikibot.Logic.Factories
                 {
                     jobRequest.Status = (JobStatus)Enum.Parse(typeof(JobStatus), template.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText() == "status")?.Value.ToPlainText() ?? JobStatus.ToBeProcessed.ToString());
                 }
-                jobRequest.Username = template.Arguments.Single(arg => arg.Name.ToPlainText() == "username").Value.ToPlainText();
+                jobRequest.RequestingUsername = template.Arguments.Single(arg => arg.Name.ToPlainText() == "username").Value.ToPlainText();
                 jobRequest.Comment = template.Arguments.Single(arg => arg.Name.ToPlainText() == "comment").Value.ToPlainText();
 
                 //WikiMedia timestamp example: 14:58, 30 June 2020-04:00:00
@@ -48,7 +48,7 @@ namespace Wikibot.Logic.Factories
             else
             {
                 jobRequest.Status = JobStatus.ToBeProcessed;
-                jobRequest.Username = "Wikibot";
+                jobRequest.RequestingUsername = "Wikibot";
                 jobRequest.Comment = "Internally scheduled job";
                 jobRequest.SubmittedDateUTC = DateTime.UtcNow;
             }

@@ -40,7 +40,7 @@ namespace Wikibot.Tests
             r.Add("@RawRequest", request.RawRequest, System.Data.DbType.String);
             r.Add("@Status", request.Status, System.Data.DbType.Int32);
             r.Add("@SubmittedDate", request.SubmittedDateUTC, System.Data.DbType.DateTime2);
-            r.Add("@Username", request.Username, System.Data.DbType.String);
+            r.Add("@Username", request.RequestingUsername, System.Data.DbType.String);
             r.Add("@ID", request.ID, System.Data.DbType.Int64, System.Data.ParameterDirection.Output);
 
             r.RemoveUnused = true;
@@ -71,7 +71,7 @@ namespace Wikibot.Tests
             var mockDataAccess = Utilities.GetMockDataAccess();
             var requestData = Utilities.GetRequestData(mockDataAccess.Object);
             var requestList = requestData.GetWikiJobRequestByID(2);
-            Assert.NotEmpty(requestList);
+            Assert.NotNull(requestList);
         }
 
         [Fact]

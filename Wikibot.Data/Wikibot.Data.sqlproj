@@ -74,6 +74,7 @@
     <Build Include="Stored Procedures\spUpdateWikiJobRequestTimePreFinished.sql" />
     <Build Include="Stored Procedures\spUpdateWikiJobRequestTimeFinished.sql" />
     <Build Include="Stored Procedures\spGetWikiJobRequestByID.sql" />
+    <Build Include="Stored Procedures\spUpdateWikiJobRequestRaw.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="Wikibot.Data.refactorlog" />

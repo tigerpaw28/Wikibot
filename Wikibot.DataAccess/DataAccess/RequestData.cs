@@ -44,7 +44,7 @@ namespace Wikibot.DataAccess
             return output;
         }
 
-        public List<WikiJobRequest> GetWikiJobRequestByID(long requestID)
+        public WikiJobRequest GetWikiJobRequestByID(long requestID)
         {
             var p = new
             {
@@ -54,7 +54,7 @@ namespace Wikibot.DataAccess
             Type[] types = new Type[] { typeof(WikiJobRequest), typeof(Page) };
 
             var output = _database.LoadDataComplex<WikiJobRequest, dynamic>("dbo.spGetWikiJobRequestById", p, "JobDb", types, MapPageToWikiJobRequest, "PageID");
-            return output;
+            return output.SingleOrDefault();
         }
         public void SaveWikiJobRequest(WikiJobRequest request)
         {
@@ -64,7 +64,7 @@ namespace Wikibot.DataAccess
             p.Add("@RawRequest", request.RawRequest, System.Data.DbType.String);
             p.Add("@Status", request.Status, System.Data.DbType.Int32);
             p.Add("@SubmittedDate", request.SubmittedDateUTC, System.Data.DbType.DateTime2);
-            p.Add("@Username", request.Username, System.Data.DbType.String);
+            p.Add("@Username", request.RequestingUsername, System.Data.DbType.String);
             p.Add("@ID", request.ID, System.Data.DbType.Int64, System.Data.ParameterDirection.Output);
 
             p.RemoveUnused = true;
@@ -130,6 +130,17 @@ namespace Wikibot.DataAccess
             };
 
             _database.SaveData("dbo.spUpdateWikiJobRequestTimeFinished", p, "JobDb");
+        }
+
+        public void UpdateRaw(long requestID, string raw)
+        {
+            var p = new
+            {
+                ID = requestID,
+                RawText = raw
+            };
+
+            _database.SaveData("dbo.spUpdateWikiJobRequestRaw", p, "JobDb");
         }
 
         private WikiJobRequest MapPageToWikiJobRequest(object[] obj)
