@@ -50,7 +50,7 @@ namespace Wikibot.Logic.Jobs
                     foreach (WikiPage page in PageList)
                     {
                         Log.Information("Processing page {PageName}", page.Title);
-                        filename = "Diff-" + page.Title + "-" + Request.ID + "-" + counter + ".txt"; //Set filename for this page
+                        filename = "Diff-" + Request.ID + "-" + page.Title + ".txt"; //Set filename for this page
                         page.RefreshAsync(PageQueryOptions.FetchContent | PageQueryOptions.ResolveRedirects).Wait(); //Load page content
 
                         var beforeContent = page.Content;
