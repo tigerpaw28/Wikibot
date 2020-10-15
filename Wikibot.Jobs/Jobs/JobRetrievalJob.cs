@@ -93,7 +93,7 @@ namespace Wikibot.Logic.Jobs
 
         private void CheckForUserApproval(WikiJobRequest request, JobApprovalLogic jobApprovalLogic)
         {
-            var user = _userRetriever.GetUser(request.Username);
+            var user = _userRetriever.GetUser(request.RequestingUsername);
 
             if (jobApprovalLogic.IsUserAutoApproved(user))
             {
