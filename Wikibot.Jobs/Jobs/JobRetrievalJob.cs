@@ -1,5 +1,7 @@
 using FluentScheduler;
 using Microsoft.Extensions.Configuration;
+using System;
+using System.Linq;
 using Wikibot.DataAccess;
 using Wikibot.DataAccess.Objects;
 using Wikibot.Logic.Factories;
@@ -36,41 +38,56 @@ namespace Wikibot.Logic.Jobs
             int offset = 1;
             int runin = 5;
 
-            //Get job definitions
-             var requests = _jobRetriever.JobDefinitions;
+            try
+            {
 
-            //using (JobContext _context = new JobContext(DBOptions))
-            //{
+                //Get job definitions
+                var requests = _jobRetriever.JobDefinitions.Where(request => request.Status == JobStatus.ToBeProcessed).ToList();
+
+                //using (JobContext _context = new JobContext(DBOptions))
+                //{
                 foreach (WikiJobRequest request in requests)
                 {
-                    //Check For Automatic Approval
-                    CheckForUserApproval(request, jobApprovalLogic);
-
-                    //Save Job
-                    JobData.SaveWikiJobRequest(request);
-
-                    //Set JobID so we have it available when the job runs
-                    //request.ID = DBContext.Jobs.AsEnumerable().Last().ID;
-
-
-                    if (request.Status == JobStatus.Approved || request.Status == JobStatus.PreApproved)
+                    try
                     {
-                        //Schedule jobs in 5 minute intervals
-                        //How to deal with potential page edit overlaps? -> Check page lists and id overlaps;
-                        if (offset == 5)
-                        {
-                            runin = runin + offset;
-                            offset = 0;
-                        }
-                        var job = WikiJobFactory.GetWikiJob(request, Log, _wikiAccessLogic, Configuration, JobData);
-                        JobManager.AddJob(() => job.Execute(), (s) => s.ToRunOnceIn(runin).Minutes());
-                        offset++;
-                    }
-                }  
-           //
+                        //Check For Automatic Approval
+                        CheckForUserApproval(request, jobApprovalLogic);
 
-            //Update job status on the wiki page the job was retreived from
-            _jobRetriever.MarkJobStatuses(requests);
+                        //Save Job
+                        JobData.SaveWikiJobRequest(request);
+
+                        //Set JobID so we have it available when the job runs
+                        //request.ID = DBContext.Jobs.AsEnumerable().Last().ID;
+
+
+                        if (request.Status == JobStatus.Approved || request.Status == JobStatus.PreApproved)
+                        {
+                            //Schedule jobs in 5 minute intervals
+                            //How to deal with potential page edit overlaps? -> Check page lists and id overlaps;
+                            if (offset == 5)
+                            {
+                                runin = runin + offset;
+                                offset = 0;
+                            }
+                            var job = WikiJobFactory.GetWikiJob(request, Log, _wikiAccessLogic, Configuration, JobData);
+                            JobManager.AddJob(() => job.Execute(), (s) => s.ToRunOnceIn(runin).Minutes());
+                            offset++;
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        Log.Error(ex, $"Error processing request {request.RawRequest}:");
+                    }
+                }
+                //
+
+                //Update job status on the wiki page the job was retreived from
+                _jobRetriever.MarkJobStatuses(requests);
+            }
+            catch(Exception ex)
+            {
+                Log.Error(ex, "Error occurred while running JobRetrievalJob:");
+            }
 
         }
 
