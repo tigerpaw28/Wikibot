@@ -23,6 +23,7 @@ namespace Wikibot.Logic.JobRetrievers
         private string _timeZoneID;
         private ILogger _log;
         private IWikiAccessLogic _wikiAccessLogic;
+        private RequestData _database;
         public List<WikiJobRequest> JobDefinitions
         {
             get
@@ -33,12 +34,13 @@ namespace Wikibot.Logic.JobRetrievers
             }
         }
 
-        public TFWikiJobRetriever(IConfiguration configuration, ILogger log, IWikiAccessLogic wikiAccessLogic)
+        public TFWikiJobRetriever(IConfiguration configuration, ILogger log, IWikiAccessLogic wikiAccessLogic, IDataAccess dataAccess)
         {
             _wikiLoginConfig = configuration.GetSection("WikiLogin");
             _timeZoneID = configuration["RequestTimezoneID"];
             _log = log;
             _wikiAccessLogic = wikiAccessLogic;
+            _database = new RequestData(dataAccess);
         }
 
         public async Task<List<WikiJobRequest>> GetNewJobDefinitions()
@@ -107,11 +109,13 @@ namespace Wikibot.Logic.JobRetrievers
                     {
                         singletemplate.Arguments.Single(arg => arg.Name.ToPlainText().Equals("status")).Value = parser.Parse(request.Status.ToString());
                     }
+
+                    request.RawRequest = singletemplate.ToString();
+                    _database.UpdateRaw(request.ID, request.RawRequest); //TODO: Make batch operation
                 }
 
                 await UpdatePageContent(wikiText.ToString(), "Test page update", page);
                 //Update the content of the page object and push it live
-
 
                 // We're done here
                 await site.LogoutAsync();

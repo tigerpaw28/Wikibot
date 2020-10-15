@@ -586,3 +586,11 @@ Wikibot.Tests/bin/Debug/netcoreapp3.1/Microsoft.IdentityModel.Protocols.OpenIdCo
 Wikibot.Tests/bin/Debug/netcoreapp3.1/Microsoft.IdentityModel.Tokens.dll
 Wikibot.Tests/bin/Debug/netcoreapp3.1/System.IdentityModel.Tokens.Jwt.dll
 Wikibot.Tests/bin/Debug/netcoreapp3.1/testhost.exe
+Wikibot.App/bin/Debug/netcoreapp3.1/AutoMapper.dll
+Wikibot.Data/obj/Debug/Model.xml
+Wikibot.Data/obj/Debug/refactor.xml
+Wikibot.Tests/bin/Debug/netcoreapp3.1/AutoMapper.dll
+Wikibot.Tests/bin/Debug/netcoreapp3.1/Microsoft.OpenApi.dll
+Wikibot.Tests/bin/Debug/netcoreapp3.1/Swashbuckle.AspNetCore.Swagger.dll
+Wikibot.Tests/bin/Debug/netcoreapp3.1/Swashbuckle.AspNetCore.SwaggerGen.dll
+Wikibot.Tests/bin/Debug/netcoreapp3.1/Swashbuckle.AspNetCore.SwaggerUI.dll

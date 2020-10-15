@@ -3,7 +3,7 @@
 	@ID BIGINT
 AS
 BEGIN
-UPDATE WikiJobRequest SET 
-[StatusID] = @Status
-WHERE [Id] = @ID
+	UPDATE WikiJobRequest SET 
+	[StatusID] = @Status
+	WHERE [Id] = @ID
 END
