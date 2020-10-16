@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Extensions;
 using Wikibot.DataAccess;
 using Wikibot.DataAccess.Objects;
@@ -24,10 +25,10 @@ namespace Wikibot.App.Controllers
         private RequestData _requestData;
         private string diffFileNamePattern = "";
         private IWikiJobRetriever _jobRetriever;
-        public RequestController(IDataAccess dataAccess, IWikiJobRetriever jobRetriever)
+        public RequestController(IDataAccess dataAccess, IWikiJobRetriever jobRetriever, IConfiguration config)
         {
             _requestData = new RequestData(dataAccess);
-            diffFileNamePattern = "Diff-0-0-{0}.txt";
+            diffFileNamePattern = config["DiffFileNamePattern"];
             _jobRetriever = jobRetriever;
         }
         //Get Requests
