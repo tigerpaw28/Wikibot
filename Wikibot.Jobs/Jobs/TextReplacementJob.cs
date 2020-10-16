@@ -66,7 +66,7 @@ namespace Wikibot.Logic.Jobs
                         else //Apply changes
                         {
                             Log.Information("Applying replacement for page {PageName}", page.Title);
-                            var editMessage = $"Wikibot Text Replacement {FromText} => {ToText}";
+                            var editMessage = $"{WikiConfig["Username"]} Text Replacement {FromText} => {ToText}";
                             UpdatePageContentWithMessage(page, afterContent, editMessage);
                         }
 

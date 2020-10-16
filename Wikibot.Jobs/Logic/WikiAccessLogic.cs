@@ -13,7 +13,7 @@ namespace Wikibot.Logic.Logic
         {
             var url = wikiConfig["APIUrl"];
             var path = wikiConfig["APIPath"];
-            Wiki wiki = new Wiki("WikiBot", url, "/mediawiki/api.php");
+            Wiki wiki = new Wiki("WikiBot", url, path);
 
             LogIntoWiki(wiki, wikiConfig);
 
@@ -23,7 +23,10 @@ namespace Wikibot.Logic.Logic
         public WikiSite GetLoggedInWikiSite(IConfigurationSection wikiConfig, WikiClient client)
         {
             var url = wikiConfig["APIUrl"];
-            var site = new WikiSite(client, url);
+            var path = wikiConfig["APIPath"];
+            var uriBuilder = new UriBuilder(url);
+            uriBuilder.Path = path;
+            var site = new WikiSite(client, uriBuilder.Uri.ToString());
             LogIntoWikiSite(site, wikiConfig);
             return site;
         }

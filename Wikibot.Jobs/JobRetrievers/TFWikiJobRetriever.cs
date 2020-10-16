@@ -20,10 +20,13 @@ namespace Wikibot.Logic.JobRetrievers
     {
         private List<WikiJobRequest> _jobDefinitions;
         private IConfigurationSection _wikiLoginConfig;
+        private IConfigurationSection _wikiEditMessages;
         private string _timeZoneID;
         private ILogger _log;
         private IWikiAccessLogic _wikiAccessLogic;
         private RequestData _database;
+        private string _wikiRequestPage;
+        private string _botRequestTemplate;
         public List<WikiJobRequest> JobDefinitions
         {
             get
@@ -37,6 +40,9 @@ namespace Wikibot.Logic.JobRetrievers
         public TFWikiJobRetriever(IConfiguration configuration, ILogger log, IWikiAccessLogic wikiAccessLogic, IDataAccess dataAccess)
         {
             _wikiLoginConfig = configuration.GetSection("WikiLogin");
+            _wikiEditMessages = configuration.GetSection("WikiEditMessages");
+            _wikiRequestPage = configuration["WikiRequestPage"];
+            _botRequestTemplate = configuration["BotRequestTemplate"];
             _timeZoneID = configuration["RequestTimezoneID"];
             _log = log;
             _wikiAccessLogic = wikiAccessLogic;
@@ -53,7 +59,7 @@ namespace Wikibot.Logic.JobRetrievers
             })
             {
                 var site = _wikiAccessLogic.GetLoggedInWikiSite(_wikiLoginConfig, client); //new WikiSite(client, _wikiLoginConfig["APIUrl"]);
-                var page = new WikiPage(site, "User:Tigerpaw28/Sandbox/WikibotRequests");
+                var page = new WikiPage(site, _wikiRequestPage);
 
                 _log.Information("Fetching content from job request page.");
                 // Fetch content from the job request page so we can build jobs from it
@@ -83,7 +89,7 @@ namespace Wikibot.Logic.JobRetrievers
                 // You can create multiple WikiSite instances on the same WikiClient to share the state.
                 var site = _wikiAccessLogic.GetLoggedInWikiSite(_wikiLoginConfig, client);
 
-                var page = new WikiPage(site, "User:Tigerpaw28/Sandbox/WikibotRequests");
+                var page = new WikiPage(site, _wikiRequestPage);
 
                 _log.Information("Fetching content from job request page.");
 
@@ -98,7 +104,7 @@ namespace Wikibot.Logic.JobRetrievers
                 {
                     //Find corresponding template in the page content
                     var templates = wikiText.Lines.SelectMany(x => x.EnumDescendants().OfType<Template>());
-                    var singletemplate = templates.First(x => x.Name.ToPlainText().Equals("User:Tigerpaw28/Sandbox/Template:WikiBotRequest") && x.EqualsJob(request));
+                    var singletemplate = templates.First(x => x.Name.ToPlainText().Equals(_botRequestTemplate) && x.EqualsJob(request));
 
                     if (singletemplate.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText().Equals("status")) == null) //Status argument doesn't exist in the template
                     {
