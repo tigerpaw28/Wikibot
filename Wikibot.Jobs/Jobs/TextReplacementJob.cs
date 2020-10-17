@@ -17,8 +17,6 @@ namespace Wikibot.Logic.Jobs
     public class TextReplacementJob: WikiJob
     {
 
-        public List<Page> PageNames { get; set; }
-
         private IWikiAccessLogic _wikiAccessLogic;
 
         public TextReplacementJob()
@@ -59,7 +57,8 @@ namespace Wikibot.Logic.Jobs
                         if (Request.Status != JobStatus.Approved) //Create diffs for approval
                         {
                             Log.Information("Generating diff for page {PageName}", page.Title);
-                            diff = new WikiDiff().GetDiff(beforeContent, afterContent, 1);
+                            var wikiDiff = new WikiDiff();
+                            diff = WikiDiff.DiffHead() +  wikiDiff.GetDiff(beforeContent, afterContent, 1);
                             filePath = Path.Combine(Configuration["DiffDirectory"], filename);
                             File.WriteAllText(filePath, diff);
                         }
@@ -87,13 +86,14 @@ namespace Wikibot.Logic.Jobs
 
         private IEnumerable<WikiPage> GetPageList(WikiSite site)
         {
-            if (PageNames == null || PageNames.Count == 0)
+            if (Request.Pages == null || Request.Pages.Count == 0)
             {
                 Log.Information("Searching for relevant pages for job {JobID}", Request.ID);
                 //Search for relevant pages
-                PageNames = site.Search(FromText, 0).Result.Select(x => new Page { PageID = 0, Name = x.Title }).ToList(); //Search Main namespace by default
+                Request.Pages = site.Search(FromText, 0).Result.Select(x => new Page { PageID = 0, Name = x.Title }).ToList(); //Search Main namespace by default
             }
-            return PageNames.Select(page => new WikiPage(site, page.Name));
+
+            return Request.Pages.Select(page => new WikiPage(site, page.Name));
         }
 
         private void UpdatePageContentWithMessage(WikiPage page, string content, string editMessage)
