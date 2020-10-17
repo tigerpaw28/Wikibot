@@ -69,7 +69,7 @@ namespace Wikibot.DataAccess
 
             p.RemoveUnused = true;
 
-            _database.SaveData("dbo.spCreateWikiJobRequest", p, "JobDb");
+            _database.SaveData("dbo.spCreateUpdateWikiJobRequest", p, "JobDb");
             if (request.Pages != null && request.Pages.Any())
             {
                 request.ID = p.Get<long>("ID");
