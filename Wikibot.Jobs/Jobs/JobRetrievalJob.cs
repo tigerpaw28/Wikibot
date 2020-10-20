@@ -1,6 +1,7 @@
 using FluentScheduler;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Wikibot.DataAccess;
 using Wikibot.DataAccess.Objects;
@@ -37,12 +38,13 @@ namespace Wikibot.Logic.Jobs
             var jobApprovalLogic = new JobApprovalLogic(_userRetriever);
             int offset = 1;
             int runin = 5;
+            List<JobStatus> statusesToProcess = new List<JobStatus>() { JobStatus.ToBeProcessed, JobStatus.PreApproved, JobStatus.Approved };
 
             try
             {
 
                 //Get job definitions
-                var requests = _jobRetriever.JobDefinitions.Where(request => request.Status == JobStatus.ToBeProcessed).ToList();
+                var requests = _jobRetriever.JobDefinitions.Where(request => statusesToProcess.Contains(request.Status)).ToList();
 
                 //using (JobContext _context = new JobContext(DBOptions))
                 //{
@@ -50,11 +52,14 @@ namespace Wikibot.Logic.Jobs
                 {
                     try
                     {
-                        //Check For Automatic Approval
-                        CheckForUserApproval(request, jobApprovalLogic);
-
-                        //Save Job
-                        JobData.SaveWikiJobRequest(request);
+                        if (request.Status == JobStatus.ToBeProcessed)
+                        {
+                            //Check For Automatic Approval
+                            CheckForUserApproval(request, jobApprovalLogic);
+                       
+                            //Save Job
+                            JobData.SaveWikiJobRequest(request);
+                        }
 
                         //Set JobID so we have it available when the job runs
                         //request.ID = DBContext.Jobs.AsEnumerable().Last().ID;
