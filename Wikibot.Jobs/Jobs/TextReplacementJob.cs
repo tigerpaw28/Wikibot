@@ -58,7 +58,7 @@ namespace Wikibot.Logic.Jobs
                         {
                             Log.Information("Generating diff for page {PageName}", page.Title);
                             var wikiDiff = new WikiDiff();
-                            diff = WikiDiff.DiffHead() +  wikiDiff.GetDiff(beforeContent, afterContent, 1);
+                            diff = $"{WikiDiff.DiffHead()}</head><body>{WikiDiff.TableHeader}{wikiDiff.GetDiff(beforeContent, afterContent, 1)}</table></body></html>";
                             filePath = Path.Combine(Configuration["DiffDirectory"], filename);
                             File.WriteAllText(filePath, diff);
                         }
