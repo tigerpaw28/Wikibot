@@ -52,7 +52,7 @@ namespace Wikibot.App.Controllers
         {
             _requestData.UpdateStatus(requestId, JobStatus.PreApproved);
             var requests = _requestData.GetWikiJobRequestByID(requestId);
-            _jobRetriever.MarkJobStatuses(new List<WikiJobRequest> { requests });
+            _jobRetriever.UpdateRequests(new List<WikiJobRequest> { requests });
             return new OkObjectResult("Request status successfully updated");
         }
 
@@ -62,7 +62,7 @@ namespace Wikibot.App.Controllers
         {
             _requestData.UpdateStatus(requestId, JobStatus.Approved);
             var requests = _requestData.GetWikiJobRequestByID(requestId);
-            _jobRetriever.MarkJobStatuses(new List<WikiJobRequest> { requests });
+            _jobRetriever.UpdateRequests(new List<WikiJobRequest> { requests });
             return new OkObjectResult("Request status successfully updated");   
         }
         //Reject Request
@@ -71,7 +71,7 @@ namespace Wikibot.App.Controllers
         {
             _requestData.UpdateStatus(requestId, JobStatus.Rejected);
             var requests = _requestData.GetWikiJobRequestByID(requestId);
-            _jobRetriever.MarkJobStatuses(new List<WikiJobRequest> { requests });
+            _jobRetriever.UpdateRequests(new List<WikiJobRequest> { requests });
             return new OkObjectResult("Request status successfully updated");
         }
     }

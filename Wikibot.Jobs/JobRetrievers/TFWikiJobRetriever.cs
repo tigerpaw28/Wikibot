@@ -87,7 +87,7 @@ namespace Wikibot.Logic.JobRetrievers
             return jobs.ToList();
         }
 
-        public async void MarkJobStatuses(List<WikiJobRequest> requests)
+        public async void UpdateRequests(List<WikiJobRequest> requests)
         {
             using (var client = new WikiClient
             {
