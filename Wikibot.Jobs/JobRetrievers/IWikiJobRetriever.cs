@@ -8,7 +8,7 @@ namespace Wikibot.Logic.JobRetrievers
     {
         public List<WikiJobRequest> JobDefinitions { get; }
         public Task<List<WikiJobRequest>> GetNewJobDefinitions();
-        public void MarkJobStatuses(List<WikiJobRequest> jobs);
+        public void UpdateRequests(List<WikiJobRequest> jobs);
 
     }
 }

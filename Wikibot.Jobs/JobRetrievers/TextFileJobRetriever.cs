@@ -42,7 +42,7 @@ namespace Wikibot.Logic.JobRetrievers
             return jobs.ToList();
         }
 
-        public void MarkJobStatuses(List<WikiJobRequest> jobs)
+        public void UpdateRequests(List<WikiJobRequest> jobs)
         {
             var wikiText = parseFile().Result;
             foreach(WikiJobRequest job in jobs)
