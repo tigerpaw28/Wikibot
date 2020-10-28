@@ -9,6 +9,7 @@ using Wikibot.Logic.Factories;
 using Wikibot.Logic.JobRetrievers;
 using Wikibot.Logic.Logic;
 using Wikibot.Logic.UserRetrievers;
+using Wikibot.Logic.Extensions;
 
 namespace Wikibot.Logic.Jobs
 {
@@ -42,7 +43,8 @@ namespace Wikibot.Logic.Jobs
 
             try
             {
-
+                bool requestIsValid = true;
+                var requestsToUpdate = new List<WikiJobRequest>();
                 //Get job definitions
                 var requests = _jobRetriever.JobDefinitions.Where(request => statusesToProcess.Contains(request.Status)).ToList();
 
@@ -50,23 +52,35 @@ namespace Wikibot.Logic.Jobs
                 //{
                 foreach (WikiJobRequest request in requests)
                 {
+                    Log.Information($"Processing retrieved request: {request.RawRequest}");
                     try
                     {
+                        requestIsValid = true;
                         if (request.Status == JobStatus.ToBeProcessed)
                         {
+                            Log.Information("Request is ToBeProcessed");
                             //Check For Automatic Approval
                             CheckForUserApproval(request, jobApprovalLogic);
                        
                             //Save Job
                             JobData.SaveWikiJobRequest(request);
+
+                            //Add to update list
+                            requestsToUpdate.Add(request);
+                        }
+                        else
+                        {
+                            Log.Information("Request has been previously approved or preapproved");
+                            var existingRequest = JobData.GetWikiJobRequestByID(request.ID);
+                            requestIsValid = requestIsValid && request.Equals(existingRequest);
                         }
 
                         //Set JobID so we have it available when the job runs
                         //request.ID = DBContext.Jobs.AsEnumerable().Last().ID;
 
-
-                        if (request.Status == JobStatus.Approved || request.Status == JobStatus.PreApproved)
+                        if ( requestIsValid && (request.Status == JobStatus.Approved || request.Status == JobStatus.PreApproved))
                         {
+                            Log.Information("Scheduling request");
                             //Schedule jobs in 5 minute intervals
                             //How to deal with potential page edit overlaps? -> Check page lists and id overlaps;
                             if (offset == 5)
@@ -85,9 +99,9 @@ namespace Wikibot.Logic.Jobs
                     }
                 }
                 //
-
+                Log.Information("Saving requests");
                 //Update job status on the wiki page the job was retreived from
-                _jobRetriever.MarkJobStatuses(requests);
+                _jobRetriever.UpdateRequests(requestsToUpdate);
             }
             catch(Exception ex)
             {
