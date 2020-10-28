@@ -4,6 +4,7 @@ using MwParserFromScratch.Nodes;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Threading.Tasks;
 using Wikibot.DataAccess;
@@ -51,30 +52,37 @@ namespace Wikibot.Logic.JobRetrievers
 
         public async Task<List<WikiJobRequest>> GetNewJobDefinitions()
         {
-            IEnumerable<WikiJobRequest> jobs;
+            IEnumerable<WikiJobRequest> jobs = null;
             
             using (var client = new WikiClient
             {
                 ClientUserAgent = "WCLQuickStart/1.0 (your user name or contact information here)"
             })
             {
-                var site = _wikiAccessLogic.GetLoggedInWikiSite(_wikiLoginConfig, client); //new WikiSite(client, _wikiLoginConfig["APIUrl"]);
-                var page = new WikiPage(site, _wikiRequestPage);
+                try
+                {
+                    var site = _wikiAccessLogic.GetLoggedInWikiSite(_wikiLoginConfig, client); //new WikiSite(client, _wikiLoginConfig["APIUrl"]);
+                    var page = new WikiPage(site, _wikiRequestPage);
 
-                _log.Information("Fetching content from job request page.");
-                // Fetch content from the job request page so we can build jobs from it
-                await page.RefreshAsync(PageQueryOptions.FetchContent
-                                        | PageQueryOptions.ResolveRedirects);
+                    _log.Information("Fetching content from job request page.");
+                    // Fetch content from the job request page so we can build jobs from it
+                    await page.RefreshAsync(PageQueryOptions.FetchContent
+                                            | PageQueryOptions.ResolveRedirects);
 
-                //var text = "Paragraph.\n* Item1\n* Item2\n";
-                //var revision = page.CreateRevisionsGenerator().EnumItemsAsync().LastAsync().Result;
-                //var fullRev = await Revision.FetchRevisionAsync(site, revision.Id);
-                //var content = fullRev.Content;
-                var ast = new WikitextParser().Parse(page.Content);
-                var templates = ast.Lines.First().EnumDescendants().OfType<Template>();
+                    //var text = "Paragraph.\n* Item1\n* Item2\n";
+                    //var revision = page.CreateRevisionsGenerator().EnumItemsAsync().LastAsync().Result;
+                    //var fullRev = await Revision.FetchRevisionAsync(site, revision.Id);
+                    //var content = fullRev.Content;
+                    var ast = new WikitextParser().Parse(page.Content);
+                    var templates = ast.Lines.First().EnumDescendants().OfType<Template>();
 
-                _log.Information("Building jobs.");
-                jobs = templates.Select(template => WikiJobRequestFactory.GetWikiJobRequest((JobType)Enum.Parse(typeof(JobType), template.Arguments.Single(arg => arg.Name.ToPlainText() == "type").Value.ToPlainText().Replace(" ", "") + "Job"), GetTimeZone(), template));
+                    _log.Information("Building jobs.");
+                    jobs = templates.Select(template => WikiJobRequestFactory.GetWikiJobRequest((JobType)Enum.Parse(typeof(JobType), template.Arguments.Single(arg => arg.Name.ToPlainText() == "type").Value.ToPlainText().Replace(" ", "") + "Job"), GetTimeZone(), template));
+                }
+                catch(Exception ex)
+                {
+                    _log.Error(ex, "An error occurred while trying to fetch new requests: ");
+                }
             }
             return jobs.ToList();
         }
@@ -85,46 +93,61 @@ namespace Wikibot.Logic.JobRetrievers
             {
                 ClientUserAgent = "WCLQuickStart/1.0 (your user name or contact information here)"
             })
+            
             {
-                // You can create multiple WikiSite instances on the same WikiClient to share the state.
-                var site = _wikiAccessLogic.GetLoggedInWikiSite(_wikiLoginConfig, client);
-
-                var page = new WikiPage(site, _wikiRequestPage);
-
-                _log.Information("Fetching content from job request page.");
-
-                // Fetch content of job request page so we can update it
-                await page.RefreshAsync(PageQueryOptions.FetchContent
-                                        | PageQueryOptions.ResolveRedirects);
-
-                var parser = new WikitextParser();
-                var wikiText = parser.Parse(page.Content);
-
-                foreach (WikiJobRequest request in requests)
+                try
                 {
-                    //Find corresponding template in the page content
-                    var templates = wikiText.Lines.SelectMany(x => x.EnumDescendants().OfType<Template>());
-                    var singletemplate = templates.First(x => x.Name.ToPlainText().Equals(_botRequestTemplate) && x.EqualsJob(request));
+                    // You can create multiple WikiSite instances on the same WikiClient to share the state.
+                    var site = _wikiAccessLogic.GetLoggedInWikiSite(_wikiLoginConfig, client);
 
-                    if (singletemplate.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText().Equals("status")) == null) //Status argument doesn't exist in the template
+                    var page = new WikiPage(site, _wikiRequestPage);
+
+                    _log.Information("Pulling requests from job request page.");
+
+                    // Fetch content of job request page so we can update it
+                    await page.RefreshAsync(PageQueryOptions.FetchContent
+                                            | PageQueryOptions.ResolveRedirects);
+
+                    var parser = new WikitextParser();
+                    var wikiText = parser.Parse(page.Content);
+
+                    foreach (WikiJobRequest request in requests)
                     {
-                        var templateArgument = new TemplateArgument { Name = parser.Parse("status"), Value = parser.Parse(request.Status.ToString()) };
-                        singletemplate.Arguments.Add(templateArgument);
-                    }
-                    else //Status argument exists
-                    {
-                        singletemplate.Arguments.Single(arg => arg.Name.ToPlainText().Equals("status")).Value = parser.Parse(request.Status.ToString());
+                        _log.Information($"Processing request ID: {request.ID}");
+                        //Find corresponding template in the page content
+                        var templates = wikiText.Lines.SelectMany(x => x.EnumDescendants().OfType<Template>());
+                        var singletemplate = templates.First(x => x.Name.ToPlainText().Equals(_botRequestTemplate) && x.EqualsJob(request));
+
+                        if (singletemplate.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText().Equals("status")) == null) //Status argument doesn't exist in the template
+                        {
+                            var templateArgument = new TemplateArgument { Name = parser.Parse("status"), Value = parser.Parse(request.Status.ToString()) };
+                            singletemplate.Arguments.Add(templateArgument);
+                        }
+                        else //Status argument exists
+                        {
+                            singletemplate.Arguments.Single(arg => arg.Name.ToPlainText().Equals("status")).Value = parser.Parse(request.Status.ToString());
+                        }
+
+                        if (singletemplate.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText().Equals("id")) == null) //ID argument doesn't exist in the template
+                        {
+                            var templateArgument = new TemplateArgument { Name = parser.Parse("id"), Value = parser.Parse(request.ID.ToString()) };
+                            singletemplate.Arguments.Add(templateArgument);
+                        }
+
+                        request.RawRequest = singletemplate.ToString();
+                        _database.UpdateRaw(request.ID, request.RawRequest); //TODO: Make batch operation
                     }
 
-                    request.RawRequest = singletemplate.ToString();
-                    _database.UpdateRaw(request.ID, request.RawRequest); //TODO: Make batch operation
+                    await UpdatePageContent(wikiText.ToString(), "Test page update", page);
+                    //Update the content of the page object and push it live
+
+                    // We're done here
+                    await site.LogoutAsync();
                 }
-
-                await UpdatePageContent(wikiText.ToString(), "Test page update", page);
-                //Update the content of the page object and push it live
-
-                // We're done here
-                await site.LogoutAsync();
+                catch (Exception ex)
+                {
+                    _log.Error(ex, "An error occurred while trying to update requests: ");
+                }
             }
         }
 
