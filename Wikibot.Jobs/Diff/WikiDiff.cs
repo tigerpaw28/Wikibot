@@ -357,14 +357,13 @@ namespace WikiFunctions
         {
             get
             {
-                string th = @"<p style='margin: 0px;'>Double click on a line to undo all changes on that line, or single click to focus the edit box to that line.</p>
-" + DiffColumnClasses + @"
+                string th = DiffColumnClasses + @"
 <thead>
   <tr valign='top'>";
 
                     th = th + @"
     <td colspan='2' width='50%' class='diff-otitle'>Current revision</td>
-    <td colspan='2' width='50%' class='diff-ntitle'>Your text</td>";
+    <td colspan='2' width='50%' class='diff-ntitle'>Proposed update</td>";
 
                 th = th + @"
   </tr>
