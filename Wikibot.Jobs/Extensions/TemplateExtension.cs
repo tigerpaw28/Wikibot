@@ -1,4 +1,5 @@
 ﻿using MwParserFromScratch.Nodes;
+using System.Linq;
 using Wikibot.DataAccess.Objects;
 
 namespace Wikibot.Logic.Extensions
@@ -7,7 +8,10 @@ namespace Wikibot.Logic.Extensions
     {
         public static bool EqualsJob(this Template template, WikiJobRequest job)
         {
-            return (template.ToString().Equals(job.RawRequest));
+            
+            var templateID = template.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText().Equals("id"));
+            bool hasMatchingID = (templateID == null || templateID.Value.ToPlainText().Equals(job.ID.ToString()));
+            return (template.ToString().Equals(job.RawRequest) && hasMatchingID);
         }
     }
 }
