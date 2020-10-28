@@ -29,15 +29,8 @@ namespace Wikibot.Logic.Factories
 
             if (template != null)
             {
-                //Check for tampered with jobs
-                if (template.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText() == "status")?.Value.ToPlainText() == JobStatus.ToBeProcessed.ToString())
-                {
-                    jobRequest.Status = JobStatus.Rejected;
-                }
-                else
-                {
-                    jobRequest.Status = (JobStatus)Enum.Parse(typeof(JobStatus), template.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText() == "status")?.Value.ToPlainText() ?? JobStatus.ToBeProcessed.ToString());
-                }
+                jobRequest.Status = (JobStatus)Enum.Parse(typeof(JobStatus), template.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText() == "status")?.Value.ToPlainText() ?? JobStatus.ToBeProcessed.ToString());
+                jobRequest.ID = long.Parse(template.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText() == "id")?.Value.ToPlainText() ?? "0");
                 jobRequest.RequestingUsername = template.Arguments.Single(arg => arg.Name.ToPlainText() == "username").Value.ToPlainText();
                 jobRequest.Comment = template.Arguments.Single(arg => arg.Name.ToPlainText() == "comment").Value.ToPlainText();
 
