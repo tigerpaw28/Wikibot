@@ -36,11 +36,11 @@ namespace Wikibot.App.Controllers
         public IActionResult GetRequests()
         {
             var config = new MapperConfiguration(cfg => cfg.CreateMap<WikiJobRequest, Wikibot.App.Models.WikiJobRequest>()
-                .ForMember(dest => dest.Diffs, opt => opt.MapFrom(src => src.Pages.Select(x=> string.Format(diffFileNamePattern, x.Name))))
+                .ForMember(dest => dest.Diffs, opt => opt.MapFrom(src => src.Pages.Select(x=> string.Format(diffFileNamePattern, src.ID, x.Name))))
                 .ForMember(dest => dest.RequestingUsername, opt=> opt.MapFrom(src => src.RequestingUsername))
                 .ForMember(dest => dest.StatusName, opt=> opt.MapFrom(src => src.Status))
                 );
-            var requestList = _requestData.GetWikiJobRequestsWithPages(1, 100, "ASC", "ID");
+            var requestList = _requestData.GetWikiJobRequestsWithPages(1, 200, "ASC", "ID");
             var mapper = new Mapper(config);
             var modelList = mapper.Map<List<WikiJobRequest>, List<Models.WikiJobRequest>>(requestList);
             return new OkObjectResult(modelList);
