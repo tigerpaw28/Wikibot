@@ -84,7 +84,7 @@ namespace Wikibot.Logic.Jobs
         {
             Log.Information("Saving job.");
 
-            //JobData.UpdateWikiJobRequest(this.Request);
+            JobData.UpdateStatus(this.Request.ID, this.Request.Status);
         }
     }
 }
