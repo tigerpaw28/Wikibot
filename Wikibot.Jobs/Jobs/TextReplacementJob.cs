@@ -40,7 +40,6 @@ namespace Wikibot.Logic.Jobs
                     var site = _wikiAccessLogic.GetLoggedInWikiSite(WikiConfig, client);
                     var PageList = GetPageList(site);
 
-                    int counter = 0;
                     string filename = "";
                     string diff = "";
                     string filePath = "";

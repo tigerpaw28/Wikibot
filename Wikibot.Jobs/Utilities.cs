@@ -17,29 +17,14 @@ namespace Wikibot.Logic
             if (_BadChars == null)
             {
                 _BadChars = new List<char>(Path.GetInvalidFileNameChars());
-                //_BadChars.Union(Path.GetInvalidPathChars());
             }
 
-            //// remove root
-            //string root = Path.GetPathRoot(path);
-            //path = path.Remove(0, root.Length);
+            foreach (char c in _BadChars)
+            {
+                filename = filename.Replace(c, replaceChar);
+            }
 
-            //// split on the directory separator character. Need to do this
-            //// because the separator is not valid in a filename.
-            //List<string> parts = new List<string>(path.Split(new char[] { Path.DirectorySeparatorChar }));
-
-            //// check each part to make sure it is valid.
-            //for (int i = 0; i < parts.Count; i++)
-            //{
-            //    string part = parts[i];
-                foreach (char c in _BadChars)
-                {
-                    filename = filename.Replace(c, replaceChar);
-                }
-                //parts[i] = part;
-            //}
-
-            return filename; //root + Utility.Join(parts, Path.DirectorySeparatorChar.ToString());
+            return filename;
         }
     }
 }

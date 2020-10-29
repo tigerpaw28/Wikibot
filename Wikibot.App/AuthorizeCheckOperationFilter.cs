@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Wikibot.App
 {
@@ -23,21 +21,6 @@ namespace Wikibot.App
 
                 if (operation.Parameters == null)
                     operation.Parameters = new List<OpenApiParameter>();
-
-                //    operation.Security = new List<OpenApiSecurityRequirement>
-                //{
-                //    new OpenApiSecurityRequirement
-                //    {
-                //        [
-                //            new OpenApiSecurityScheme {Reference = new OpenApiReference
-                //            {
-                //                Type = ReferenceType.SecurityScheme,
-                //                Id = "oauth2"}
-                //            }
-                //        ] = new[] {"api1"}
-                //    }
-                //};
-
             }
         }
     }

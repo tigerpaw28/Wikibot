@@ -25,7 +25,7 @@ namespace Wikibot.App.Services
             var client = new SendGridClient(apiKey);
             var msg = new SendGridMessage()
             {
-                From = new EmailAddress("tigerpaw28@hotmail.com", Options.SendGridUser),
+                From = new EmailAddress("test@hotmail.com", Options.SendGridUser),
                 Subject = subject,
                 PlainTextContent = message,
                 HtmlContent = message

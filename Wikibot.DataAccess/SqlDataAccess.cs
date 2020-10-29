@@ -2,12 +2,9 @@
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Reflection.Metadata;
-using Wikibot.DataAccess.Objects;
 
 namespace Wikibot.DataAccess
 {
@@ -16,7 +13,6 @@ namespace Wikibot.DataAccess
         public string GetConnectionString(string name)
         {
             return new ConfigurationBuilder()
-                //.SetBasePath("test")
                 .AddJsonFile("appsettings.json", optional: true)
                 .AddUserSecrets("e3dfcccf-0cb3-423a-b302-e3e92e95c128")
                 .AddEnvironmentVariables()

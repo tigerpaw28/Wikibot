@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.OpenApi.Extensions;
+using System.Collections.Generic;
+using System.Linq;
 using Wikibot.DataAccess;
 using Wikibot.DataAccess.Objects;
 using Wikibot.Logic.JobRetrievers;
@@ -31,6 +26,7 @@ namespace Wikibot.App.Controllers
             diffFileNamePattern = config["DiffFileNamePattern"];
             _jobRetriever = jobRetriever;
         }
+
         //Get Requests
         [HttpGet("requests")]
         public IActionResult GetRequests()

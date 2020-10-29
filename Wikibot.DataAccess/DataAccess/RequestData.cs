@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Wikibot.DataAccess.Objects;
 
 namespace Wikibot.DataAccess
@@ -56,6 +55,7 @@ namespace Wikibot.DataAccess
             var output = _database.LoadDataComplex<WikiJobRequest, dynamic>("dbo.spGetWikiJobRequestById", p, "JobDb", types, MapPageToWikiJobRequest, "PageID");
             return output.SingleOrDefault();
         }
+
         public void SaveWikiJobRequest(WikiJobRequest request)
         {
             var p = new DynamicParameters();
