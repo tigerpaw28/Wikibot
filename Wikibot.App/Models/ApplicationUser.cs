@@ -1,15 +1,7 @@
-﻿
-using Microsoft.AspNetCore.Identity;
-using System;
-using System.Security.Claims;
-
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace Wikibot.App.Models
 {
-    public class ApplicationUser: IdentityUser //ApplicationUser<string>
+    public class ApplicationUser: IdentityUser
     { }
-    //public class ApplicationUser<TKey> : IdentityUser<TKey> where TKey : IEquatable<TKey>
-    //{
-    //    //public long Id { get; set; }
-    //}
 }

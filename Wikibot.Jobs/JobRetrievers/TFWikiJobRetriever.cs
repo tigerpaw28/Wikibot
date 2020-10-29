@@ -4,7 +4,6 @@ using MwParserFromScratch.Nodes;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Threading.Tasks;
 using Wikibot.DataAccess;
@@ -61,7 +60,7 @@ namespace Wikibot.Logic.JobRetrievers
             {
                 try
                 {
-                    var site = _wikiAccessLogic.GetLoggedInWikiSite(_wikiLoginConfig, client); //new WikiSite(client, _wikiLoginConfig["APIUrl"]);
+                    var site = _wikiAccessLogic.GetLoggedInWikiSite(_wikiLoginConfig, client);
                     var page = new WikiPage(site, _wikiRequestPage);
 
                     _log.Information("Fetching content from job request page.");
@@ -69,10 +68,6 @@ namespace Wikibot.Logic.JobRetrievers
                     await page.RefreshAsync(PageQueryOptions.FetchContent
                                             | PageQueryOptions.ResolveRedirects);
 
-                    //var text = "Paragraph.\n* Item1\n* Item2\n";
-                    //var revision = page.CreateRevisionsGenerator().EnumItemsAsync().LastAsync().Result;
-                    //var fullRev = await Revision.FetchRevisionAsync(site, revision.Id);
-                    //var content = fullRev.Content;
                     var ast = new WikitextParser().Parse(page.Content);
                     var templates = ast.Lines.First().EnumDescendants().OfType<Template>();
 
@@ -138,8 +133,9 @@ namespace Wikibot.Logic.JobRetrievers
                         _database.UpdateRaw(request.ID, request.RawRequest); //TODO: Make batch operation
                     }
 
-                    await UpdatePageContent(wikiText.ToString(), "Test page update", page);
                     //Update the content of the page object and push it live
+                    await UpdatePageContent(wikiText.ToString(), "Test page update", page);
+                    
 
                     // We're done here
                     await site.LogoutAsync();

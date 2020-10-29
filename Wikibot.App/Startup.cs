@@ -24,7 +24,6 @@ using Wikibot.App.Models;
 using Wikibot.DataAccess;
 using Wikibot.Logic.JobRetrievers;
 using Wikibot.Logic.Logic;
-using static Wikibot.App.Helpers;
 
 namespace Wikibot.App
 {
@@ -46,9 +45,9 @@ namespace Wikibot.App
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
-            services.AddSingleton<IJwtFactory, JwtFactory>();
             // jwt wire up
+            services.AddSingleton<IJwtFactory, JwtFactory>();
+            
             // Get options from app settings
             var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
 
@@ -79,9 +78,6 @@ namespace Wikibot.App
 
             services.AddAuthentication(options =>
             {
-
-                //options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                //options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(configureOptions =>
             {
                 configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
@@ -104,8 +100,7 @@ namespace Wikibot.App
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("BotAdmin", policy => {
-                    //policy.RequireAuthenticatedUser();
-                    //policy.RequireClaim(Constants.Strings.JwtClaimIdentifiers.Role, Constants.Strings.JwtClaims.ApiAccess);
+                    policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimTypes.Role);
                     policy.RequireRole("BotAdmin");
                     policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
@@ -124,8 +119,6 @@ namespace Wikibot.App
                 o.Password.RequireNonAlphanumeric = false;
                 o.Password.RequiredLength = 6;
             });
-
-            //services.AddIdentityCore<IdentityRole>();
 
             identityBuilder = new IdentityBuilder(identityBuilder.UserType, typeof(IdentityRole), identityBuilder.Services);
             identityBuilder.AddRoles<IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
@@ -208,7 +201,6 @@ namespace Wikibot.App
             else
             {
                 app.ConfigureExceptionHandler(logger);
-                //app.UseExceptionHandler("/Home/Error",);
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
@@ -241,11 +233,7 @@ namespace Wikibot.App
                 {
                     var jwtOptions = app.ApplicationServices.GetRequiredService<IOptions<JwtIssuerOptions>>();
                     var factory = new JwtFactory(jwtOptions);
-
-                    //var usermanager = app.ApplicationServices.GetRequiredService<UserManager<ApplicationUser<ClaimsIdentity.>>>();
-                    //var user = await usermanager.FindByNameAsync(context.User.Identity.Name);
                     var jwtToken = await factory.GenerateEncodedToken(context.User.Identity.Name, context.User.Identities.First());
-                    //context.Request..QueryString.Add($"auth_token = {jwtToken}"); //Get token
                     context.Response.Redirect($"http://localhost:4200?auth_token= {jwtToken}"); //Update URL
                     return;   // short circuit
                 }

@@ -1,11 +1,8 @@
-﻿using System;
+﻿using Dapper;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using Wikibot.Logic.Extensions;
-using Wikibot.DataAccess.Objects;
 using System.Linq;
-using Dapper;
+using Wikibot.DataAccess.Objects;
+using Wikibot.Logic.Extensions;
 
 namespace Wikibot.DataAccess
 {

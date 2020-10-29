@@ -33,10 +33,9 @@ namespace Wikibot.App
                     var services = serviceScope.ServiceProvider;
                     var config = services.GetRequiredService<IConfiguration>();
                     var wikiAccessLogic = services.GetRequiredService<IWikiAccessLogic>();
-                    var jobRetriever = services.GetRequiredService<IWikiJobRetriever>();//new TFWikiJobRetriever(config, Log.Logger, wikiAccessLogic);
-                    var logger = services.GetRequiredService<Serilog.ILogger>();
+                    var jobRetriever = services.GetRequiredService<IWikiJobRetriever>();
+                    var logger = services.GetRequiredService<ILogger>();
                     var dataAccess = services.GetRequiredService<IDataAccess>();
-                    //var dbContext = services.GetRequiredService<JobContext>();
                     var jobData = new RequestData(dataAccess);
 
                     Log.Information("Starting background job retrieval job");
@@ -60,12 +59,6 @@ namespace Wikibot.App
         {
             return Host.CreateDefaultBuilder(args)
                 .UseSerilog()
-            //.ConfigureLogging((context, logging) => {
-            //    logging.ClearProviders();
-            //    logging.AddConfiguration(context.Configuration.GetSection("Logging"));
-            //    logging.AddDebug();
-            //    logging.AddConsole();
-            //})
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                 webBuilder.UseStartup<Startup>();

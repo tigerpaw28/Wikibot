@@ -45,8 +45,7 @@ namespace Wikibot.Logic.Factories
                 jobRequest.Comment = "Internally scheduled job";
                 jobRequest.SubmittedDateUTC = DateTime.UtcNow;
             }
-            //jobRequest.Configuration = config;
-            //jobRequest.DBContext = context;
+
             jobRequest.RawRequest = template.ToString();
             return jobRequest;
 

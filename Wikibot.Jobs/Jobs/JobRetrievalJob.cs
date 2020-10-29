@@ -9,7 +9,6 @@ using Wikibot.Logic.Factories;
 using Wikibot.Logic.JobRetrievers;
 using Wikibot.Logic.Logic;
 using Wikibot.Logic.UserRetrievers;
-using Wikibot.Logic.Extensions;
 
 namespace Wikibot.Logic.Jobs
 {
@@ -48,8 +47,6 @@ namespace Wikibot.Logic.Jobs
                 //Get job definitions
                 var requests = _jobRetriever.JobDefinitions.Where(request => statusesToProcess.Contains(request.Status)).ToList();
 
-                //using (JobContext _context = new JobContext(DBOptions))
-                //{
                 foreach (WikiJobRequest request in requests)
                 {
                     Log.Information($"Processing retrieved request: {request.RawRequest}");
@@ -75,9 +72,6 @@ namespace Wikibot.Logic.Jobs
                             requestIsValid = requestIsValid && request.Equals(existingRequest);
                         }
 
-                        //Set JobID so we have it available when the job runs
-                        //request.ID = DBContext.Jobs.AsEnumerable().Last().ID;
-
                         if ( requestIsValid && (request.Status == JobStatus.Approved || request.Status == JobStatus.PreApproved))
                         {
                             Log.Information("Scheduling request");
@@ -98,7 +92,7 @@ namespace Wikibot.Logic.Jobs
                         Log.Error(ex, $"Error processing request {request.RawRequest}:");
                     }
                 }
-                //
+
                 Log.Information("Saving requests");
                 //Update job status on the wiki page the job was retreived from
                 _jobRetriever.UpdateRequests(requestsToUpdate);

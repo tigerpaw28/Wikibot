@@ -52,8 +52,6 @@ namespace Wikibot.Logic.Extensions
                     sroffset = offset
                 }), CancellationToken.None);
                 
-
-                //var jobject = (JObject)jresult;
                 var query = jresult["query"];
                 results.Merge((JArray)query["search"]);
                 var querycontinue = jresult["query-continue"];
@@ -75,19 +73,6 @@ namespace Wikibot.Logic.Extensions
                 result.Add(entry);
             }
 
-            //var titles = jarray.Count > 1 ? (JArray)jarray[1] : null;
-            //var descs = jarray.Count > 2 ? (JArray)jarray[2] : null;
-            //var urls = jarray.Count > 3 ? (JArray)jarray[3] : null;
-            //if (titles != null)
-            //{
-            //    for (int i = 0; i < titles.Count; i++)
-            //    {
-            //        var entry = new SearchResultEntry { Title = (string)titles[i] };
-            //        if (descs != null) entry.Description = (string)descs[i];
-            //        if (urls != null) entry.Url = (string)urls[i];
-            //        result.Add(entry);
-            //    }
-            //}
             return result;
         }
 
