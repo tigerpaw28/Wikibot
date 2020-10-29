@@ -1,8 +1,22 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
     ViewData["Title"] = "WikiBot";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Welcome to the WikiBot. Please login to access the approval dashboard or register to request access.</p>
-</div>
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <div class="text-center">
+        <a href="/Dashboard">View Approval Dashboard</a>
+    </div>
+}
+else
+{
+    <div class="text-center">
+        <h1 class="display-4">Welcome</h1>
+        <p>Welcome to the WikiBot. Please login to access the approval dashboard or register to request access.</p>
+    </div>
+}

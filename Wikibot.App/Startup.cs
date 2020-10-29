@@ -237,7 +237,7 @@ namespace Wikibot.App
                 var url = context.Request.Path.Value;
 
                 // Redirect to an external URL
-                if (url.Contains("/dashboard") && (context.User.IsInRole("WikiMod") || context.User.IsInRole("BotAdmin")))
+                if (url.Contains("/Dashboard") && (context.User.IsInRole("WikiMod") || context.User.IsInRole("BotAdmin")))
                 {
                     var jwtOptions = app.ApplicationServices.GetRequiredService<IOptions<JwtIssuerOptions>>();
                     var factory = new JwtFactory(jwtOptions);
@@ -245,8 +245,8 @@ namespace Wikibot.App
                     //var usermanager = app.ApplicationServices.GetRequiredService<UserManager<ApplicationUser<ClaimsIdentity.>>>();
                     //var user = await usermanager.FindByNameAsync(context.User.Identity.Name);
                     var jwtToken = await factory.GenerateEncodedToken(context.User.Identity.Name, context.User.Identities.First());
-                    context.Request.Headers.Add("WikibotAuthToken", jwtToken); //Get token
-                    context.Response.Redirect("https://markdownmonster.west-wind.com"); //Update URL
+                    //context.Request..QueryString.Add($"auth_token = {jwtToken}"); //Get token
+                    context.Response.Redirect($"http://localhost:4200?auth_token= {jwtToken}"); //Update URL
                     return;   // short circuit
                 }
 
