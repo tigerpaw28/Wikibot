@@ -103,5 +103,5 @@ SET @query = @query + 'ORDER BY '+ @SortColumn + ' ' + @SortDirection + ' OPTION
 
 PRINT @query
 
-EXEC sp_Executesql @query, @ParameterDef, @PageNumber=@PageNumber, @PageSize=@PageSize, @SortDirection=@SortDirection, @SortColumn=@SortColumn 
+EXEC sp_executesql @query, @ParameterDef, @PageNumber=@PageNumber, @PageSize=@PageSize, @SortDirection=@SortDirection, @SortColumn=@SortColumn 
 END
