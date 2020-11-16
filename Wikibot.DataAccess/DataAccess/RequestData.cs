@@ -43,6 +43,22 @@ namespace Wikibot.DataAccess
             return output;
         }
 
+        public List<WikiJobRequest> GetWikiJobRequestsForApproval(int pageNumber, int pageSize, string sortDirection, string sortColumn)
+        {
+            var p = new
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                SortDirection = sortDirection,
+                SortColumn = sortColumn
+            };
+            Type[] types = new Type[] { typeof(WikiJobRequest), typeof(Page) };
+
+            var output = _database.LoadDataComplex<WikiJobRequest, dynamic>("dbo.spGetWikiJobRequestsForApproval", p, "JobDb", types, MapPageToWikiJobRequest, "PageID");
+
+            return output;
+        }
+
         public WikiJobRequest GetWikiJobRequestByID(long requestID)
         {
             var p = new

@@ -36,7 +36,7 @@ namespace Wikibot.App.Controllers
                 .ForMember(dest => dest.RequestingUsername, opt=> opt.MapFrom(src => src.RequestingUsername))
                 .ForMember(dest => dest.StatusName, opt=> opt.MapFrom(src => src.Status))
                 );
-            var requestList = _requestData.GetWikiJobRequestsWithPages(1, 200, "ASC", "ID");
+            var requestList = _requestData.GetWikiJobRequestsForApproval(1, 200, "ASC", "ID");
             var mapper = new Mapper(config);
             var modelList = mapper.Map<List<WikiJobRequest>, List<Models.WikiJobRequest>>(requestList);
             return new OkObjectResult(modelList);
