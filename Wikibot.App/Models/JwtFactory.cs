@@ -20,14 +20,12 @@ namespace Wikibot.App.Models
         }
         public async Task<string> GenerateEncodedToken(string userName, ClaimsIdentity identity)
         {
-            _jwtOptions.IssuedAt = DateTime.UtcNow;
+            _jwtOptions.IssuedAt = _jwtOptions.NotBefore = DateTime.UtcNow;
             var claims = new[]
             {
                  new Claim(JwtRegisteredClaimNames.Sub, userName),
                  new Claim(JwtRegisteredClaimNames.Jti, await _jwtOptions.JtiGenerator()),
-                 new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(_jwtOptions.IssuedAt).ToString(), ClaimValueTypes.Integer64),
-                 //identity.FindFirst(ClaimTypes.Role),
-                 //identity.FindFirst(Helpers.Constants.Strings.JwtClaimIdentifiers.Id)
+                 new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(_jwtOptions.IssuedAt).ToString(), ClaimValueTypes.Integer64)
             };
 
            claims = claims.AsEnumerable().Concat(identity.Claims).ToArray();
@@ -52,7 +50,6 @@ namespace Wikibot.App.Models
             var identity = new ClaimsIdentity(new GenericIdentity(userName, "Token"), new[]
             {
                 new Claim(Helpers.Constants.Strings.JwtClaimIdentifiers.Id, id),
-                //new Claim(ClaimTypes.Role, Helpers.Constants.Strings.JwtClaims.ApiAccess)
             });
             var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role));
             identity.AddClaims(roleClaims);
