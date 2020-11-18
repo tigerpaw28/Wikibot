@@ -22,10 +22,11 @@ namespace Wikibot.Logic.Jobs
         public TextReplacementJob()
         { }
 
-        public TextReplacementJob(Serilog.ILogger log, IWikiAccessLogic wikiAccessLogic)
+        public TextReplacementJob(Serilog.ILogger log, IWikiAccessLogic wikiAccessLogic, RequestData jobData)
         {
             Log = log;
             _wikiAccessLogic = wikiAccessLogic;
+            JobData = jobData;
 
         }
 
@@ -61,6 +62,7 @@ namespace Wikibot.Logic.Jobs
                             filename = Utilities.SanitizeFilename(filename, '_');
                             filePath = Path.Combine(Configuration["DiffDirectory"], filename);
                             File.WriteAllText(filePath, diff);
+                            JobData.SaveWikiJobRequest(Request); //Save page list                        
                         }
                         else //Apply changes
                         {
