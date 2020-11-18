@@ -10,12 +10,15 @@ namespace Wikibot.DataAccess
 {
     public class SqlDataAccess : IDataAccess
     {
+        private IConfiguration _config;
+        public SqlDataAccess(IConfiguration configuration)
+        {
+            _config = configuration;
+        }
         public string GetConnectionString(string name)
         {
             return new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: true)
-                .AddUserSecrets("e3dfcccf-0cb3-423a-b302-e3e92e95c128")
-                .AddEnvironmentVariables()
+                .AddConfiguration(_config)
                 .Build().GetConnectionString(name);
         }
 
@@ -36,6 +39,7 @@ namespace Wikibot.DataAccess
             <T, U>(string storedProcedure, U parameters, string connectionStringName, Type[] typeArray, Func<object[],T> map, string splitOnString)
         {
             string connectionString = GetConnectionString(connectionStringName);
+            Console.WriteLine($"ConnectionString: {connectionString}");
             
             using (IDbConnection connection = new SqlConnection(connectionString))
             {
