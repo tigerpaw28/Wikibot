@@ -1,8 +1,11 @@
 using FluentScheduler;
+using Microsoft.AspNetCore.Connections.Features;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using Wikibot.DataAccess;
 using Wikibot.DataAccess.Objects;
 using Wikibot.Logic.Factories;
@@ -19,7 +22,7 @@ namespace Wikibot.Logic.Jobs
         private IUserRetriever _userRetriever;
         private IWikiAccessLogic _wikiAccessLogic;
 
-        public JobRetrievalJob(IConfiguration config, Serilog.ILogger log, IWikiJobRetriever jobRetriever, IWikiAccessLogic wikiAccessLogic, RequestData jobData)
+        public JobRetrievalJob(IConfiguration config, Serilog.ILogger log, IWikiJobRetriever jobRetriever, IWikiAccessLogic wikiAccessLogic, RequestData jobData )
         {
             Configuration = config;
             Log = log;
@@ -45,57 +48,65 @@ namespace Wikibot.Logic.Jobs
                 bool requestIsValid = true;
                 var requestsToUpdate = new List<WikiJobRequest>();
                 //Get job definitions
-                var requests = _jobRetriever.JobDefinitions.Where(request => statusesToProcess.Contains(request.Status)).ToList();
+                var requests = _jobRetriever.JobDefinitions?.Where(request => statusesToProcess.Contains(request.Status)).ToList();
 
-                foreach (WikiJobRequest request in requests)
+                if (requests != null)
                 {
-                    Log.Information($"Processing retrieved request: {request.RawRequest}");
-                    try
+                    Log.Information($"Processing {requests.Count} requests");
+                    foreach (WikiJobRequest request in requests)
                     {
-                        requestIsValid = true;
-                        if (request.Status == JobStatus.ToBeProcessed)
+                        Log.Information($"Processing retrieved request: {request.RawRequest}");
+                        try
                         {
-                            Log.Information("Request is ToBeProcessed");
-                            //Check For Automatic Approval
-                            CheckForUserApproval(request, jobApprovalLogic);
-                       
-                            //Save Job
-                            JobData.SaveWikiJobRequest(request);
-
-                            //Add to update list
-                            requestsToUpdate.Add(request);
-                        }
-                        else
-                        {
-                            Log.Information("Request has been previously approved or preapproved");
-                            var existingRequest = JobData.GetWikiJobRequestByID(request.ID);
-                            requestIsValid = requestIsValid && request.Equals(existingRequest);
-                        }
-
-                        if ( requestIsValid && (request.Status == JobStatus.Approved || request.Status == JobStatus.PreApproved))
-                        {
-                            Log.Information("Scheduling request");
-                            //Schedule jobs in 5 minute intervals
-                            //How to deal with potential page edit overlaps? -> Check page lists and id overlaps;
-                            if (offset == 5)
+                            requestIsValid = true;
+                            if (request.Status == JobStatus.ToBeProcessed)
                             {
-                                runin = runin + offset;
-                                offset = 0;
+                                Log.Information("Request is ToBeProcessed");
+                                //Check For Automatic Approval
+                                CheckForUserApproval(request, jobApprovalLogic);
+
+                                //Save Job
+                                JobData.SaveWikiJobRequest(request);
+
+                                //Add to update list
+                                requestsToUpdate.Add(request);
                             }
-                            var job = WikiJobFactory.GetWikiJob(request, Log, _wikiAccessLogic, Configuration, JobData);
-                            JobManager.AddJob(() => job.Execute(), (s) => s.ToRunOnceIn(runin).Minutes());
-                            offset++;
+                            else
+                            {
+                                Log.Information("Request has been previously approved or preapproved");
+                                var existingRequest = JobData.GetWikiJobRequestByID(request.ID);
+                                requestIsValid = requestIsValid && request.RawRequest.Equals(existingRequest.RawRequest);
+                                Log.Information($"Existing request {existingRequest.RawRequest} equals is {requestIsValid}");
+                            }
+
+                            if (requestIsValid && (request.Status == JobStatus.Approved || request.Status == JobStatus.PreApproved))
+                            {
+                                Log.Information("Scheduling request");
+                                //Schedule jobs in 5 minute intervals
+                                //How to deal with potential page edit overlaps? -> Check page lists and id overlaps;
+                                if (offset == 5)
+                                {
+                                    runin = runin + offset;
+                                    offset = 0;
+                                }
+                                var job = WikiJobFactory.GetWikiJob(request, Log, _wikiAccessLogic, Configuration, JobData );
+                                JobManager.AddJob(() => job.Execute(), (s) => s.ToRunOnceIn(runin).Minutes());
+                                offset++;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error(ex, $"Error processing request {request.RawRequest}:");
                         }
                     }
-                    catch(Exception ex)
-                    {
-                        Log.Error(ex, $"Error processing request {request.RawRequest}:");
-                    }
-                }
 
-                Log.Information("Saving requests");
-                //Update job status on the wiki page the job was retreived from
-                _jobRetriever.UpdateRequests(requestsToUpdate);
+                    Log.Information("Saving requests");
+                    //Update job status on the wiki page the job was retreived from
+                    _jobRetriever.UpdateRequests(requestsToUpdate);
+
+
+                } 
+
             }
             catch(Exception ex)
             {
@@ -117,5 +128,6 @@ namespace Wikibot.Logic.Jobs
                 request.Status = JobStatus.PendingPreApproval;
             }
         }
+
     }
 }
