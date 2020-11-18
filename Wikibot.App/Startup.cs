@@ -288,6 +288,12 @@ namespace Wikibot.App
                 roleResult = await RoleManager.CreateAsync(new IdentityRole("BotAdmin"));
             }
 
+            roleCheck = await RoleManager.RoleExistsAsync("WikiMod");
+            if (!roleCheck)
+            {
+                //create the roles and seed them to the database
+                roleResult = await RoleManager.CreateAsync(new IdentityRole("WikiMod"));
+            }
             //Assign Admin role to the main User here we have given our newly registered 
             //login id for Admin management
             var rootAdminAddress = configuration["RootAdminEmailAddress"];
