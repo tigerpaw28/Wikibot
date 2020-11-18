@@ -55,7 +55,7 @@ namespace Wikibot.Tests
             var iConfig = Utilities.GetIConfigurationRoot();
             var logger = Utilities.GetLogger(iConfig);
             var wikiAccessLogic = new WikiAccessLogic();
-            var sqlDataAccess = new SqlDataAccess();
+            var sqlDataAccess = new SqlDataAccess(iConfig);
             var retriever = new TFWikiJobRetriever(iConfig, logger, wikiAccessLogic, sqlDataAccess);
             Assert.NotNull(retriever.GetNewJobDefinitions().Result);
         }
@@ -67,7 +67,7 @@ namespace Wikibot.Tests
             var requestData = Utilities.GetRequestData(null);
             var logger = Utilities.GetLogger(iConfig);
             var wikiAccessLogic = new WikiAccessLogic();
-            var sqlDataAccess = new SqlDataAccess();
+            var sqlDataAccess = new SqlDataAccess(iConfig);
             var retriever = new TFWikiJobRetriever(iConfig, logger, wikiAccessLogic, sqlDataAccess);
             var job = new JobRetrievalJob(iConfig, logger, retriever, wikiAccessLogic, requestData);
             job.Execute();
