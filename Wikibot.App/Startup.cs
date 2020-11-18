@@ -191,12 +191,12 @@ namespace Wikibot.App
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider, ILogger logger)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider, ILogger logger, IHostApplicationLifetime lifetime)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
+                //app.UseDatabaseErrorPage();
             }
             else
             {
@@ -205,7 +205,7 @@ namespace Wikibot.App
                 app.UseHsts();
             }
             app.UseCors(options => options.AllowAnyOrigin().AllowAnyHeader());
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseSerilogRequestLogging();
@@ -213,7 +213,14 @@ namespace Wikibot.App
             app.UseAuthentication();
             app.UseRouting();
 
-           
+            app.Use(async (context, next) =>
+            {
+                // Do work that doesn't write to the Response.
+                await next.Invoke();
+                // Do logging or other work that doesn't write to the Response.
+            });
+
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -224,6 +231,19 @@ namespace Wikibot.App
                 endpoints.MapRazorPages();
             });
 
+            // Check for lifetime shutdown working with WebSocket active
+            lifetime.ApplicationStopping.Register(() =>
+            {
+                logger.Information("Wikibot is shutting down.");
+            }, true);
+
+            lifetime.ApplicationStopped.Register(() =>
+            {
+                logger.Information("Wikibot has stopped.");
+            }, true);
+
+            var configuration = app.ApplicationServices.GetRequiredService<IConfiguration>();
+            var dashboardUrl = configuration["DashboardURL"];
             app.Use(async (context, next) =>
             {
                 var url = context.Request.Path.Value;
@@ -234,7 +254,7 @@ namespace Wikibot.App
                     var jwtOptions = app.ApplicationServices.GetRequiredService<IOptions<JwtIssuerOptions>>();
                     var factory = new JwtFactory(jwtOptions);
                     var jwtToken = await factory.GenerateEncodedToken(context.User.Identity.Name, context.User.Identities.First());
-                    context.Response.Redirect($"http://localhost:4200?auth_token= {jwtToken}"); //Update URL
+                    context.Response.Redirect($"{dashboardUrl}?auth_token= {jwtToken}"); //Update URL
                     return;   // short circuit
                 }
 
@@ -250,11 +270,11 @@ namespace Wikibot.App
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
-
-            CreateUserRoles(serviceProvider).Wait();
+            
+            CreateUserRoles(serviceProvider, configuration).Wait();
         }
 
-        private async Task CreateUserRoles(IServiceProvider serviceProvider)
+        private async Task CreateUserRoles(IServiceProvider serviceProvider, IConfiguration configuration)
         {
             var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var UserManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
@@ -267,9 +287,11 @@ namespace Wikibot.App
                 //create the roles and seed them to the database
                 roleResult = await RoleManager.CreateAsync(new IdentityRole("BotAdmin"));
             }
+
             //Assign Admin role to the main User here we have given our newly registered 
             //login id for Admin management
-            ApplicationUser user = await UserManager.FindByEmailAsync("tigerpaw28@hotmail.com");
+            var rootAdminAddress = configuration["RootAdminEmailAddress"];
+            ApplicationUser user = await UserManager.FindByEmailAsync(rootAdminAddress);
             await UserManager.AddToRoleAsync(user, "BotAdmin");
         }
     }
