@@ -16,7 +16,7 @@ namespace Wikibot.Logic.Factories
             switch (request.JobType)
             {
                 case JobType.TextReplacementJob:
-                    job = new TextReplacementJob(log, wikiAccessLogic);
+                    job = new TextReplacementJob(log, wikiAccessLogic, jobData);
                     break;
                 default:
                     throw new Exception("Job type is undefined");
