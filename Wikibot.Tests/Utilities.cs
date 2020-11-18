@@ -26,7 +26,6 @@ namespace Wikibot.Tests
     public static class Utilities
     {
         const string CONFIGURATION_ROOT_PATH = "D:\\Wikibot\\Wikibot\\Wikibot.Tests\\";
-        private static object parser;
 
         public static IConfigurationRoot GetIConfigurationRoot()
         {
@@ -190,6 +189,7 @@ namespace Wikibot.Tests
             mock.Setup(dataAccess => dataAccess.LoadDataComplex<WikiJobRequest, dynamic>("dbo.spGetWikiJobRequestById", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, ldcParams)), "JobDb", types, It.IsAny<Func<object[], WikiJobRequest>>(), "PageID")).Returns(new List<WikiJobRequest> { request });
             mock.Setup(dataAccess => dataAccess.LoadData<WikiJobRequest, dynamic>("dbo.spGetWikiJobRequests", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, ldParams)), "JobDb")).Returns(GetSampleJobRequests(false));
             mock.Setup(dataAccess => dataAccess.LoadDataComplex<WikiJobRequest, dynamic>("dbo.spGetWikiJobRequests", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, ldParams)), "JobDb", types, It.IsAny<Func<object[], WikiJobRequest>>(), "PageID")).Returns(GetSampleJobRequests(true));
+            mock.Setup(dataAccess => dataAccess.LoadDataComplex<WikiJobRequest, dynamic>("dbo.spGetWikiJobRequestsForApproval", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, ldParams)), "JobDb", types, It.IsAny<Func<object[], WikiJobRequest>>(), "PageID")).Returns(GetSampleJobRequests(true).Where(x=> x.Status == JobStatus.PendingPreApproval || x.Status == JobStatus.PendingApproval).ToList());
             mock.Setup(dataAccess => dataAccess.SaveData<dynamic>("dbo.spCreateWikiJobRequest", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, sdParams)), "JobDb"));
             mock.Setup(dataAccess => dataAccess.SaveData<dynamic>("dbo.spUpdateWikiJobRequestStatus", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, updateStatus)), "JobDb"));
             mock.Setup(dataAccess => dataAccess.SaveData<dynamic>("dbo.spUpdateWikiJobRequestTimePreStarted", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, updateTimePreStart)), "JobDb"));
