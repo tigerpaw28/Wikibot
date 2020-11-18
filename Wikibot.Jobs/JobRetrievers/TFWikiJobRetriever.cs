@@ -63,23 +63,31 @@ namespace Wikibot.Logic.JobRetrievers
                     var site = _wikiAccessLogic.GetLoggedInWikiSite(_wikiLoginConfig, client);
                     var page = new WikiPage(site, _wikiRequestPage);
 
-                    _log.Information("Fetching content from job request page.");
+                    _log.Information($"Fetching content from job request page {page.Title}");
                     // Fetch content from the job request page so we can build jobs from it
                     await page.RefreshAsync(PageQueryOptions.FetchContent
                                             | PageQueryOptions.ResolveRedirects);
+                    if ((page?.Content ?? "").Length > 1)
+                    {
+                        var ast = new WikitextParser().Parse(page?.Content);
+                        var templates = ast.Lines.First().EnumDescendants().OfType<Template>();
 
-                    var ast = new WikitextParser().Parse(page.Content);
-                    var templates = ast.Lines.First().EnumDescendants().OfType<Template>();
+                        _log.Information("Building jobs.");
+                        jobs = templates.Select(template => WikiJobRequestFactory.GetWikiJobRequest((JobType)Enum.Parse(typeof(JobType), template.Arguments.Single(arg => arg.Name.ToPlainText() == "type").Value.ToPlainText().Replace(" ", "") + "Job"), GetTimeZone(), template));
+                        foreach(WikiJobRequest request in jobs)
+                        {
+                            _log.Information($"Request {request.RawRequest} has status {request.Status}");
+                        }
 
-                    _log.Information("Building jobs.");
-                    jobs = templates.Select(template => WikiJobRequestFactory.GetWikiJobRequest((JobType)Enum.Parse(typeof(JobType), template.Arguments.Single(arg => arg.Name.ToPlainText() == "type").Value.ToPlainText().Replace(" ", "") + "Job"), GetTimeZone(), template));
+                    }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _log.Error(ex, "An error occurred while trying to fetch new requests: ");
                 }
             }
-            return jobs.ToList();
+
+            return jobs?.ToList();
         }
 
         public async void UpdateRequests(List<WikiJobRequest> requests)
@@ -108,10 +116,13 @@ namespace Wikibot.Logic.JobRetrievers
 
                     foreach (WikiJobRequest request in requests)
                     {
-                        _log.Information($"Processing request ID: {request.ID}");
+                        _log.Information($"Processing request ID: {request.ID} with raw {request.RawRequest}");
                         //Find corresponding template in the page content
                         var templates = wikiText.Lines.SelectMany(x => x.EnumDescendants().OfType<Template>());
-                        var singletemplate = templates.First(x => x.Name.ToPlainText().Equals(_botRequestTemplate) && x.EqualsJob(request));
+                        var requestTemplates = templates.Where(template => template.Name.ToPlainText().Equals(_botRequestTemplate));
+                        _log.Information($"{requestTemplates.ToList().Count} templates found for template {_botRequestTemplate}");
+                        _log.Information($"Template id: {requestTemplates.First().Arguments.SingleOrDefault(arg => arg.Name.ToPlainText().Equals("id"))}");
+                        var singletemplate = requestTemplates.First(template => template.EqualsJob(request));
 
                         if (singletemplate.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText().Equals("status")) == null) //Status argument doesn't exist in the template
                         {
@@ -134,7 +145,7 @@ namespace Wikibot.Logic.JobRetrievers
                     }
 
                     //Update the content of the page object and push it live
-                    await UpdatePageContent(wikiText.ToString(), "Test page update", page);
+                    await UpdatePageContent(wikiText.ToString(), "Updating request ids and statuses", page);
                     
 
                     // We're done here
