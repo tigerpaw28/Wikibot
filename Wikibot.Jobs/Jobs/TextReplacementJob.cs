@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Wikibot.DataAccess;
 using Wikibot.DataAccess.Objects;
 using Wikibot.Logic.Extensions;
@@ -18,16 +19,17 @@ namespace Wikibot.Logic.Jobs
     {
 
         private IWikiAccessLogic _wikiAccessLogic;
+        private int _throttleSpeedInSeconds;
 
         public TextReplacementJob()
         { }
 
-        public TextReplacementJob(Serilog.ILogger log, IWikiAccessLogic wikiAccessLogic, RequestData jobData)
+        public TextReplacementJob(Serilog.ILogger log, IWikiAccessLogic wikiAccessLogic, RequestData jobData, int throttleSpeedInSeconds)
         {
             Log = log;
             _wikiAccessLogic = wikiAccessLogic;
             JobData = jobData;
-
+            _throttleSpeedInSeconds = throttleSpeedInSeconds;
         }
 
         public override void Execute()
@@ -71,6 +73,7 @@ namespace Wikibot.Logic.Jobs
                             UpdatePageContentWithMessage(page, afterContent, editMessage);
                         }
 
+                        Thread.Sleep(1000 * _throttleSpeedInSeconds);
                     }
                 }
             }

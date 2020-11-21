@@ -50,7 +50,7 @@ namespace Wikibot.Logic.Jobs
                 //Get job definitions
                 var requests = _jobRetriever.JobDefinitions?.Where(request => statusesToProcess.Contains(request.Status)).ToList();
 
-                if (requests != null)
+                if (requests != null && requests.Count > 0)
                 {
                     Log.Information($"Processing {requests.Count} requests");
                     foreach (WikiJobRequest request in requests)
@@ -82,16 +82,11 @@ namespace Wikibot.Logic.Jobs
                             if (requestIsValid && (request.Status == JobStatus.Approved || request.Status == JobStatus.PreApproved))
                             {
                                 Log.Information("Scheduling request");
-                                //Schedule jobs in 5 minute intervals
+                                //Schedule jobs in 10 minute intervals
                                 //How to deal with potential page edit overlaps? -> Check page lists and id overlaps;
-                                if (offset == 5)
-                                {
-                                    runin = runin + offset;
-                                    offset = 0;
-                                }
                                 var job = WikiJobFactory.GetWikiJob(request, Log, _wikiAccessLogic, Configuration, JobData );
                                 JobManager.AddJob(() => job.Execute(), (s) => s.ToRunOnceIn(runin).Minutes());
-                                offset++;
+                                offset = offset + 10;
                             }
                         }
                         catch (Exception ex)
