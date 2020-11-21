@@ -84,7 +84,7 @@ namespace Wikibot.Logic.Jobs
                                 Log.Information("Scheduling request");
                                 //Schedule jobs in 10 minute intervals
                                 //How to deal with potential page edit overlaps? -> Check page lists and id overlaps;
-                                var job = WikiJobFactory.GetWikiJob(request, Log, _wikiAccessLogic, Configuration, JobData );
+                                var job = WikiJobFactory.GetWikiJob(request, Log, _wikiAccessLogic, Configuration, JobData, _jobRetriever );
                                 JobManager.AddJob(() => job.Execute(), (s) => s.ToRunOnceIn(runin).Minutes());
                                 offset = offset + 10;
                             }

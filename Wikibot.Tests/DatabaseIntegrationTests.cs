@@ -60,8 +60,9 @@ namespace Wikibot.Tests
         [Fact]
         public void GetJobs2()
         {
-            var mockDataAccess = Utilities.GetMockDataAccess();
-            var jobList = Utilities.GetRequestData(mockDataAccess.Object).GetWikiJobRequestsWithPages(1,10,"ASC","ID");
+            //var mockDataAccess = Utilities.GetMockDataAccess();
+            var mockDataAccess = new SqlDataAccess(Utilities.GetIConfigurationRoot());
+            var jobList = Utilities.GetRequestData(mockDataAccess).GetWikiJobRequestsWithPages(1,10,"ASC","ID");
             Assert.NotEmpty(jobList);
         }
 
