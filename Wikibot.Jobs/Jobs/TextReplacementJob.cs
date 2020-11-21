@@ -7,6 +7,7 @@ using System.Threading;
 using Wikibot.DataAccess;
 using Wikibot.DataAccess.Objects;
 using Wikibot.Logic.Extensions;
+using Wikibot.Logic.JobRetrievers;
 using Wikibot.Logic.Logic;
 using WikiClientLibrary.Client;
 using WikiClientLibrary.Pages;
@@ -20,16 +21,18 @@ namespace Wikibot.Logic.Jobs
 
         private IWikiAccessLogic _wikiAccessLogic;
         private int _throttleSpeedInSeconds;
+        private IWikiJobRetriever _retriever;
 
         public TextReplacementJob()
         { }
 
-        public TextReplacementJob(Serilog.ILogger log, IWikiAccessLogic wikiAccessLogic, RequestData jobData, int throttleSpeedInSeconds)
+        public TextReplacementJob(Serilog.ILogger log, IWikiAccessLogic wikiAccessLogic, IWikiJobRetriever retriever, RequestData jobData, int throttleSpeedInSeconds)
         {
             Log = log;
             _wikiAccessLogic = wikiAccessLogic;
             JobData = jobData;
             _throttleSpeedInSeconds = throttleSpeedInSeconds;
+            _retriever = retriever;
         }
 
         public override void Execute()
@@ -71,10 +74,10 @@ namespace Wikibot.Logic.Jobs
                             Log.Information("Applying replacement for page {PageName}", page.Title);
                             var editMessage = $"{WikiConfig["Username"]} Text Replacement {FromText} => {ToText}";
                             UpdatePageContentWithMessage(page, afterContent, editMessage);
-                        }
-
+                        }      
                         Thread.Sleep(1000 * _throttleSpeedInSeconds);
                     }
+                    _retriever.UpdateRequests(new List<WikiJobRequest> { Request });
                 }
             }
             catch(Exception ex)
