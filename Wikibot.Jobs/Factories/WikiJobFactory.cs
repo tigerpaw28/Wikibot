@@ -16,7 +16,8 @@ namespace Wikibot.Logic.Factories
             switch (request.JobType)
             {
                 case JobType.TextReplacementJob:
-                    job = new TextReplacementJob(log, wikiAccessLogic, jobData);
+                    var throttleSpeedInSeconds = int.Parse(config["ThreadThrottleSpeedInSeconds"]);
+                    job = new TextReplacementJob(log, wikiAccessLogic, jobData, throttleSpeedInSeconds);
                     break;
                 default:
                     throw new Exception("Job type is undefined");
