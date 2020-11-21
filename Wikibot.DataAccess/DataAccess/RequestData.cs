@@ -9,6 +9,7 @@ namespace Wikibot.DataAccess
     public class RequestData
     {
         private IDataAccess _database;
+        private Dictionary<long, WikiJobRequest> _requestDictionary;
         public RequestData(IDataAccess dataAccess){
             _database = dataAccess;
         }
@@ -38,7 +39,7 @@ namespace Wikibot.DataAccess
             };
             Type[] types = new Type[] { typeof(WikiJobRequest), typeof(Page) };
 
-            var output = _database.LoadDataComplex<WikiJobRequest, dynamic>("dbo.spGetWikiJobRequests", p, "JobDb", types, MapPageToWikiJobRequest, "PageID");
+            var output = _database.LoadDataComplex<WikiJobRequest, Page, dynamic>("dbo.spGetWikiJobRequests", p, "JobDb", types, MapPageToWikiJobRequest, "PageId");
 
             return output;
         }
@@ -54,7 +55,7 @@ namespace Wikibot.DataAccess
             };
             Type[] types = new Type[] { typeof(WikiJobRequest), typeof(Page) };
 
-            var output = _database.LoadDataComplex<WikiJobRequest, dynamic>("dbo.spGetWikiJobRequestsForApproval", p, "JobDb", types, MapPageToWikiJobRequest, "PageID");
+            var output = _database.LoadDataComplex<WikiJobRequest, Page, dynamic>("dbo.spGetWikiJobRequestsForApproval", p, "JobDb", types, MapPageToWikiJobRequest, "PageId");
 
             return output;
         }
@@ -68,7 +69,8 @@ namespace Wikibot.DataAccess
 
             Type[] types = new Type[] { typeof(WikiJobRequest), typeof(Page) };
 
-            var output = _database.LoadDataComplex<WikiJobRequest, dynamic>("dbo.spGetWikiJobRequestById", p, "JobDb", types, MapPageToWikiJobRequest, "PageID");
+            var output = _database.LoadDataComplex<WikiJobRequest, Page, dynamic>("dbo.spGetWikiJobRequestById", p, "JobDb", types, MapPageToWikiJobRequest, "PageId");
+
             return output.SingleOrDefault();
         }
 
@@ -159,25 +161,32 @@ namespace Wikibot.DataAccess
             _database.SaveData("dbo.spUpdateWikiJobRequestRaw", p, "JobDb");
         }
 
-        private WikiJobRequest MapPageToWikiJobRequest(object[] obj)
+        private WikiJobRequest MapPageToWikiJobRequest(WikiJobRequest request, Page page)
         {
-            var request = (WikiJobRequest)obj[0];
-            var page = (Page)obj[1];
-
-            if (request.Pages == null)
+            if(_requestDictionary == null)
             {
-                request.Pages = new List<Page>();
+                _requestDictionary = new Dictionary<long, WikiJobRequest>();
+            }
+
+            WikiJobRequest tempRequest;
+            if(!_requestDictionary.TryGetValue(request.ID, out tempRequest))
+            {
+                _requestDictionary.Add(request.ID, tempRequest = request);
             }
 
             if (page != null)
             {
-                if (!request.Pages.Any(x => x.PageID == page.PageID))
+                if (request.Pages == null)
                 {
-                    request.Pages.Add(page);
+                    request.Pages = new List<Page>();
+                }
+                if (!tempRequest.Pages.Any(x => x.PageID == page.PageID))
+                {
+                    tempRequest.Pages.Add(page);
                 }
             }
 
-            return request;
+            return tempRequest;
         }
     }
 }

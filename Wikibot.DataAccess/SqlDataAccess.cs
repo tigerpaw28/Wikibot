@@ -36,17 +36,17 @@ namespace Wikibot.DataAccess
         }
 
         public List<T> LoadDataComplex
-            <T, U>(string storedProcedure, U parameters, string connectionStringName, Type[] typeArray, Func<object[],T> map, string splitOnString)
+            <T, V, U>(string storedProcedure, U parameters, string connectionStringName, Type[] typeArray, Func<T,V,T> map, string splitOnString)
         {
             string connectionString = GetConnectionString(connectionStringName);
             Console.WriteLine($"ConnectionString: {connectionString}");
             
             using (IDbConnection connection = new SqlConnection(connectionString))
             {
-                List<T> rows = connection.Query<T>(storedProcedure, typeArray, map, parameters, splitOn: splitOnString,
+                List<T> rows = connection.Query<T, V, T>(storedProcedure, map, parameters, splitOn: splitOnString,
                     commandType: CommandType.StoredProcedure).ToList();
 
-                return rows;
+                return rows.Distinct().ToList(); //TODO: Revist using Distinct. For larger results sets, the query should probably be rewritten to not need filtering after the fact.
             }
         }
 
