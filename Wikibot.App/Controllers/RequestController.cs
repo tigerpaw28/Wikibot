@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Wikibot.DataAccess;
 using Wikibot.DataAccess.Objects;
+using Wikibot.Logic;
 using Wikibot.Logic.JobRetrievers;
 
 namespace Wikibot.App.Controllers
@@ -32,7 +33,7 @@ namespace Wikibot.App.Controllers
         public IActionResult GetRequests()
         {
             var config = new MapperConfiguration(cfg => cfg.CreateMap<WikiJobRequest, Wikibot.App.Models.WikiJobRequest>()
-                .ForMember(dest => dest.Diffs, opt => opt.MapFrom(src => src.Pages.Select(x=> string.Format(diffFileNamePattern, src.ID, x.Name))))
+                .ForMember(dest => dest.Diffs, opt => opt.MapFrom(src =>src.Pages.Select(x=>  Utilities.SanitizeFilename(string.Format(diffFileNamePattern, src.ID, x.Name),'_'))))
                 .ForMember(dest => dest.RequestingUsername, opt=> opt.MapFrom(src => src.RequestingUsername))
                 .ForMember(dest => dest.StatusName, opt=> opt.MapFrom(src => src.Status))
                 );
