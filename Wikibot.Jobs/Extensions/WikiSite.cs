@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using WikiClientLibrary;
@@ -50,7 +52,7 @@ namespace Wikibot.Logic.Extensions
                     srlimit = maxCount,
                     srwhat = options.ToString(),
                     sroffset = offset
-                }), CancellationToken.None);
+                }), cancellationToken);
                 
                 var query = jresult["query"];
                 results.Merge((JArray)query["search"]);
@@ -66,6 +68,60 @@ namespace Wikibot.Logic.Extensions
             }
             var result = new List<SearchResultEntry>();
             foreach(JToken token in results)
+            {
+                var entry = new SearchResultEntry();
+                entry.Title = token["title"].ToString();
+                entry.NamespaceID = int.Parse(token["ns"].ToString());
+                result.Add(entry);
+            }
+
+            return result;
+        }
+
+        public static async Task<IList<SearchResultEntry>> BackLinks(this WikiSite site, string pageTitle, int? defaultNamespaceId = null)
+        {
+            return await BackLinks(site, pageTitle, MaxCount, defaultNamespaceId, CancellationToken.None);
+        }
+
+        public static async Task<IList<SearchResultEntry>> BackLinks(this WikiSite site, string pageTitle, int maxCount,
+    int? defaultNamespaceId, CancellationToken cancellationToken)
+        {
+            int offset = 0;
+            string continueToken = null;
+            var results = new JArray();
+            while (offset >= 0)
+            {
+                var payload = new ExpandoObject();
+
+                payload.TryAdd("action", "query");
+                payload.TryAdd("list", "backlinks");
+                payload.TryAdd("bltitle", pageTitle);
+                payload.TryAdd("bllimit", maxCount);
+
+                if(defaultNamespaceId.HasValue)
+                {
+                    payload.TryAdd("blnamespace", defaultNamespaceId.Value);
+                }
+                if(continueToken != null)
+                {
+                    payload.TryAdd("blcontinue", continueToken);
+                }
+                var jresult = await site.InvokeMediaWikiApiAsync(new MediaWikiFormRequestMessage(payload.ToList()), cancellationToken);
+
+                var query = jresult["query"];
+                results.Merge((JArray)query["backlinks"]);
+                var querycontinue = jresult["query-continue"];
+                if (querycontinue != null)
+                {
+                    continueToken = querycontinue["backlinks"]["blcontinue"].ToString();
+                }
+                else
+                {
+                    offset = -1;
+                }
+            }
+            var result = new List<SearchResultEntry>();
+            foreach (JToken token in results)
             {
                 var entry = new SearchResultEntry();
                 entry.Title = token["title"].ToString();

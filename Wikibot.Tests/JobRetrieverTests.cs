@@ -8,11 +8,17 @@ using Wikibot.Logic.Jobs;
 using Wikibot.Logic.Logic;
 using WikiClientLibrary;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Wikibot.Tests
 {
     public class JobRetrieverTests
     {
+        private ITestOutputHelper _output;
+        public JobRetrieverTests(ITestOutputHelper output)
+        {
+            _output = output;
+        }
 
         // [Fact]
         // public void Startup()
@@ -44,7 +50,7 @@ namespace Wikibot.Tests
             var requestData = Utilities.GetRequestData(null);
             var wikiAccessLogic = new WikiAccessLogic();
             var retriever = new TextFileJobRetriever(iConfig, "D:\\Wikibot\\Wikibot\\WikiJobTest.txt");
-            var logger = Utilities.GetLogger(iConfig);
+            var logger = Utilities.GetLogger(iConfig, _output);
             var job = new JobRetrievalJob(iConfig, logger, retriever, wikiAccessLogic, requestData);
             job.Execute();
         }
@@ -53,7 +59,7 @@ namespace Wikibot.Tests
         public void GetNewJobDefinitionsWiki()
         {
             var iConfig = Utilities.GetIConfigurationRoot();
-            var logger = Utilities.GetLogger(iConfig);
+            var logger = Utilities.GetLogger(iConfig, _output);
             var wikiAccessLogic = new WikiAccessLogic();
             var sqlDataAccess = new SqlDataAccess(iConfig);
             var retriever = new TFWikiJobRetriever(iConfig, logger, wikiAccessLogic, sqlDataAccess);
@@ -65,7 +71,7 @@ namespace Wikibot.Tests
         {
             var iConfig = Utilities.GetIConfigurationRoot();
             var requestData = Utilities.GetRequestData(null);
-            var logger = Utilities.GetLogger(iConfig);
+            var logger = Utilities.GetLogger(iConfig, _output);
             var wikiAccessLogic = new WikiAccessLogic();
             var sqlDataAccess = new SqlDataAccess(iConfig);
             var retriever = new TFWikiJobRetriever(iConfig, logger, wikiAccessLogic, sqlDataAccess);
