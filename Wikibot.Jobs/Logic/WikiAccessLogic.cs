@@ -1,5 +1,6 @@
 ﻿using LinqToWiki.Generated;
 using Microsoft.Extensions.Configuration;
+using Serilog;
 using System;
 using WikiClientLibrary.Client;
 using WikiClientLibrary.Sites;
@@ -20,18 +21,18 @@ namespace Wikibot.Logic.Logic
             return wiki;
         }
 
-        public WikiSite GetLoggedInWikiSite(IConfigurationSection wikiConfig, WikiClient client)
+        public WikiSite GetLoggedInWikiSite(IConfigurationSection wikiConfig, WikiClient client, ILogger log)
         {
             var url = wikiConfig["APIUrl"];
             var path = wikiConfig["APIPath"];
             var uriBuilder = new UriBuilder(url);
             uriBuilder.Path = path;
             var site = new WikiSite(client, uriBuilder.Uri.ToString());
-            LogIntoWikiSite(site, wikiConfig);
+            LogIntoWikiSite(site, wikiConfig, log);
             return site;
         }
 
-        private void LogIntoWikiSite(WikiSite site, IConfigurationSection wikiConfig)
+        private void LogIntoWikiSite(WikiSite site, IConfigurationSection wikiConfig, ILogger log)
         {
             var username = wikiConfig["Username"];
             var password = wikiConfig["Password"];
@@ -39,8 +40,14 @@ namespace Wikibot.Logic.Logic
             // Wait for initialization to complete.
             // Throws error if any.
             site.Initialization.Wait();
-
-            site.LoginAsync(username, password).Wait();
+            try
+            {
+                site.LoginAsync(username, password).Wait();
+            }
+            catch(Exception ex)
+            {
+                log.Error(ex, "Error logging in:");
+            }
         }
 
         private void LogIntoWiki(Wiki wiki, IConfigurationSection wikiConfig)

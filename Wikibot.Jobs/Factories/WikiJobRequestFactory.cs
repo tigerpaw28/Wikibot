@@ -23,6 +23,12 @@ namespace Wikibot.Logic.Factories
                     //((TextReplacementJob)job).ToText = template.Arguments.Single(arg => arg.Name.ToPlainText() == "after").Value.ToPlainText();
                     jobRequest.Pages = template.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText() == "pages")?.Value.ToPlainText().Split(';').Select(val => new Page { Name = val, PageID = 0 }).ToList();
                     break;
+                case JobType.LinkFixJob:
+                    jobRequest.JobType = JobType.LinkFixJob;
+                    //((TextReplacementJob)job).FromText = template.Arguments.Single(arg => arg.Name.ToPlainText() == "before").Value.ToPlainText();
+                    //((TextReplacementJob)job).ToText = template.Arguments.Single(arg => arg.Name.ToPlainText() == "after").Value.ToPlainText();
+                    jobRequest.Pages = template.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText() == "pages")?.Value.ToPlainText().Split(';').Select(val => new Page { Name = val, PageID = 0 }).ToList();
+                    break;
                 default:
                     throw new Exception("Job type is undefined");
             }

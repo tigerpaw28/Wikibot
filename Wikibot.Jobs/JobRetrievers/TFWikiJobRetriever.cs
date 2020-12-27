@@ -32,7 +32,10 @@ namespace Wikibot.Logic.JobRetrievers
             get
             {
                 if (_jobDefinitions == null)
+                {
+                    _log.Information("Getting job definitions");
                     _jobDefinitions = GetNewJobDefinitions().Result;
+                }
                 return _jobDefinitions;
             }
         }
@@ -60,7 +63,8 @@ namespace Wikibot.Logic.JobRetrievers
             {
                 try
                 {
-                    var site = _wikiAccessLogic.GetLoggedInWikiSite(_wikiLoginConfig, client);
+                    _log.Information($"Logging into Wiki");
+                    var site = _wikiAccessLogic.GetLoggedInWikiSite(_wikiLoginConfig, client, _log);
                     var page = new WikiPage(site, _wikiRequestPage);
 
                     _log.Information($"Fetching content from job request page {page.Title}");
@@ -101,7 +105,7 @@ namespace Wikibot.Logic.JobRetrievers
                 try
                 {
                     // You can create multiple WikiSite instances on the same WikiClient to share the state.
-                    var site = _wikiAccessLogic.GetLoggedInWikiSite(_wikiLoginConfig, client);
+                    var site = _wikiAccessLogic.GetLoggedInWikiSite(_wikiLoginConfig, client, _log);
 
                     var page = new WikiPage(site, _wikiRequestPage);
 
@@ -158,7 +162,7 @@ namespace Wikibot.Logic.JobRetrievers
             }
         }
 
-        private async Task UpdatePageContent(string content, string message, WikiPage page)
+        public async Task UpdatePageContent(string content, string message, WikiPage page)
         {
             page.Content = content;
             await page.UpdateContentAsync(message);

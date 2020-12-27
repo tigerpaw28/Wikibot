@@ -20,6 +20,7 @@ using Wikibot.Logic.UserRetrievers;
 using WikiClientLibrary;
 using WikiClientLibrary.Client;
 using WikiClientLibrary.Sites;
+using Xunit.Abstractions;
 
 namespace Wikibot.Tests
 {
@@ -33,7 +34,7 @@ namespace Wikibot.Tests
             return new ConfigurationBuilder()
                 .SetBasePath(CONFIGURATION_ROOT_PATH)
                 .AddJsonFile("appsettings.json", optional: true)
-                .AddUserSecrets("e3dfcccf-0cb3-423a-b302-e3e92e95c128")
+                .AddUserSecrets("aspnet-Wikibot.App-3FB00538-5AEC-40E7-8DBC-0BF9B37C229B")
                 .AddEnvironmentVariables()
                 .Build();
         }
@@ -85,10 +86,12 @@ namespace Wikibot.Tests
             return site;
         }
 
-        public static Serilog.ILogger GetLogger(IConfiguration config)
+        public static Serilog.ILogger GetLogger(IConfiguration config, ITestOutputHelper output)
         {
             return new LoggerConfiguration()
-                .ReadFrom.Configuration(config)
+                .MinimumLevel.Debug()
+                .WriteTo.Xunit(output)
+                //.ReadFrom.Configuration(config)
                 .CreateLogger();
         }
 
@@ -106,6 +109,16 @@ namespace Wikibot.Tests
             var request = WikiJobRequestFactory.GetWikiJobRequest(JobType.TextReplacementJob, TimeZoneInfo.Local, templates.First());
             return request;
         }
+
+        public static WikiJobRequest GetSampleLinkFixJobRequest()
+        {
+            var parser = new WikitextParser();
+            var ast = parser.Parse("{{User:Tigerpaw28/Sandbox/Template:WikiBotRequest|type=Link Fix|username=Tigerpaw28|timestamp=14:58, 30 June 2020 (EDT)|before=[[Commercial]]|after=[[Commercial|Test]]|comment=Test job|status=PendingPreApproval}}");
+            var templates = ast.Lines.First<LineNode>().EnumDescendants().OfType<Template>();
+            var request = WikiJobRequestFactory.GetWikiJobRequest(JobType.LinkFixJob, TimeZoneInfo.Local, templates.First());
+            return request;
+        }
+
 
         public static List<WikiJobRequest> GetSampleJobRequests(bool includePages)
         {

@@ -43,7 +43,7 @@ namespace Wikibot.Logic.Jobs
             {
                 using (var client = new WikiClient())
                 {
-                    var site = _wikiAccessLogic.GetLoggedInWikiSite(WikiConfig, client);
+                    var site = _wikiAccessLogic.GetLoggedInWikiSite(WikiConfig, client, Log);
                     var PageList = GetPageList(site);
 
                     string filename = "";

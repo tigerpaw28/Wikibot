@@ -3,6 +3,7 @@
     public enum JobType
     {
         JobRetrievalJob,
-        TextReplacementJob
+        TextReplacementJob,
+        LinkFixJob
     }
 }
