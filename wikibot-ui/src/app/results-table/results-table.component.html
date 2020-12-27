@@ -1,0 +1,13 @@
+<div *ngIf="requests$ | async;let requests">
+<table class="request-table">
+    <tr>
+        <th class="request-table-header">Request ID</th>
+        <th class="request-table-header">Comment</th>
+        <th class="request-table-header">Requesting User</th>
+        <th class="request-table-header">Submitted Date (UTC)</th>
+        <th class="request-table-header">Status</th>
+        <th class="request-table-header">Review?</th>
+    </tr>
+        <app-request-row [request]="request" class="app-request-row" *ngFor="let request of requests"></app-request-row>
+</table>
+</div>

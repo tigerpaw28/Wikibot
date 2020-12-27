@@ -1,0 +1,190 @@
+.request-review-main-div{
+    background-color: white;
+    height: 100%;
+}
+.request-review-raw-div{
+    border: 2px solid black;
+    height: 15%;
+    margin-bottom: 1%;
+}
+
+.request-review-diff-div{
+    border: 2px solid black;
+    overflow: scroll;
+    height: 65%;
+}
+
+.request-review-message-div {
+    padding: 1%;
+    width: 30%;
+    text-align: center;
+    margin: auto;
+}
+
+.success-message {
+    background-color: palegreen;
+}
+
+.error-message {
+    background-color: palevioletred;
+}
+
+.request-review-button-div {
+    padding: 2%;
+    margin: auto;
+    width: 40%;
+}
+
+.request-review-button{
+    background-color: cornflowerblue;
+    display: inline;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.request-review-button:hover{
+    filter: brightness(50%);
+}
+
+.close-button {
+    float:right
+}
+
+.approval-button {
+    float: left;
+}
+
+.reject-button {
+    float: right;
+}
+
+.disabled-review-button {
+    background-color: cornflowerblue;
+    display: inline;
+    padding: 10px;
+    cursor: pointer;
+    opacity: 70%;
+}
+
+.float-button{
+    position:fixed;
+    z-index: 2;
+    top: 400px;
+    background-color: cornflowerblue;
+}
+.request-review-prev-button{
+    left: 7%;
+}
+.request-review-next-button{
+    right: 8%;
+}
+
+/*
+** Diff rendering
+*/
+.diffchange {
+    font-weight: bold;
+    text-decoration: none;
+}
+
+table.diff, 
+td.diff-otitle, 
+td.diff-ntitle {
+    background-color: white;
+}
+
+td.diff-otitle,
+td.diff-ntitle {
+    text-align: center;
+}
+
+td.diff-marker {
+    text-align: right;
+    font-weight: bold;
+    font-size: 1.25em;
+}
+
+td.diff-lineno {
+    font-weight: bold;
+}
+
+td.diff-addedline,
+td.diff-deletedline,
+td.diff-context {
+    font-size: 88%;
+    vertical-align: top;
+    white-space: -moz-pre-wrap;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+td.diff-addedline,
+td.diff-deletedline {
+    border-style: solid;
+    border-width: 1px 1px 1px 4px;
+    border-radius: 0.33em;
+}
+
+td.diff-addedline {
+    border-color: #a3d3ff;
+}
+
+td.diff-deletedline {
+    border-color: #ffe49c;
+}
+
+td.diff-context {
+    background: #f3f3f3;
+    color: #333333;
+    border-style: solid;
+    border-width: 1px 1px 1px 4px;
+    border-color: #e6e6e6;
+    border-radius: 0.33em;
+}
+
+
+
+table.diff {
+    border: none;
+    width: 100%;
+    border-spacing: 4px;
+
+    /* Ensure that colums are of equal width */
+    table-layout: fixed;
+}
+
+td.diff-addedline .diffchange,
+td.diff-deletedline .diffchange {
+    border-radius: 0.33em;
+    padding: 0.25em 0;
+}
+
+td.diff-addedline .diffchange {
+    background: #d8ecff;
+}
+
+td.diff-deletedline .diffchange {
+    background: #feeec8;
+}
+
+table.diff td {
+    padding: 0.25em 0.25em;
+}
+
+table.diff col.diff-marker {
+    width: 1.5%;
+}
+
+table.diff col.diff-content {
+    width: 48.5%;
+}
+
+table.diff td div {
+    /* Force-wrap very long lines such as URLs or page-widening char strings.*/
+    word-wrap: break-word;
+
+    /* As fallback (FF<3.5, Opera <10.5), scrollbars will be added for very wide cells
+        instead of text overflowing or widening
+    */
+    overflow: auto;
+}

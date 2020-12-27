@@ -1,0 +1,14 @@
+.request-table{
+    border: 2px solid black;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.app-request-row{
+    display: table-row;
+    width: 100%;
+}
+
+.request-table-header{
+    width: 16%;
+}

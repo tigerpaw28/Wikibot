@@ -1,0 +1,10 @@
+<td class="request-table-cell">
+    <div><!--</div> class="link" (click)="goToDetails(request.requestId)">-->
+        {{request.id}}
+    </div> 
+</td>
+<td class="request-table-cell">{{request.comment}}</td>
+<td class="request-table-cell">{{request.requestingUsername}}</td>
+<td class="request-table-cell">{{request.submittedDateUTC|date : "MM/dd/yyyy hh:mm:ss"}}</td>
+<td class="request-table-cell">{{request.statusName}}</td>
+<td class="request-table-cell"><div class="link" (click)="showOverlayForReview(request.id)">Review Request</div></td> 
