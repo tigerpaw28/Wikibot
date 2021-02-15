@@ -48,6 +48,19 @@ namespace Wikibot.Tests
             job.Execute();
         }
 
+        [Fact]
+        public void ExecuteContinuityLinkFixJob()
+        {
+            var iConfig = Utilities.GetIConfigurationRoot();
+            var wikiAccessLogic = new WikiAccessLogic();
+            var log = Utilities.GetLogger(iConfig, _output);
+            var jobData = Utilities.GetRequestData(null);
+            var request = Utilities.GetSampleContinuityLinkFixJobRequest();
+            var jobRetriever = new TextFileJobRetriever(iConfig, "D:\\Wikibot\\Wikibot\\WikiJobTest.txt");
+            ContinuityLinkFixJob job = (ContinuityLinkFixJob)WikiJobFactory.GetWikiJob(request, log, wikiAccessLogic, iConfig, jobData, jobRetriever);
+            job.Configuration = iConfig;
+            job.Execute();
+        }
 
     }
 }

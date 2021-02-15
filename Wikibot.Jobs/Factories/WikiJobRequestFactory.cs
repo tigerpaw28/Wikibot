@@ -29,6 +29,11 @@ namespace Wikibot.Logic.Factories
                     //((TextReplacementJob)job).ToText = template.Arguments.Single(arg => arg.Name.ToPlainText() == "after").Value.ToPlainText();
                     jobRequest.Pages = template.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText() == "pages")?.Value.ToPlainText().Split(';').Select(val => new Page { Name = val, PageID = 0 }).ToList();
                     break;
+                case JobType.ContinuityLinkFixJob:
+                    jobRequest.JobType = type;
+                    jobRequest.Pages = template.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText() == "pages")?.Value.ToPlainText().Split(';').Select(val => new Page { Name = val, PageID = 0 }).ToList();
+                    break;
+
                 default:
                     throw new Exception("Job type is undefined");
             }
@@ -42,6 +47,11 @@ namespace Wikibot.Logic.Factories
 
                 //WikiMedia timestamp example: 14:58, 30 June 2020-04:00:00
                 var timeString = template.Arguments.Single(arg => arg.Name.ToPlainText() == "timestamp").Value.ToPlainText()[..^6];
+                //More flexible on format string. If there's more than one comma, we have a full signature instead of just a timestamp.
+                if (timeString.Where(x => x == ',').Count() > 1)
+                {
+                    timeString = timeString.Substring(timeString.IndexOf(",")).Trim(); //Grab everything after first comma
+                }
                 jobRequest.SubmittedDateUTC = DateTime.ParseExact($"{timeString}{timeZoneString}", "HH:mm, dd MMMM yyyyKKKK", new CultureInfo("en-US")).ToUniversalTime();
             }
             else

@@ -69,9 +69,18 @@ namespace Wikibot.Logic.Jobs
 
                         page.RefreshAsync(PageQueryOptions.FetchContent | PageQueryOptions.ResolveRedirects).Wait(); //Load page content
 
-                        var beforeContent = page.Content;
+                        var beforeContent = page.Content;   
                         var wikiPageText = parser.Parse(beforeContent);
-                        var wikiLinks = wikiPageText.Lines.SelectMany(x => x.EnumDescendants().OfType<WikiLink>());
+                        IEnumerable<WikiLink> wikiLinks = null;
+                        if (string.IsNullOrWhiteSpace(string.Join(' ', HeadersToSearch)))
+                        {
+                            wikiLinks = wikiPageText.Lines.SelectMany(x => x.EnumDescendants().OfType<WikiLink>());
+                        }
+                        else
+                        {
+                            var header = wikiPageText.Lines.SelectMany(x => x.EnumDescendants().OfType<Heading>()).Where(y => y.ToPlainText().Equals(HeadersToSearch)).Single();
+                            wikiLinks = header.EnumDescendants().OfType<WikiLink>();
+                        }
                         var matchingLinks = wikiLinks.Where(link => CompareLinks(link.Target.ToString(), fromLinkTarget)).ToList();
 
                         if (!matchingLinks.Any() || page.Title.Equals(Configuration["WikiRequestPage"], StringComparison.OrdinalIgnoreCase))
