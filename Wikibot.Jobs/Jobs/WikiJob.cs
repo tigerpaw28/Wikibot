@@ -51,6 +51,36 @@ namespace Wikibot.Logic.Jobs
             
         }
 
+        private string[] _headersToSearch;
+        public string[] HeadersToSearch
+        {
+            get
+            {
+                if (_headersToSearch == null)
+                {
+                    var template = new WikitextParser().Parse(Request.RawRequest).Lines.SelectMany(x => x.EnumDescendants().OfType<Template>()).Single();
+                    _headersToSearch = (template.Arguments.Single(arg => arg.Name.ToPlainText() == "headers")?.Value.ToString() ?? "").Split(",").Select(token=> token.Trim()).ToArray();
+                }
+                return _headersToSearch;
+            }
+
+        }
+
+
+        private MediaType? _media;
+        public MediaType Media
+        {
+            get
+            {
+                if (_media == null)
+                {
+                    var template = new WikitextParser().Parse(Request.RawRequest).Lines.SelectMany(x => x.EnumDescendants().OfType<Template>()).Single();
+                    _media = (MediaType)Enum.Parse(typeof(MediaType), template.Arguments.Single(arg => arg.Name.ToPlainText() == "media").Value.ToString());
+                }
+                return _media.Value;
+            }
+
+        }
         //public WikiJob(IWikiJobRetriever jobRetriever, IConfigurationSection config) {
         //    Retriever = jobRetriever;
         //    Configuration = config;

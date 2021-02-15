@@ -119,6 +119,14 @@ namespace Wikibot.Tests
             return request;
         }
 
+        public static WikiJobRequest GetSampleContinuityLinkFixJobRequest()
+        {
+            var parser = new WikitextParser();
+            var ast = parser.Parse("{{User:Tigerpaw28/Sandbox/Template:WikiBotRequest|type=Link Fix|username=Tigerpaw28|timestamp=14:58, 30 June 2020 (EDT)|before=[[Hot Shot (Armada)]]|after=[[Hot Shot (Armada)/Cartoon continuity]]|headers=Armada cartoon, Energon cartoon, Cybertron cartoon|media=Cartoon|comment=Test job|status=PendingPreApproval}}");
+            var templates = ast.Lines.First<LineNode>().EnumDescendants().OfType<Template>();
+            var request = WikiJobRequestFactory.GetWikiJobRequest(JobType.ContinuityLinkFixJob, TimeZoneInfo.Local, templates.First());
+            return request;
+        }
 
         public static List<WikiJobRequest> GetSampleJobRequests(bool includePages)
         {

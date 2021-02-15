@@ -4,6 +4,7 @@
     {
         JobRetrievalJob,
         TextReplacementJob,
-        LinkFixJob
+        LinkFixJob,
+        ContinuityLinkFixJob
     }
 }

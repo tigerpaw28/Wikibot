@@ -14,16 +14,18 @@ namespace Wikibot.Logic.Factories
         {
 
             WikiJob job;
+            var throttleSpeedInSeconds = int.Parse(config["ThreadThrottleSpeedInSeconds"]);
 
             switch (request.JobType)
             {
                 case JobType.TextReplacementJob:
-                    var throttleSpeedInSeconds = int.Parse(config["ThreadThrottleSpeedInSeconds"]);
                     job = new TextReplacementJob(log, wikiAccessLogic, retriever, jobData, throttleSpeedInSeconds);
                     break;
                 case JobType.LinkFixJob:
-                    throttleSpeedInSeconds = int.Parse(config["ThreadThrottleSpeedInSeconds"]);
                     job = new LinkFixJob(log, wikiAccessLogic, retriever, jobData, throttleSpeedInSeconds);
+                    break;
+                case JobType.ContinuityLinkFixJob:
+                    job = new ContinuityLinkFixJob(log, wikiAccessLogic, retriever, jobData, throttleSpeedInSeconds);
                     break;
                 default:
                     throw new Exception("Job type is undefined");
