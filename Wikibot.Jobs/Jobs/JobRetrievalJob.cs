@@ -100,7 +100,11 @@ namespace Wikibot.Logic.Jobs
                     _jobRetriever.UpdateRequests(requestsToUpdate);
 
 
-                } 
+                }
+                else
+                {
+                    Log.Information("No requests found.");
+                }
                 string keepAliveURL = Configuration["KeepAliveURL"];
                 if (keepAliveURL != string.Empty)
                 {
