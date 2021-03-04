@@ -108,14 +108,14 @@ namespace Wikibot.Logic.Jobs
                             if (Request.Status != JobStatus.Approved) //Create diffs for approval
                             {
                                 Log.Information("Generating diff for page {PageName}", page.Title);
+                                Utilities.GenerateAndSaveDiff(beforeContent, afterContent, page.Title, Request.ID, Configuration["DiffDirectory"], folderName);
+                                //var wikiDiff = new WikiDiff();
+                                //diff = $"{WikiDiff.DiffHead()}</head><body>{WikiDiff.TableHeader}{wikiDiff.GetDiff(beforeContent, afterContent, 1)}</table></body></html>";
+                                //filename = "Diff-" + Request.ID + "-" + page.Title + ".txt"; //Set filename for this page
+                                //filename = Utilities.SanitizeFilename(filename, '_');
 
-                                var wikiDiff = new WikiDiff();
-                                diff = $"{WikiDiff.DiffHead()}</head><body>{WikiDiff.TableHeader}{wikiDiff.GetDiff(beforeContent, afterContent, 1)}</table></body></html>";
-                                filename = "Diff-" + Request.ID + "-" + page.Title + ".txt"; //Set filename for this page
-                                filename = Utilities.SanitizeFilename(filename, '_');
-
-                                filePath = Path.Combine(Configuration["DiffDirectory"], folderName, filename);
-                                File.WriteAllText(filePath, diff);
+                                //filePath = Path.Combine(Configuration["DiffDirectory"], folderName, filename);
+                                //File.WriteAllText(filePath, diff);
                                 JobData.SaveWikiJobRequest(Request); //Save page list                        
                             }
                             else //Apply changes

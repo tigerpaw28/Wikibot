@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Linq;
+using WikiFunctions;
 
 namespace Wikibot.Logic
 {
@@ -25,6 +26,19 @@ namespace Wikibot.Logic
             }
 
             return filename;
+        }
+
+        public static void GenerateAndSaveDiff(string beforeContent, string afterContent, string title, long id, string directory, string folderName)
+        {
+            beforeContent = beforeContent.Replace("\n", "\r\n");
+            afterContent = afterContent.Replace("\n", "\r\n");
+            var wikiDiff = new WikiDiff();
+            string diff = $"{WikiDiff.DiffHead()}</head><body>{WikiDiff.TableHeader}{wikiDiff.GetDiff(beforeContent, afterContent, 1)}</table></body></html>";
+            string filename = "Diff-" + id + "-" + title + ".txt"; //Set filename for this page
+            filename = SanitizeFilename(filename, '_');
+
+            string filePath = Path.Combine(directory, folderName, filename);
+            File.WriteAllText(filePath, diff);
         }
     }
 }
