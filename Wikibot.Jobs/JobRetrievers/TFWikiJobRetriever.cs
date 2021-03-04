@@ -84,6 +84,7 @@ namespace Wikibot.Logic.JobRetrievers
                         }
 
                     }
+                    await site.LogoutAsync();
                 }
                 catch (Exception ex)
                 {
@@ -109,7 +110,7 @@ namespace Wikibot.Logic.JobRetrievers
 
                     var page = new WikiPage(site, _wikiRequestPage);
 
-                    _log.Information("Pulling requests from job request page.");
+                    _log.Information("Pulling requests from job request page for status update.");
 
                     // Fetch content of job request page so we can update it
                     await page.RefreshAsync(PageQueryOptions.FetchContent
