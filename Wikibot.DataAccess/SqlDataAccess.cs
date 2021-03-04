@@ -39,7 +39,6 @@ namespace Wikibot.DataAccess
             <T, V, U>(string storedProcedure, U parameters, string connectionStringName, Type[] typeArray, Func<T,V,T> map, string splitOnString)
         {
             string connectionString = GetConnectionString(connectionStringName);
-            Console.WriteLine($"ConnectionString: {connectionString}");
             
             using (IDbConnection connection = new SqlConnection(connectionString))
             {
