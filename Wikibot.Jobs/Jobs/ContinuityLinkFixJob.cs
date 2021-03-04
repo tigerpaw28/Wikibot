@@ -55,9 +55,9 @@ namespace Wikibot.Logic.Jobs
                     var PageList = GetBackLinksPageList(site, fromLinkTarget);
                     var storyLinkPageList = GetStoryLinksPageList(site, toLinkTarget);
 
-                    string filename = "";
-                    string diff = "";
-                    string filePath = "";
+                    //string filename = "";
+                    //string diff = "";
+                    //string filePath = "";
                     var folderName = Request.ID.ToString();
                     var folderPath = Path.Combine(Configuration["DiffDirectory"], folderName);
                     if (!Directory.Exists(folderPath))
@@ -149,13 +149,8 @@ namespace Wikibot.Logic.Jobs
                             {
                                 Log.Information("Generating diff for page {PageName}", page.Title);
 
-                                var wikiDiff = new WikiDiff();
-                                diff = $"{WikiDiff.DiffHead()}</head><body>{WikiDiff.TableHeader}{wikiDiff.GetDiff(beforeContent, afterContent, 1)}</table></body></html>";
-                                filename = "Diff-" + Request.ID + "-" + page.Title + ".txt"; //Set filename for this page
-                                filename = Utilities.SanitizeFilename(filename, '_');
+                                Utilities.GenerateAndSaveDiff(beforeContent, afterContent, page.Title, Request.ID, Configuration["DiffDirectory"], folderName);
 
-                                filePath = Path.Combine(Configuration["DiffDirectory"], folderName, filename);
-                                File.WriteAllText(filePath, diff);
                                 JobData.SaveWikiJobRequest(Request); //Save page list                        
                             }
                             else //Apply changes
@@ -179,7 +174,7 @@ namespace Wikibot.Logic.Jobs
             finally
             {
                 SetJobEnd();
-                //SaveRequest();
+                SaveRequest();
             }
         }
 
