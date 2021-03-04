@@ -47,6 +47,7 @@ namespace Wikibot.Logic.Logic
             catch(Exception ex)
             {
                 log.Error(ex, "Error logging in:");
+                throw;
             }
         }
 
