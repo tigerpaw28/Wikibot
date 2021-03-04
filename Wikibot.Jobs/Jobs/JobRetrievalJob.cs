@@ -106,7 +106,7 @@ namespace Wikibot.Logic.Jobs
                     Log.Information("No requests found.");
                 }
                 string keepAliveURL = Configuration["KeepAliveURL"];
-                if (keepAliveURL != string.Empty)
+                if (!string.IsNullOrEmpty(keepAliveURL))
                 {
                     HttpGet(keepAliveURL); //hack to keep IIS server alive
                 }
