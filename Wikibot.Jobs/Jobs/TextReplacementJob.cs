@@ -21,7 +21,6 @@ namespace Wikibot.Logic.Jobs
 
         private IWikiAccessLogic _wikiAccessLogic;
         private int _throttleSpeedInSeconds;
-        private IWikiJobRetriever _retriever;
 
         public TextReplacementJob()
         { }
@@ -32,7 +31,7 @@ namespace Wikibot.Logic.Jobs
             _wikiAccessLogic = wikiAccessLogic;
             JobData = jobData;
             _throttleSpeedInSeconds = throttleSpeedInSeconds;
-            _retriever = retriever;
+            Retriever = retriever;
         }
 
         public override void Execute()
@@ -49,6 +48,7 @@ namespace Wikibot.Logic.Jobs
                     string filename = "";
                     string diff = "";
                     string filePath = "";
+                    string folderName = Request.ID.ToString();
 
                     foreach (WikiPage page in PageList)
                     {
@@ -62,11 +62,14 @@ namespace Wikibot.Logic.Jobs
                         if (Request.Status != JobStatus.Approved) //Create diffs for approval
                         {
                             Log.Information("Generating diff for page {PageName}", page.Title);
-                            var wikiDiff = new WikiDiff();
-                            diff = $"{WikiDiff.DiffHead()}</head><body>{WikiDiff.TableHeader}{wikiDiff.GetDiff(beforeContent, afterContent, 1)}</table></body></html>";
-                            filename = Utilities.SanitizeFilename(filename, '_');
-                            filePath = Path.Combine(Configuration["DiffDirectory"], filename);
-                            File.WriteAllText(filePath, diff);
+                            var folderPath = Path.Combine(Configuration["DiffDirectory"], folderName);
+                            if (!Directory.Exists(folderPath))
+                            {
+                                Directory.CreateDirectory(folderPath);
+                            }
+
+                            Utilities.GenerateAndSaveDiff(beforeContent, afterContent, page.Title, Request.ID, Configuration["DiffDirectory"], folderName);
+
                             JobData.SaveWikiJobRequest(Request); //Save page list                        
                         }
                         else //Apply changes
@@ -77,7 +80,8 @@ namespace Wikibot.Logic.Jobs
                         }      
                         Thread.Sleep(1000 * _throttleSpeedInSeconds);
                     }
-                    _retriever.UpdateRequests(new List<WikiJobRequest> { Request });
+                    Retriever.UpdateRequests(new List<WikiJobRequest> { Request });
+                    site.LogoutAsync().Wait();
                 }
             }
             catch(Exception ex)
