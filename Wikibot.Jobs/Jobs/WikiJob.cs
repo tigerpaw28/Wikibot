@@ -59,7 +59,8 @@ namespace Wikibot.Logic.Jobs
                 if (_headersToSearch == null)
                 {
                     var template = new WikitextParser().Parse(Request.RawRequest).Lines.SelectMany(x => x.EnumDescendants().OfType<Template>()).Single();
-                    _headersToSearch = (template.Arguments.Single(arg => arg.Name.ToPlainText() == "headers")?.Value.ToString() ?? "").Split(",").Select(token=> token.Trim()).ToArray();
+                    _headersToSearch = (template.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText() == "headers")?.Value.ToString() ?? "").Split(",").Select(token => token.Trim()).ToArray();
+
                 }
                 return _headersToSearch;
             }
