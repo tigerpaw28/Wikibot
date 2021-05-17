@@ -31,11 +31,8 @@ namespace Wikibot.Logic.JobRetrievers
         {
             get
             {
-                if (_jobDefinitions == null)
-                {
-                    _log.Information("Getting job definitions");
-                    _jobDefinitions = GetNewJobDefinitions().Result;
-                }
+                _log.Information("Getting job definitions");
+                _jobDefinitions = GetNewJobDefinitions().Result;
                 return _jobDefinitions;
             }
         }
