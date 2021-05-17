@@ -185,14 +185,18 @@ namespace Wikibot.Logic.Jobs
             foreach (Template template in mainTemplates)
             {
                 var linkedPage = new WikiPage(site, template.Arguments.First().ToString());
+                Log.Information("Processing page {PageName}", linkedPage.Title);
                 linkedPage.RefreshAsync(PageQueryOptions.FetchContent | PageQueryOptions.ResolveRedirects).Wait();
-                pageText = new WikitextParser().Parse(linkedPage.Content);
-                var matchingPageHeaders = pageText.EnumDescendants().OfType<Heading>().Where(y => HeadersToSearch.Contains(y.ToPlainText()) || HeadersToSearch.Contains(y.ToString()));
-
-                if (matchingPageHeaders.Any())
+                if (linkedPage.Exists)
                 {
-                    wikiLinks = pageText.Lines.SelectMany(x => x.EnumDescendants().OfType<WikiLink>());
-                    break;
+                    pageText = new WikitextParser().Parse(linkedPage.Content);
+                    var matchingPageHeaders = pageText.EnumDescendants().OfType<Heading>().Where(y => HeadersToSearch.Contains(y.ToPlainText()) || HeadersToSearch.Contains(y.ToString()));
+
+                    if (matchingPageHeaders.Any())
+                    {
+                        wikiLinks = pageText.Lines.SelectMany(x => x.EnumDescendants().OfType<WikiLink>());
+                        break;
+                    }
                 }
             }
             return wikiLinks;
