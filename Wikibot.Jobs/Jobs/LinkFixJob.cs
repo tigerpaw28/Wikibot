@@ -93,9 +93,9 @@ namespace Wikibot.Logic.Jobs
                             {
                                 Log.Debug($"Link target starts: {link.Target}");
                                 var newTarget = parser.Parse(ToText).Lines.SelectMany(x => x.EnumDescendants().OfType<WikiLink>()).FirstOrDefault().Target.ToPlainText();
-                                if (link.Text == null)
+                                if (link.Text == null && (!link.Target.ToPlainText().Contains("(") && newTarget.Contains("(")))
                                 {
-                                    link.Text = new Run(new PlainText(link.Target.ToPlainText())); //Maintain original link text if the link had no custom text
+                                    link.Text = new Run(new PlainText(link.Target.ToPlainText())); //Maintain original link text if the link had no custom text and no disambig
                                 }
                                 link.Target = new Run(new PlainText(newTarget));
                                 Log.Debug($"Link target ends: {link.Target}");
