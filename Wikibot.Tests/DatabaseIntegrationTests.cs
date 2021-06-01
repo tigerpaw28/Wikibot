@@ -46,7 +46,7 @@ namespace Wikibot.Tests
             r.RemoveUnused = true;
 
             requestData.SaveWikiJobRequest(request);
-            mockDataAccess.Verify(dataAccess => dataAccess.SaveData<dynamic>("dbo.spCreateWikiJobRequest", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, r)), "JobDb"), Times.Exactly(1));
+            mockDataAccess.Verify(dataAccess => dataAccess.SaveData<dynamic>("dbo.spCreateUpdateWikiJobRequest", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, r)), "JobDb"), Times.Exactly(1));
         }
 
         [Fact]
@@ -70,7 +70,8 @@ namespace Wikibot.Tests
         public void GetJobs3()
         {
             var mockDataAccess = Utilities.GetMockDataAccess();
-            var jobList = Utilities.GetRequestData(mockDataAccess.Object).GetWikiJobRequestsForApproval(1, 10, "ASC", "ID");
+            var requestData = Utilities.GetRequestData(mockDataAccess.Object);
+            var jobList = requestData.GetWikiJobRequestsForApproval(1, 10, "ASC", "ID");
             Assert.NotEmpty(jobList);
         }
 
