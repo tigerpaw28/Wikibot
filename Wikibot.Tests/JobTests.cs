@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using Wikibot.DataAccess;
 using Wikibot.Logic.Factories;
+using Wikibot.Logic.FileManagers;
 using Wikibot.Logic.JobRetrievers;
 using Wikibot.Logic.Jobs;
 using Wikibot.Logic.Logic;
@@ -28,7 +29,8 @@ namespace Wikibot.Tests
             var log = Utilities.GetLogger(iConfig, _output);
             var jobData = Utilities.GetRequestData(null);
             var request = Utilities.GetSampleJobRequest();
-            var jobRetriever = new TextFileJobRetriever(iConfig, "");
+            var textFileManager = new TextFileManager();
+            var jobRetriever = new TextFileJobRetriever(iConfig, "D:\\webapps\\Wikibot\\Wikibot\\WikiJobTest.txt", textFileManager);
             TextReplacementJob job = (TextReplacementJob)WikiJobFactory.GetWikiJob(request, log, wikiAccessLogic, iConfig, jobData, jobRetriever);
             job.Configuration = iConfig;
             job.Execute();
@@ -42,7 +44,23 @@ namespace Wikibot.Tests
             var log = Utilities.GetLogger(iConfig, _output);
             var jobData = Utilities.GetRequestData(null);
             var request = Utilities.GetSampleLinkFixJobRequest();
-            var jobRetriever = new TextFileJobRetriever(iConfig, "");
+            var textFileManager = new TextFileManager();
+            var jobRetriever = new TextFileJobRetriever(iConfig, "D:\\webapps\\Wikibot\\Wikibot\\WikiJobTest.txt", textFileManager);
+            LinkFixJob job = (LinkFixJob)WikiJobFactory.GetWikiJob(request, log, wikiAccessLogic, iConfig, jobData, jobRetriever);
+            job.Configuration = iConfig;
+            job.Execute();
+        }
+
+        [Fact]
+        public void ExecuteLinkFixJobLinkTextNotRetainedIfNoCustomText()
+        {
+            var iConfig = Utilities.GetIConfigurationRoot();
+            var wikiAccessLogic = new WikiAccessLogic();
+            var log = Utilities.GetLogger(iConfig, _output);
+            var jobData = Utilities.GetRequestData(null);
+            var request = Utilities.GetSampleLinkFixJobRequest();
+            var textFileManager = new TextFileManager();
+            var jobRetriever = new TextFileJobRetriever(iConfig, "D:\\webapps\\Wikibot\\Wikibot\\WikiJobTest.txt", textFileManager);
             LinkFixJob job = (LinkFixJob)WikiJobFactory.GetWikiJob(request, log, wikiAccessLogic, iConfig, jobData, jobRetriever);
             job.Configuration = iConfig;
             job.Execute();
@@ -56,7 +74,9 @@ namespace Wikibot.Tests
             var log = Utilities.GetLogger(iConfig, _output);
             var jobData = Utilities.GetRequestData(null);
             var request = Utilities.GetSampleContinuityLinkFixJobRequest();
-            var jobRetriever = new TextFileJobRetriever(iConfig, "D:\\Wikibot\\Wikibot\\WikiJobTest.txt");
+            var textFileManager = new TextFileManager();
+            var jobRetriever = new TextFileJobRetriever(iConfig, "D:\\webapps\\Wikibot\\Wikibot\\WikiJobTest.txt", textFileManager);
+            
             ContinuityLinkFixJob job = (ContinuityLinkFixJob)WikiJobFactory.GetWikiJob(request, log, wikiAccessLogic, iConfig, jobData, jobRetriever);
             job.Configuration = iConfig;
             job.Execute();

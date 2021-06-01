@@ -11,6 +11,7 @@ using MwParserFromScratch.Nodes;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Wikibot.DataAccess;
 using Wikibot.DataAccess.Objects;
@@ -26,7 +27,7 @@ namespace Wikibot.Tests
 {
     public static class Utilities
     {
-        const string CONFIGURATION_ROOT_PATH = "D:\\Wikibot\\Wikibot\\Wikibot.Tests\\";
+        const string CONFIGURATION_ROOT_PATH = "D:\\webapps\\Wikibot\\Wikibot\\Wikibot.Tests\\";
         private static Dictionary<long, WikiJobRequest> _requestDictionary;
 
         public static IConfigurationRoot GetIConfigurationRoot()
@@ -44,7 +45,8 @@ namespace Wikibot.Tests
             var wikiLoginConfig = config.GetSection("WikiLogin");
             var username = wikiLoginConfig["Username"];
             var password = wikiLoginConfig["Password"];
-            var wiki = new Wiki("WikiBot", "https://tfwiki.net", "/mediawiki/api.php");
+            var apiPath = wikiLoginConfig["APIPath"];
+            var wiki = new Wiki("WikiBot", "https://tfwiki.net", apiPath);
             var result = wiki.login(username, password);
 
             if (result.result == loginresult.NeedToken)
@@ -67,8 +69,10 @@ namespace Wikibot.Tests
             var username = WikiConfig["Username"];
             var password = WikiConfig["Password"];
             var url = WikiConfig["APIUrl"];
+            var apiPath = WikiConfig["APIPath"];
+            var fullURL = url+apiPath;
             // You can create multiple WikiSite instances on the same WikiClient to share the state.
-            var site = new WikiSite(client, url);
+            var site = new WikiSite(client, fullURL);
 
             // Wait for initialization to complete.
             // Throws error if any.
@@ -113,7 +117,7 @@ namespace Wikibot.Tests
         public static WikiJobRequest GetSampleLinkFixJobRequest()
         {
             var parser = new WikitextParser();
-            var ast = parser.Parse("{{User:Tigerpaw28/Sandbox/Template:WikiBotRequest|type=Link Fix|username=Tigerpaw28|timestamp=14:58, 30 June 2020 (EDT)|before=[[Commercial]]|after=[[Commercial|Test]]|comment=Test job|status=PendingPreApproval}}");
+            var ast = parser.Parse("{{User:Tigerpaw28/Sandbox/Template:WikiBotRequest|type=Link Fix|username=Tigerpaw28|timestamp=14:58, 30 June 2020 (EDT)|before=[[Commercial]]|after=[[Commercial|Test]]|pages=Commercial|comment=Test job|status=PendingPreApproval}}");
             var templates = ast.Lines.First<LineNode>().EnumDescendants().OfType<Template>();
             var request = WikiJobRequestFactory.GetWikiJobRequest(JobType.LinkFixJob, TimeZoneInfo.Local, templates.First());
             return request;
@@ -122,7 +126,7 @@ namespace Wikibot.Tests
         public static WikiJobRequest GetSampleContinuityLinkFixJobRequest()
         {
             var parser = new WikitextParser();
-            var ast = parser.Parse("{{User:Tigerpaw28/Sandbox/Template:WikiBotRequest|type=Link Fix|username=Tigerpaw28|timestamp=14:58, 30 June 2020 (EDT)|before=[[Hot Shot (Armada)]]|after=[[Hot Shot (Armada)/Cartoon continuity]]|headers=Armada cartoon, Energon cartoon, Cybertron cartoon|media=Cartoon|comment=Test job|status=PendingPreApproval}}");
+            var ast = parser.Parse("{{User:Tigerpaw28/Sandbox/Template:WikiBotRequest|type=Link Fix|username=Tigerpaw28|timestamp=14:58, 30 June 2020 (EDT)|before=[[Hot Shot (Armada)]]|after=[[Hot Shot (Armada)/Cartoon continuity]]|headers=Armada cartoon, Energon cartoon, Cybertron cartoon|media=Cartoon|pages=|comment=Test job|status=PendingPreApproval}}");
             var templates = ast.Lines.First<LineNode>().EnumDescendants().OfType<Template>();
             var request = WikiJobRequestFactory.GetWikiJobRequest(JobType.ContinuityLinkFixJob, TimeZoneInfo.Local, templates.First());
             return request;
@@ -155,8 +159,8 @@ namespace Wikibot.Tests
             raws[0] = "{{deceptitran| before =<nowiki> W:User_talk:</nowiki> | after =<nowiki> http://www.wikia.com/wiki/User_talk: </nowiki> | pages = Commercial; Commercial / Japan; Transformers_(2019_comic) | username =[[User: Tigerpaw28 | Tigerpaw28]] | timestamp = 17:54, 17 September 2009 (EDT)| comment = The Wikia link removal(at least I presume this to be the culprit) created a whole bunch of invalid talk page links on talk pages, which are now in the Wanted Pages list. Removing the link mark-up while still indicating what the link was, will work too.So long as we get them off the Wanted list.}}";
             raws[1] = "{{deceptitran| before = Optimus Prime| after = Orion Pax| pages = Optimus_Prime_(G1)| username =[[User: Tigerpaw28 | Tigerpaw28]] | timestamp = 17:54, 17 September 2009 (EDT)| comment = That's just Prime.}}";
             raws[2] = "{{deceptitran| before = Megatron| after = Galvatron| pages = Megatron_(G1)| username =[[User: Tigerpaw28 | Tigerpaw28]]| timestamp = 17:54, 17 September 2009 (EDT)| comment = Behold.}}";
-            raws[3] = "{{deceptitran| before = Blaster| after = Twincast| pages = Twincast_(G1)| username =[[User: Tigerpaw28 | Tigerpaw28]]| timestamp = 17:54, 17 September 2009 (EDT)| comment = He's back.}}";
-            raws[4] = "{{deceptitran| before = Soundwave| after = Soundblaster| pages = Soundblaster_(G1)| username =[[User: Tigerpaw28 | Tigerpaw28]]| timestamp = 17:54, 17 September 2009 (EDT)| comment = Soundwave not superior.}}";
+            raws[3] = "{{deceptitran| before = Blaster| after = Twincast| pages = Twincast_(G1)| username =[[User: Tigerpaw28 | Tigerpaw28]]| timestamp = 17:54, 17 September 2009 (EDT)| comment = He's back.|status=PendingPreApproval}}";
+            raws[4] = "{{deceptitran| before = Soundwave| after = Soundblaster| pages = Soundblaster_(G1)| username =[[User: Tigerpaw28 | Tigerpaw28]]| timestamp = 17:54, 17 September 2009 (EDT)| comment = Soundwave not superior.|status=PendingApproval}}";
             return raws;
         }
 
@@ -207,11 +211,13 @@ namespace Wikibot.Tests
 
             Type[] types = new Type[] { typeof(WikiJobRequest), typeof(DataAccess.Objects.Page) };
 
+            var approvalRequests = GetSampleJobRequests(true).Where(x => x.Status == JobStatus.PendingPreApproval || x.Status == JobStatus.PendingApproval).ToList();
+
             //Instruct the mock
-            mock.Setup(dataAccess => dataAccess.LoadDataComplex<WikiJobRequest, DataAccess.Objects.Page, dynamic>("dbo.spGetWikiJobRequestById", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, ldcParams)), "JobDb", types, It.IsAny<Func<WikiJobRequest, DataAccess.Objects.Page, WikiJobRequest>>(), "PageID")).Returns(new List<WikiJobRequest> { request });
+            mock.Setup(dataAccess => dataAccess.LoadDataComplex<WikiJobRequest, DataAccess.Objects.Page, dynamic>("dbo.spGetWikiJobRequestById", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, ldcParams)), "JobDb", types, It.IsAny<Func<WikiJobRequest, DataAccess.Objects.Page, WikiJobRequest>>(), "PageId")).Returns(GetSampleJobRequests(true).Where(request=> request.ID == ldcParams.RequestID).ToList());
             mock.Setup(dataAccess => dataAccess.LoadData<WikiJobRequest, dynamic>("dbo.spGetWikiJobRequests", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, ldParams)), "JobDb")).Returns(GetSampleJobRequests(false));
-            mock.Setup(dataAccess => dataAccess.LoadDataComplex<WikiJobRequest, DataAccess.Objects.Page, dynamic >("dbo.spGetWikiJobRequests", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, ldParams)), "JobDb", types, It.IsAny<Func<WikiJobRequest, DataAccess.Objects.Page, WikiJobRequest>>(), "PageID")).Returns(GetSampleJobRequests(true));
-            mock.Setup(dataAccess => dataAccess.LoadDataComplex<WikiJobRequest, DataAccess.Objects.Page, dynamic >("dbo.spGetWikiJobRequestsForApproval", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, ldParams)), "JobDb", types, It.IsAny<Func<WikiJobRequest, DataAccess.Objects.Page, WikiJobRequest>>(), "PageID")).Returns(GetSampleJobRequests(true).Where(x=> x.Status == JobStatus.PendingPreApproval || x.Status == JobStatus.PendingApproval).ToList());
+            mock.Setup(dataAccess => dataAccess.LoadDataComplex<WikiJobRequest, DataAccess.Objects.Page, dynamic >("dbo.spGetWikiJobRequests", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, ldParams)), "JobDb", types, It.IsAny<Func<WikiJobRequest, DataAccess.Objects.Page, WikiJobRequest>>(), "PageId")).Returns(GetSampleJobRequests(true));
+            mock.Setup(dataAccess => dataAccess.LoadDataComplex<WikiJobRequest, DataAccess.Objects.Page, dynamic >("dbo.spGetWikiJobRequestsForApproval", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, ldParams)), "JobDb", types, It.IsAny<Func<WikiJobRequest, DataAccess.Objects.Page, WikiJobRequest>>(), "PageId")).Returns(GetSampleJobRequests(true).Where(x=> x.Status == JobStatus.PendingPreApproval || x.Status == JobStatus.PendingApproval).ToList());
             mock.Setup(dataAccess => dataAccess.SaveData<dynamic>("dbo.spCreateWikiJobRequest", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, sdParams)), "JobDb"));
             mock.Setup(dataAccess => dataAccess.SaveData<dynamic>("dbo.spUpdateWikiJobRequestStatus", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, updateStatus)), "JobDb"));
             mock.Setup(dataAccess => dataAccess.SaveData<dynamic>("dbo.spUpdateWikiJobRequestTimePreStarted", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, updateTimePreStart)), "JobDb"));

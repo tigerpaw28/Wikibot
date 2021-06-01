@@ -18,6 +18,8 @@ namespace Wikibot.Logic.JobRetrievers
         private List<WikiJobRequest> _jobDefinitions;
         private string _pathToTextFile;
         private readonly IConfiguration _config;
+        private string _botRequestTemplate;
+        private IFileManager _fileManager;
 
         public List<WikiJobRequest> JobDefinitions 
         {
@@ -28,10 +30,12 @@ namespace Wikibot.Logic.JobRetrievers
             }
         }
         
-        public TextFileJobRetriever(IConfiguration configuration, string pathToTextFile)
+        public TextFileJobRetriever(IConfiguration configuration, string pathToTextFile, IFileManager fileManager)
         {
             _pathToTextFile = pathToTextFile;
             _config = configuration;
+            _botRequestTemplate = configuration["BotRequestTemplate"];
+            _fileManager = fileManager;
         }
 
         public async Task<List<WikiJobRequest>> GetNewJobDefinitions()
@@ -48,15 +52,18 @@ namespace Wikibot.Logic.JobRetrievers
             foreach(WikiJobRequest job in jobs)
             {
                 var templates = wikiText.Lines.SelectMany(x => x.EnumDescendants().OfType<Template>());
-                var singletemplate = templates.First(x => x.Name.ToPlainText().Equals("deceptitran") && x.EqualsJob(job));
-                singletemplate.Arguments.Single(arg=> arg.Name.ToPlainText().Equals("status")).Value = new WikitextParser().Parse(job.Status.ToString());
+                var singletemplate = templates.FirstOrDefault(x => x.Name.ToPlainText().Equals(_botRequestTemplate) && x.EqualsJob(job));
+                if (singletemplate != null)
+                {
+                    singletemplate.Arguments.Single(arg => arg.Name.ToPlainText().Equals("status")).Value = new WikitextParser().Parse(job.Status.ToString());
+                }
             }
-            File.WriteAllText(_pathToTextFile, wikiText.ToString());
+            _fileManager.WriteAllText(_pathToTextFile, wikiText.ToString());
         }
 
         private async Task<Wikitext> parseFile()
         { 
-           string contents = await File.ReadAllTextAsync(_pathToTextFile);
+           string contents = await _fileManager.ReadAllTextAsync(_pathToTextFile);
            return new WikitextParser().Parse(contents);
         }
 
