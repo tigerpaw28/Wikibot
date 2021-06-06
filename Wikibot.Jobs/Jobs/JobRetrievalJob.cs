@@ -39,7 +39,7 @@ namespace Wikibot.Logic.Jobs
             Log.Information("Job retrieval job starting");
 
             var jobApprovalLogic = new JobApprovalLogic(_userRetriever);
-            int offset = 1;
+            int offset = 0;
             int runin = 5;
             List<JobStatus> statusesToProcess = new List<JobStatus>() { JobStatus.ToBeProcessed, JobStatus.PreApproved, JobStatus.Approved };
 
@@ -85,7 +85,7 @@ namespace Wikibot.Logic.Jobs
                                 //Schedule jobs in 10 minute intervals
                                 //How to deal with potential page edit overlaps? -> Check page lists and id overlaps;
                                 var job = WikiJobFactory.GetWikiJob(request, Log, _wikiAccessLogic, Configuration, JobData, _jobRetriever );
-                                JobManager.AddJob(() => job.Execute(), (s) => s.ToRunOnceIn(runin).Minutes());
+                                JobManager.AddJob(() => job.Execute(), (s) => s.ToRunOnceIn(runin + offset).Minutes());
                                 offset = offset + 10;
                             }
                         }
