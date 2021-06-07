@@ -70,7 +70,7 @@ namespace Wikibot.Logic.Factories
         private static string GetTimeZoneString(TimeZoneInfo timezone)
         {
             var offset = timezone.GetUtcOffset(DateTime.Now);
-            var prefix = offset < TimeSpan.Zero ? "\\-" : "";
+            var prefix = offset < TimeSpan.Zero ? "\\-" : "\\+";
             var timeZoneFormat = prefix + "hh\\:mm";
             return offset.ToString(timeZoneFormat);
 
