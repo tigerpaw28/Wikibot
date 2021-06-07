@@ -41,7 +41,7 @@ namespace Wikibot.Tests
         {
             var iConfig = Utilities.GetIConfigurationRoot();
             var textFileManager = new TextFileManager();
-            var retriever = new TextFileJobRetriever(iConfig, "D:\\webapps\\Wikibot\\Wikibot\\WikiJobTest.txt", textFileManager);
+            var retriever = new TextFileJobRetriever(iConfig, "WikiJobTest.txt", textFileManager);
             Assert.NotNull(retriever.GetNewJobDefinitions().Result);
         }
 
@@ -52,7 +52,7 @@ namespace Wikibot.Tests
             var requestData = Utilities.GetRequestData(null);
             var wikiAccessLogic = new WikiAccessLogic();
             var textFileManager = new TextFileManager();
-            var retriever = new TextFileJobRetriever(iConfig, "D:\\Wikibot\\Wikibot\\WikiJobTest.txt",textFileManager);
+            var retriever = new TextFileJobRetriever(iConfig, "WikiJobTest.txt",textFileManager);
             var logger = Utilities.GetLogger(iConfig, _output);
             var job = new JobRetrievalJob(iConfig, logger, retriever, wikiAccessLogic, requestData);
             job.Execute();
