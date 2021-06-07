@@ -27,13 +27,11 @@ namespace Wikibot.Tests
 {
     public static class Utilities
     {
-        const string CONFIGURATION_ROOT_PATH = "D:\\webapps\\Wikibot\\Wikibot\\Wikibot.Tests\\";
         private static Dictionary<long, WikiJobRequest> _requestDictionary;
 
         public static IConfigurationRoot GetIConfigurationRoot()
         {
             return new ConfigurationBuilder()
-                .SetBasePath(CONFIGURATION_ROOT_PATH)
                 .AddJsonFile("appsettings.json", optional: true)
                 .AddUserSecrets("aspnet-Wikibot.App-3FB00538-5AEC-40E7-8DBC-0BF9B37C229B")
                 .AddEnvironmentVariables()
