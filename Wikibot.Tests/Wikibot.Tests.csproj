@@ -24,4 +24,10 @@
     <ProjectReference Include="..\Wikibot.Jobs\Wikibot.Logic.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="WikiJobTest.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
