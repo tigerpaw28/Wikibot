@@ -23,9 +23,13 @@ jobs:
       with:
         files: 'Wikibot.Tests/appsettings.json'
       env:
-        AppSettings.WikiRequestPage: "${{ secrets.WikiRequestPage}}"
-        AppSettings.RootAdminEmailAddress: "${{ secrets.RootAdminEmailAddress }}"
-        AppSettings.BotRequestTemplate: "${{ secrets.BotRequestTemplate }}"
+        WikiRequestPage: "${{ secrets.WikiRequestPage }}"
+        RootAdminEmailAddress: "${{ secrets.RootAdminEmailAddress }}"
+        BotRequestTemplate: "${{ secrets.BotRequestTemplate }}"
+        WikiLogin.Username: "${{ secrets.WikiLoginUsername }}"
+        WikiLogin.Password: "${{ secrets.WikiLoginPassword }}"
+        WikiLogin.APIUrl: "${{ secrets.WikiLoginAPIUrl }}"
+        WikiLogin.APIPath: "${{ secrets.WikiLoginAPIPath }}"
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
