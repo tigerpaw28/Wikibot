@@ -24,10 +24,6 @@ jobs:
         files: 'Wikibot.Tests/appsettings.json'
       env:
         AppSettings.WikiRequestPage: "${{ secrets.WikiRequestPage}}"
-        AppSettings.WikiLogin.Username: "${{ secrets.WikiLoginUsername }}"
-        AppSettings.WikiLogin.Password: "${{ secrets.WikiLoginPassword }}"
-        AppSettings.WikiLogin.APIUrl: "${{ secrets.WikiLoginAPIURL }}"
-        AppSettings.WikiLogin.APIPath: "${{ secrets.WikiLoginAPIPath }}"
         AppSettings.RootAdminEmailAddress: "${{ secrets.RootAdminEmailAddress }}"
         AppSettings.BotRequestTemplate: "${{ secrets.BotRequestTemplate }}"
     - name: Restore dependencies
