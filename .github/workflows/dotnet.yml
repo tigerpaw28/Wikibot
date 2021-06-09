@@ -20,7 +20,7 @@ jobs:
     - name: Variable Substitution appsettings file for tests
       uses: microsoft/variable-substitution@v1
       with:
-        files: '/Wikibot.Tests/appsettings.json'
+        files: 'Wikibot.Tests/appsettings.json'
       env:
         AppSettings.WikiRequestPage: "${{ secrets.WikiRequestPage}}"
         AppSettings.WikiLogin.UserName: "${{ secrets.WikiLogin.Username }}"
