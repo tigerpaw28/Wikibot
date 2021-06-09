@@ -7,6 +7,10 @@ on:
     branches: [ master ]
 
 jobs:
+  environment: 
+    name: wikibot-ci
+    runs-on: ubuntu-latest
+    
   build:
 
     runs-on: ubuntu-latest
