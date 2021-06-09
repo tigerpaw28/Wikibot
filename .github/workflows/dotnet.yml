@@ -7,8 +7,9 @@ on:
     branches: [ master ]
 
 jobs:
+    
   build:
-
+    environment: wikibot-ci
     runs-on: ubuntu-latest
 
     steps:
@@ -17,6 +18,18 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.x
+    - name: Variable Substitution appsettings file for tests
+      uses: microsoft/variable-substitution@v1
+      with:
+        files: 'Wikibot.Tests/appsettings.json'
+      env:
+        AppSettings.WikiRequestPage: "${{ secrets.WikiRequestPage}}"
+        AppSettings.WikiLogin.UserName: "${{ secrets.WikiLoginUsername }}"
+        AppSettings.WikiLogin.Password: "${{ secrets.WikiLoginPassword }}"
+        AppSettings.WikiLogin.APIURL: "${{ secrets.WikiLoginAPIURL }}"
+        AppSettings.WikiLogin.APIPath: "${{ secrets.WikiLoginAPIPath }}"
+        AppSettings.RootAdminEmailAddress: "${{ secrets.RootAdminEmailAddress }}"
+        AppSettings.BotRequestTemplate: "${{ secrets.BotRequestTemplate }}"
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
