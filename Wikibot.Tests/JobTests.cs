@@ -51,6 +51,7 @@ namespace Wikibot.Tests
         [Fact]
         public void ExecuteLinkFixJobLinkTextNotRetainedIfNoCustomText()
         {
+            throw new System.Exception("ExecuteLinkFixJob2");
             var iConfig = Utilities.GetIConfigurationRoot();
             var wikiAccessLogic = new WikiAccessLogic();
             var log = Utilities.GetLogger(iConfig, _output);
@@ -66,7 +67,6 @@ namespace Wikibot.Tests
         [Fact]
         public void ExecuteContinuityLinkFixJob()
         {
-            throw new System.Exception("ExecuteContinuityLinkFixJob");
             var iConfig = Utilities.GetIConfigurationRoot();
             var wikiAccessLogic = new WikiAccessLogic();
             var log = Utilities.GetLogger(iConfig, _output);
