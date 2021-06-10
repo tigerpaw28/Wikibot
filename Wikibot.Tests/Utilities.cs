@@ -44,6 +44,7 @@ namespace Wikibot.Tests
             var username = wikiLoginConfig["Username"];
             var password = wikiLoginConfig["Password"];
             var apiPath = wikiLoginConfig["APIPath"];
+            throw new Exception($"APIPath is {apiPath}");
             var wiki = new Wiki("WikiBot", "https://tfwiki.net", apiPath);
             var result = wiki.login(username, password);
 
@@ -124,7 +125,7 @@ namespace Wikibot.Tests
         public static WikiJobRequest GetSampleContinuityLinkFixJobRequest()
         {
             var parser = new WikitextParser();
-            var ast = parser.Parse("{{User:Tigerpaw28/Sandbox/Template:WikiBotRequest|type=Link Fix|username=Tigerpaw28|timestamp=14:58, 30 June 2020 (EDT)|before=[[Hot Shot (Armada)]]|after=[[Hot Shot (Armada)/Cartoon continuity]]|headers=Armada cartoon, Energon cartoon, Cybertron cartoon|media=Cartoon|pages=|comment=Test job|status=PendingPreApproval}}");
+            var ast = parser.Parse("{{User:Tigerpaw28/Sandbox/Template:WikiBotRequest|type=Link Fix|username=Tigerpaw28|timestamp=14:58, 30 June 2020 (EDT)|before=[[Hot Shot (Armada)]]|after=[[Hot Shot (Armada)/Cartoon continuity]]|headers=Armada cartoon, Energon cartoon, Cybertron cartoon|media=Cartoon|pages=Optimus Prime (Armada)|comment=Test job|status=PendingPreApproval}}");
             var templates = ast.Lines.First<LineNode>().EnumDescendants().OfType<Template>();
             var request = WikiJobRequestFactory.GetWikiJobRequest(JobType.ContinuityLinkFixJob, TimeZoneInfo.Local, templates.First());
             return request;
