@@ -44,7 +44,7 @@ namespace Wikibot.Tests
             var username = wikiLoginConfig["Username"];
             var password = wikiLoginConfig["Password"];
             var apiPath = wikiLoginConfig["APIPath"];
-            throw new Exception($"Username is {username}");
+      
             var wiki = new Wiki("WikiBot", "https://tfwiki.net", apiPath);
             var result = wiki.login(username, password);
 
