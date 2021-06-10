@@ -19,7 +19,6 @@ namespace Wikibot.Tests
         [Fact]
         public void ExecuteTextReplacementJob()
         {
-            throw new System.Exception("ExecuteTextReplacementJob");
             var iConfig = Utilities.GetIConfigurationRoot();
             var wikiAccessLogic = new WikiAccessLogic();
             var log = Utilities.GetLogger(iConfig, _output);
@@ -67,6 +66,7 @@ namespace Wikibot.Tests
         [Fact]
         public void ExecuteContinuityLinkFixJob()
         {
+            throw new System.Exception("ContinuityLinkFixJob");
             var iConfig = Utilities.GetIConfigurationRoot();
             var wikiAccessLogic = new WikiAccessLogic();
             var log = Utilities.GetLogger(iConfig, _output);
@@ -77,7 +77,7 @@ namespace Wikibot.Tests
             
             ContinuityLinkFixJob job = (ContinuityLinkFixJob)WikiJobFactory.GetWikiJob(request, log, wikiAccessLogic, iConfig, jobData, jobRetriever);
             job.Configuration = iConfig;
-            //job.Execute();
+            job.Execute();
         }
     }
 }
