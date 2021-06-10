@@ -30,6 +30,7 @@ jobs:
         WikiLogin.Password: "${{ secrets.WikiLoginPassword }}"
         WikiLogin.APIUrl: "${{ secrets.WikiLoginAPIUrl }}"
         WikiLogin.APIPath: "${{ secrets.WikiLoginAPIPath }}"
+        RequestTimezoneID: "America/New_York"
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
