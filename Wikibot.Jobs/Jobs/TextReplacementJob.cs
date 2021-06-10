@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using Wikibot.DataAccess;
 using Wikibot.DataAccess.Objects;
@@ -37,10 +38,15 @@ namespace Wikibot.Logic.Jobs
         public override void Execute()
         {
             SetJobStart();
-            Console.WriteLine("Testing");
-            throw new Exception("Testing to see if this gets thrown");
+ 
             try
             {
+                using (var x = new HttpClient())
+                {
+                    Log.Information("Testing");
+                    throw new Exception("Testing to see if this gets thrown");
+                }
+
                 using (var client = new WikiClient())
                 {   
 
