@@ -41,15 +41,11 @@ namespace Wikibot.Logic.Jobs
  
             try
             {
-                using (var x = new HttpClient())
-                {
+
+                using (WikiClient client = new WikiClient())
+                {   
                     Log.Information("Testing");
                     throw new Exception("Testing to see if this gets thrown");
-                }
-
-                using (var client = new WikiClient())
-                {   
-
                     var site = _wikiAccessLogic.GetLoggedInWikiSite(WikiConfig, client, Log);
 
                     var PageList = GetPageList(site);
