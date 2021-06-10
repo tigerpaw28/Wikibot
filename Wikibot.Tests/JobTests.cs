@@ -77,7 +77,7 @@ namespace Wikibot.Tests
             
             ContinuityLinkFixJob job = (ContinuityLinkFixJob)WikiJobFactory.GetWikiJob(request, log, wikiAccessLogic, iConfig, jobData, jobRetriever);
             job.Configuration = iConfig;
-            job.Execute();
+            //job.Execute();
         }
     }
 }
