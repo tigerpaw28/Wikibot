@@ -19,7 +19,6 @@ namespace Wikibot.Tests
         [Fact]
         public void ExecuteTextReplacementJob()
         {
-            throw new System.Exception("ExecuteTextReplacementJob");
             var iConfig = Utilities.GetIConfigurationRoot();
             var wikiAccessLogic = new WikiAccessLogic();
             var log = Utilities.GetLogger(iConfig, _output);
