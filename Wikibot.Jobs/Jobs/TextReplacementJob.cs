@@ -37,13 +37,13 @@ namespace Wikibot.Logic.Jobs
         public override void Execute()
         {
             SetJobStart();
-
+            Console.WriteLine("Testing");
+            throw new Exception("Testing to see if this gets thrown");
             try
             {
                 using (var client = new WikiClient())
                 {   
-                    Console.WriteLine("Testing");
-                    throw new Exception("Testing to see if this gets thrown");
+
                     var site = _wikiAccessLogic.GetLoggedInWikiSite(WikiConfig, client, Log);
 
                     var PageList = GetPageList(site);
