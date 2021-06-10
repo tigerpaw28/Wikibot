@@ -60,9 +60,8 @@ namespace Wikibot.Tests
         [Fact]
         public void GetJobs2()
         {
-            //var mockDataAccess = Utilities.GetMockDataAccess();
-            var mockDataAccess = new SqlDataAccess(Utilities.GetIConfigurationRoot());
-            var jobList = Utilities.GetRequestData(mockDataAccess).GetWikiJobRequestsWithPages(1,10,"ASC","ID");
+            var mockDataAccess = Utilities.GetMockDataAccess();
+            var jobList = Utilities.GetRequestData(mockDataAccess.Object).GetWikiJobRequestsWithPages(1,10,"ASC","ID");
             Assert.NotEmpty(jobList);
         }
 
@@ -93,8 +92,6 @@ namespace Wikibot.Tests
             var request = requestList.First();
             request.Status = JobStatus.PreApproved;            
             requestData.UpdateStatus(request.ID, request.Status);
-            //var updatedRequest = requestData.GetWikiJobRequests().First();
-            //Assert.Equal(request.Status, updatedRequest.Status);
             mockDataAccess.Verify(dataAccess => dataAccess.SaveData<dynamic>("dbo.spUpdateWikiJobRequestStatus", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, Utilities.GetUpdateStatusParams())), "JobDb"), Times.Exactly(1));
         }
 
@@ -107,8 +104,6 @@ namespace Wikibot.Tests
             var request = requestList.First();
             var now = DateTime.UtcNow; 
             requestData.UpdateTimePreStarted(request.ID, now);
-            //var updatedRequest = requestData.GetWikiJobRequests().First();
-            //Assert.Equal(request.TimePreStartedUTC.Value.ToString(), updatedRequest.TimePreStartedUTC.Value.ToString());
             mockDataAccess.Verify(dataAccess => dataAccess.SaveData<dynamic>("dbo.spUpdateWikiJobRequestTimePreStarted", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, Utilities.GetTimePreStartParams(now))), "JobDb"), Times.Exactly(1));
         }
 
@@ -121,8 +116,6 @@ namespace Wikibot.Tests
             var request = requestList.First();
             var now = DateTime.UtcNow;
             requestData.UpdateTimeStarted(request.ID, now);
-            //var updatedRequest = requestData.GetWikiJobRequests().First();
-            //Assert.Equal(request.TimeStartedUTC.ToString(), updatedRequest.TimeStartedUTC.ToString());
             mockDataAccess.Verify(dataAccess => dataAccess.SaveData<dynamic>("dbo.spUpdateWikiJobRequestTimeStarted", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, Utilities.GetTimeStartParams(now))), "JobDb"), Times.Exactly(1));
 
         }
@@ -136,8 +129,6 @@ namespace Wikibot.Tests
             var request = requestList.First();
             var now = DateTime.UtcNow;
             requestData.UpdateTimePreFinished(request.ID, now);
-            //var updatedRequest = requestData.GetWikiJobRequests().First();
-            //Assert.Equal(request.TimePreFinishedUTC.ToString(), updatedRequest.TimePreFinishedUTC.ToString());
             mockDataAccess.Verify(dataAccess => dataAccess.SaveData<dynamic>("dbo.spUpdateWikiJobRequestTimePreFinished", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, Utilities.GetTimePreFinishParams(now))), "JobDb"), Times.Exactly(1));
 
         }
@@ -151,8 +142,6 @@ namespace Wikibot.Tests
             var request = requestList.First();
             var now = DateTime.UtcNow;
             requestData.UpdateTimeFinished(request.ID, now);
-            //var updatedRequest = requestData.GetWikiJobRequests().First();
-            //Assert.Equal(request.TimeFinishedUTC.ToString(), updatedRequest.TimeFinishedUTC.ToString());
             mockDataAccess.Verify(dataAccess => dataAccess.SaveData<dynamic>("dbo.spUpdateWikiJobRequestTimeFinished", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, Utilities.GetTimeFinishParams(now))), "JobDb"), Times.Exactly(1));
 
         }
