@@ -36,4 +36,4 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Test
-      run: dotnet test --no-build --blame-hang-dump-type full --verbosity diag
+      run: dotnet test --no-build --blame-hang-timeout 5min --blame-hang-dump-type full
