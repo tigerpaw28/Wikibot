@@ -34,7 +34,5 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-    - name: Test Part 1
-      run: dotnet test --no-build --filter FullyQualifiedName/!~JobTests
-    - name: Test Part 2
-      run: dotnet test --no-build --blame-hang-timeout 5min --blame-hang-dump-type full --verbosity diag --filter FullyQualifiedName~JobTests
+    - name: Test
+      run: dotnet test --no-build --filter FullyQualifiedName~JobTests
