@@ -35,6 +35,6 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Test Phase 1
-      run: dotnet test --no-build --filter DisplayName!~Execute
+      run: dotnet test --no-build --filter DisplayName!~Execute --verbosity normal
     - name: Test Phase 2
-      run: dotnet test --no-build --filter FullyQualifiedName~JobTests
+      run: dotnet test --no-build --filter FullyQualifiedName~JobTests --verbosity normal
