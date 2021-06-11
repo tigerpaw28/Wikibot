@@ -34,5 +34,7 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-    - name: Test
+    - name: Test Phase 1
+      run: dotnet test --no-build DisplayName/!~Execute
+    - name: Test Phase 2
       run: dotnet test --no-build --filter FullyQualifiedName~JobTests
