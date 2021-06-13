@@ -41,5 +41,5 @@ jobs:
         WikiLogin.APIUrl: "${{ secrets.WikiLoginAPIUrl }}"
         WikiLogin.APIPath: "${{ secrets.WikiLoginAPIPath }}"
     - name: Deploy
-      run: dotnet publish -p:PublishProfile=IISProfile -c:Release -allowUntrusted
+      run: dotnet publish -p:PublishProfile=IISProfile -c:Release -p:AllowUntrustedCertificate=true
 
