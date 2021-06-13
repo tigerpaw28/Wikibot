@@ -39,8 +39,8 @@ jobs:
       with:
         files: 'Wikibot.App/Properties/PublishProfiles/IISProfile.pubxml'
       env:
-        Project.PropertyGroup.SiteUrlToLaunchAfterPublish: "${{ secrets.SiteUrl }}"
-        Project.PropertyGroup.MSDeployServiceURL: "${{ secrets.DeployUrl }}"
+        SiteUrlToLaunchAfterPublish: "${{ secrets.SiteUrl }}"
+        PropertyGroup.MSDeployServiceURL: "${{ secrets.DeployUrl }}"
         Project.PropertyGroup.DeployIisAppPath: "${{ secrets. DeployIISAppPath }}"
         Project.PropertyGroup.Username: "${{ secrets.DeployUsername }}"
     - name: Variable Substitution publish user xml for deployment
