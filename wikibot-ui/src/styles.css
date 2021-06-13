@@ -11,3 +11,7 @@
     color: darkblue;
     text-decoration: underline;
 }
+
+app-request-review-panel {
+    width: 100%;
+}
