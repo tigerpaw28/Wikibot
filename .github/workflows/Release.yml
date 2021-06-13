@@ -1,0 +1,54 @@
+name: .NET
+
+on:
+  push:
+    branches: [ releases/** ]
+  pull_request:
+    branches: [ releases/** ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    environment: wikibot-env
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Variable Substitution appsettings file for tests
+      uses: microsoft/variable-substitution@v1
+      with:
+        files: 'Wikibot.App/appsettings.json'
+      env:
+        WikiRequestPage: "${{ secrets.WikiRequestPage }}"
+        RootAdminEmailAddress: "${{ secrets.RootAdminEmailAddress }}"
+        BotRequestTemplate: "${{ secrets.BotRequestTemplate }}"
+        WikiLogin.Username: "${{ secrets.WikiLoginUsername }}"
+        WikiLogin.Password: "${{ secrets.WikiLoginPassword }}"
+        WikiLogin.APIUrl: "${{ secrets.WikiLoginAPIUrl }}"
+        WikiLogin.APIPath: "${{ secrets.WikiLoginAPIPath }}"
+    - name: Variable Substitution publish xml file for deployment
+      uses: microsoft/variable-substitution@v1
+      with:
+        files: 'Properties/IISProfile.pubxml'
+      env:
+        Project.PropertyGroup.SiteUrlToLaunchAfterPublish: "${{ secrets.SiteUrl }}"
+        Project.PropertyGroup.MSDeployServiceURL: "${{ secrets.DeployUrl }}"
+        Project.PropertyGroup.DeployIisAppPath: "${{ secrets. DeployIISAppPath }}"
+        Project.PropertyGroup.Username: "${{ secrets.DeployUsername }}"
+    - name: Variable Substitution publish user xml for deployment
+      uses: microsoft/variable-substitution@v1
+      with:
+        files: 'Properties/IISProfile.pubxml.user'
+      env:
+        Project.PropertyGroup.EncryptedPassword: "${{ secrets.EncryptedDeployPassword }}"
+        Project.ItemGroup.DestinationConnectionStrings.ApplicationDB: "${{ secrets.ApplicationDB }}"
+        Project.ItemGroup.DestinationConnectionStrings.JobDB: "${{ secrets. JobDB }}"
+
