@@ -108,6 +108,7 @@ namespace Wikibot.Logic.Jobs
                 string keepAliveURL = Configuration["KeepAliveURL"];
                 if (!string.IsNullOrEmpty(keepAliveURL))
                 {
+                    Log.Information("Keep Alive");
                     HttpGet(keepAliveURL); //hack to keep IIS server alive
                 }
             }
