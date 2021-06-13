@@ -11,7 +11,13 @@ jobs:
 
     runs-on: ubuntu-latest
     environment: wikibot-env
-
+    env:
+        Deploy_Service_URL: "${{ secrets.DeployUrl }}"
+        Deploy_IIS_Path: "${{ secrets. DeployIISAppPath }}"
+        PublishUsername: "${{ secrets.DeployUsername }}"
+        EncryptedPassword: "${{ secrets.EncryptedDeployPassword }}"
+        ApplicationDB_Connection: "${{ secrets.ApplicationDB }}"
+        JobDB_Connection: "${{ secrets. JobDB }}"
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
@@ -34,21 +40,6 @@ jobs:
         WikiLogin.Password: "${{ secrets.WikiLoginPassword }}"
         WikiLogin.APIUrl: "${{ secrets.WikiLoginAPIUrl }}"
         WikiLogin.APIPath: "${{ secrets.WikiLoginAPIPath }}"
-    - name: Variable Substitution publish xml file for deployment
-      uses: microsoft/variable-substitution@v1
-      with:
-        files: 'Wikibot.App/Properties/PublishProfiles/IISProfile.pubxml'
-      env:
-        SiteUrlToLaunchAfterPublish: "${{ secrets.SiteUrl }}"
-        PropertyGroup.MSDeployServiceURL: "${{ secrets.DeployUrl }}"
-        Project.PropertyGroup.DeployIisAppPath: "${{ secrets. DeployIISAppPath }}"
-        Project.PropertyGroup.Username: "${{ secrets.DeployUsername }}"
-    - name: Variable Substitution publish user xml for deployment
-      uses: microsoft/variable-substitution@v1
-      with:
-        files: 'Wikibot.App/Properties/PublishProfiles/IISProfile.pubxml.user'
-      env:
-        Project.PropertyGroup.EncryptedPassword: "${{ secrets.EncryptedDeployPassword }}"
-        Project.ItemGroup.DestinationConnectionStrings.ApplicationDB: "${{ secrets.ApplicationDB }}"
-        Project.ItemGroup.DestinationConnectionStrings.JobDB: "${{ secrets. JobDB }}"
+    - name: Deploy
+      run: dotnet publish -p:PublishProfile=IISProfile
 
