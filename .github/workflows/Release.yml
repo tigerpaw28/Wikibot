@@ -28,7 +28,7 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-    - name: Variable Substitution appsettings file for tests
+    - name: Variable Substitution appsettings file for deployment
       uses: microsoft/variable-substitution@v1
       with:
         files: 'Wikibot.App/appsettings.json'
@@ -41,5 +41,5 @@ jobs:
         WikiLogin.APIUrl: "${{ secrets.WikiLoginAPIUrl }}"
         WikiLogin.APIPath: "${{ secrets.WikiLoginAPIPath }}"
     - name: Deploy
-      run: dotnet publish -p:PublishProfile=IISProfile
+      run: dotnet publish -p:PublishProfile=IISProfile -c:Release
 
