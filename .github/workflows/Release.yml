@@ -27,8 +27,6 @@ jobs:
         dotnet-version: 5.0.x
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
     - name: Variable Substitution appsettings file for deployment
       uses: microsoft/variable-substitution@v1
       with:
@@ -41,6 +39,9 @@ jobs:
         WikiLogin.Password: "${{ secrets.WikiLoginPassword }}"
         WikiLogin.APIUrl: "${{ secrets.WikiLoginAPIUrl }}"
         WikiLogin.APIPath: "${{ secrets.WikiLoginAPIPath }}"
+    - name: Build
+      run: dotnet build --no-restore
+   
     - name: Deploy
-      run: dotnet publish -p:PublishProfile=IISProfile -c:Release -p:AllowUntrustedCertificate=true -p:Username="${{ secrets.DeployUsername }}" -p:Password="${{ secrets.DeployPassword }}"
+      run: dotnet publish -p:PublishProfile=IISProfile -c:Release -p:AllowUntrustedCertificate=true -p:Username="${{ secrets.DeployUsername }}" -p:Password="${{ secrets.DeployPassword }}" --no-build
 
