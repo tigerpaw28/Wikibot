@@ -14,8 +14,8 @@ jobs:
     env:
         Deploy_Service_URL: "${{ secrets.DeployUrl }}"
         Deploy_IIS_Path: "${{ secrets. DeployIISAppPath }}"
-        PublishUsername: "${{ secrets.DeployUsername }}"
-        EncryptedPassword: "${{ secrets.EncryptedDeployPassword }}"
+        PublishUserName: "${{ secrets.DeployUsername }}"
+        Encrypted_Password: "${{ secrets.EncryptedDeployPassword }}"
         ApplicationDB_Connection: "${{ secrets.ApplicationDB }}"
         JobDB_Connection: "${{ secrets. JobDB }}"
     steps:
