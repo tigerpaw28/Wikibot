@@ -10,17 +10,19 @@ using Wikibot.DataAccess;
 using Wikibot.DataAccess.Objects;
 using Wikibot.Logic.Extensions;
 using Wikibot.Logic.Factories;
+using Wikibot.Logic.Jobs;
 using Wikibot.Logic.Logic;
 using WikiClientLibrary.Client;
 using WikiClientLibrary.Pages;
 
 namespace Wikibot.Logic.JobRetrievers
 {
-    public class TFWikiJobRetriever: IWikiJobRetriever
+    public class TFWikRequestRetriever: IWikiRequestRetriever
     {
         private List<WikiJobRequest> _jobDefinitions;
         private IConfigurationSection _wikiLoginConfig;
         private IConfigurationSection _wikiEditMessages;
+        private IConfiguration _config;
         private string _timeZoneID;
         private ILogger _log;
         private IWikiAccessLogic _wikiAccessLogic;
@@ -37,15 +39,16 @@ namespace Wikibot.Logic.JobRetrievers
             }
         }
 
-        public TFWikiJobRetriever(IConfiguration configuration, ILogger log, IWikiAccessLogic wikiAccessLogic, IDataAccess dataAccess)
+        public TFWikRequestRetriever(IConfiguration configuration, ILogger log, IDataAccess dataAccess)
         {
+            _config = configuration;
             _wikiLoginConfig = configuration.GetSection("WikiLogin");
             _wikiEditMessages = configuration.GetSection("WikiEditMessages");
             _wikiRequestPage = configuration["WikiRequestPage"];
             _botRequestTemplate = configuration["BotRequestTemplate"];
             _timeZoneID = configuration["RequestTimezoneID"];
             _log = log;
-            _wikiAccessLogic = wikiAccessLogic;
+            _wikiAccessLogic = new WikiAccessLogic(configuration, log);
             _database = new RequestData(dataAccess);
         }
 
@@ -61,7 +64,7 @@ namespace Wikibot.Logic.JobRetrievers
                 try
                 {
                     _log.Information($"Logging into Wiki");
-                    var site = _wikiAccessLogic.GetLoggedInWikiSite(_wikiLoginConfig, client, _log);
+                    var site = _wikiAccessLogic.GetLoggedInWikiSite(client);
                     var page = new WikiPage(site, _wikiRequestPage);
 
                     _log.Information($"Fetching content from job request page {page.Title}");
@@ -103,7 +106,7 @@ namespace Wikibot.Logic.JobRetrievers
                 try
                 {
                     // You can create multiple WikiSite instances on the same WikiClient to share the state.
-                    var site = _wikiAccessLogic.GetLoggedInWikiSite(_wikiLoginConfig, client, _log);
+                    var site = _wikiAccessLogic.GetLoggedInWikiSite(client);
 
                     var page = new WikiPage(site, _wikiRequestPage);
 
@@ -165,6 +168,11 @@ namespace Wikibot.Logic.JobRetrievers
             page.Content = content;
             await page.UpdateContentAsync(message);
         }
+
+        public WikiJob GetJobForRequest(WikiJobRequest request)
+        {
+            return WikiJobFactory.GetWikiJob(request, _log, _wikiAccessLogic, _config, _database, this);
+        } 
 
         private TimeZoneInfo GetTimeZone()
         {

@@ -10,10 +10,12 @@ using Wikibot.DataAccess;
 using Wikibot.DataAccess.Objects;
 using Wikibot.Logic.Extensions;
 using Wikibot.Logic.Factories;
+using Wikibot.Logic.Jobs;
+using Wikibot.Logic.Logic;
 
 namespace Wikibot.Logic.JobRetrievers
 {
-    public class TextFileJobRetriever : IWikiJobRetriever
+    public class TextFileJobRetriever : IWikiRequestRetriever
     {
         private List<WikiJobRequest> _jobDefinitions;
         private string _pathToTextFile;
@@ -72,5 +74,9 @@ namespace Wikibot.Logic.JobRetrievers
             return TimeZoneInfo.FindSystemTimeZoneById(_config["RequestTimezoneID"]);
         }
 
+        public WikiJob GetJobForRequest(WikiJobRequest request)
+        {
+            return WikiJobFactory.GetWikiJob(request, null, new WikiAccessLogic(_config, null), _config, null, this);
+        }
     }
 }
