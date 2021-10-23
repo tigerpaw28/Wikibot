@@ -43,7 +43,7 @@ namespace Wikibot.Logic.JobRetrievers
         public async Task<List<WikiJobRequest>> GetNewJobDefinitions()
         {
             var ast = await parseFile();
-            var templates = ast.Lines.SelectMany(x=> x.EnumDescendants().OfType<Template>());
+            var templates = ast.EnumDescendants().OfType<Template>();
             var jobs = templates.Select(template => WikiJobRequestFactory.GetWikiJobRequest(JobType.TextReplacementJob, GetTimeZone(), template));
             return jobs.ToList();
         }
@@ -53,7 +53,7 @@ namespace Wikibot.Logic.JobRetrievers
             var wikiText = parseFile().Result;
             foreach(WikiJobRequest job in jobs)
             {
-                var templates = wikiText.Lines.SelectMany(x => x.EnumDescendants().OfType<Template>());
+                var templates = wikiText.EnumDescendants().OfType<Template>();
                 var singletemplate = templates.FirstOrDefault(x => x.Name.ToPlainText().Equals(_botRequestTemplate) && x.EqualsJob(job));
                 if (singletemplate != null)
                 {

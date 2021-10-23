@@ -74,7 +74,7 @@ namespace Wikibot.Logic.JobRetrievers
                     if ((page?.Content ?? "").Length > 1)
                     {
                         var ast = new WikitextParser().Parse(page?.Content);
-                        var templates = ast.Lines.First().EnumDescendants().OfType<Template>();
+                        var templates = ast.EnumDescendants().OfType<Template>();
 
                         _log.Information("Building jobs.");
                         jobs = templates.Select(template => WikiJobRequestFactory.GetWikiJobRequest((JobType)Enum.Parse(typeof(JobType), template.Arguments.Single(arg => arg.Name.ToPlainText() == "type").Value.ToPlainText().Replace(" ", "") + "Job"), GetTimeZone(), template));
@@ -123,7 +123,7 @@ namespace Wikibot.Logic.JobRetrievers
                     {
                         _log.Information($"Processing request ID: {request.ID} with raw {request.RawRequest}");
                         //Find corresponding template in the page content
-                        var templates = wikiText.Lines.SelectMany(x => x.EnumDescendants().OfType<Template>());
+                        var templates = wikiText.EnumDescendants().OfType<Template>();
                         var requestTemplates = templates.Where(template => template.Name.ToPlainText().Equals(_botRequestTemplate));
                         _log.Information($"{requestTemplates.ToList().Count} templates found for template {_botRequestTemplate}");
                         _log.Information($"Template id: {requestTemplates.First().Arguments.SingleOrDefault(arg => arg.Name.ToPlainText().Equals("id"))}");
