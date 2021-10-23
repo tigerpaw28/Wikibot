@@ -43,7 +43,7 @@ namespace Wikibot.App
                     var jobData = new RequestData(dataAccess);
 
                     Log.Information("Starting background job retrieval job");
-                    JobManager.AddJob(() => new JobRetrievalJob(config, logger, jobRetriever, userRetriever, jobData).Execute(), (s) => s.ToRunEvery(1).Minutes());
+                    JobManager.AddJob(() => new JobRetrievalJob(config, logger, jobRetriever, userRetriever, jobData).Execute(), (s) => s.ToRunEvery(15).Minutes());
                 }
                 
                 Log.Information("Application Start");
