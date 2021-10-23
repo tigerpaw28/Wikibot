@@ -9,13 +9,14 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     environment: wikibot-env
     env:
         Deploy_Service_URL: "${{ secrets.DeployUrl }}"
         Deploy_IIS_Path: "${{ secrets. DeployIISAppPath }}"
-        PublishUsername: "${{ secrets.DeployUsername }}"
-        EncryptedPassword: "${{ secrets.EncryptedDeployPassword }}"
+        PublishUserName: "${{ secrets.DeployUsername }}"
+        PublishPassword: "${{ secrets.DeployPassword }}"
+        Encrypted_Password: "${{ secrets.EncryptedDeployPassword }}"
         ApplicationDB_Connection: "${{ secrets.ApplicationDB }}"
         JobDB_Connection: "${{ secrets. JobDB }}"
     steps:
@@ -26,9 +27,7 @@ jobs:
         dotnet-version: 5.0.x
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Variable Substitution appsettings file for tests
+    - name: Variable Substitution appsettings file for deployment
       uses: microsoft/variable-substitution@v1
       with:
         files: 'Wikibot.App/appsettings.json'
@@ -40,6 +39,9 @@ jobs:
         WikiLogin.Password: "${{ secrets.WikiLoginPassword }}"
         WikiLogin.APIUrl: "${{ secrets.WikiLoginAPIUrl }}"
         WikiLogin.APIPath: "${{ secrets.WikiLoginAPIPath }}"
+    - name: Build
+      run: dotnet build --no-restore -c:Release
+   
     - name: Deploy
-      run: dotnet publish -p:PublishProfile=IISProfile
+      run: dotnet publish -p:PublishProfile=IISProfile -c:Release -p:AllowUntrustedCertificate=true -p:Username="${{ secrets.DeployUsername }}" -p:Password="${{ secrets.DeployPassword }}" --no-build
 
