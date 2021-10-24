@@ -20,3 +20,33 @@ Wikibot.DataAccess/obj/
 Wikibot.Jobs/bin/
 Wikibot.Jobs/obj/
 wikibot-ui/src/assets/20106/
+D&D notes.txt
+Unit tests for scheduler.txt
+.vs/Wikibot/v16/TestStore/0/011.testlog
+.vs/Wikibot/v16/TestStore/OutputMessages/304fcf47-732e-c82e-fa1c-b0b1da85a643/StandardOutput.txt
+.vs/Wikibot/v16/TestStore/OutputMessages/7d438918-b68f-0987-402b-d8745a084017/StandardOutput.txt
+.vs/Wikibot/v16/TestStore/OutputMessages/96cde8d0-28c5-0d28-8bfd-3b1ae044939d/StandardOutput.txt
+wikibot-ui/.browserslistrc
+wikibot-ui/.editorconfig
+wikibot-ui/src/app/Diff-Alana-0-0.txt
+wikibot-ui/src/app/Diff-Alien-0-0.txt
+wikibot-ui/src/app/Diff-Comics-0-0.txt
+wikibot-ui/src/assets/Diff-20081-Jazz (G1).txt
+wikibot-ui/src/assets/Diff-20083-Jazz (G1).txt
+wikibot-ui/src/assets/Diff-Alana-0-0.txt
+wikibot-ui/src/assets/Diff-Alien-0-0.txt
+wikibot-ui/src/assets/Diff-Comics-0-0.txt
+Wikibot.App/Logs/log20201114.json
+Wikibot.App/Logs/log20210215.json
+Wikibot.App/Logs/log20211016.json
+Wikibot.App/Logs/log20211017.json
+Wikibot.App/appsettings.Release.json
+Wikibot.App/web.config
+Wikibot.App/Properties/PublishProfiles/IISProfile1.pubxml.user
+Wikibot.App/Properties/PublishProfiles/IISProfile1.pubxml
+Wikibot.Jobs/Jobs/TemplateAnalysisJob.cs
+Wikibot.Jobs/Jobs/TimeoutCheckJob.cs
+Wikibot.Jobs/UserRetrievers/TextFileUserRetriever.cs
+Wikibot.App/.config/dotnet-tools.json
+wikibot-ui/src/assets/.gitkeep
+.gitignore

@@ -1,6 +1,4 @@
 ﻿using LinqToWiki.Generated;
-using Microsoft.Extensions.Configuration;
-using Serilog;
 using WikiClientLibrary.Client;
 using WikiClientLibrary.Sites;
 

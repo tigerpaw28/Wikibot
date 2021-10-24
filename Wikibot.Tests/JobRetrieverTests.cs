@@ -1,7 +1,5 @@
-using Moq;
 using System.Threading;
 using Wikibot.DataAccess;
-using Wikibot.DataAccess.Objects;
 using Wikibot.Logic.Extensions;
 using Wikibot.Logic.FileManagers;
 using Wikibot.Logic.JobRetrievers;
@@ -42,7 +40,7 @@ namespace Wikibot.Tests
         {
             var iConfig = Utilities.GetIConfigurationRoot();
             var textFileManager = new TextFileManager();
-            var retriever = new TextFileJobRetriever(iConfig, "WikiJobTest.txt", textFileManager);
+            var retriever = new TextFileRequestRetriever(iConfig, "WikiJobTest.txt", textFileManager);
             Assert.NotNull(retriever.GetNewJobDefinitions().Result);
         }
 
@@ -55,9 +53,9 @@ namespace Wikibot.Tests
             var wikiAccessLogic = new WikiAccessLogic(iConfig, logger);
             var userRetriever = new TFWikiUserRetriever(wikiAccessLogic);
             var textFileManager = new TextFileManager();
-            var retriever = new TextFileJobRetriever(iConfig, "WikiJobTest.txt",textFileManager);
+            var retriever = new TextFileRequestRetriever(iConfig, "WikiJobTest.txt",textFileManager);
             
-            var job = new JobRetrievalJob(iConfig, logger, retriever, userRetriever, requestData);
+            var job = new RequestRetrievalJob(iConfig, logger, retriever, userRetriever, requestData);
             job.Execute();
         }
 
@@ -84,7 +82,7 @@ namespace Wikibot.Tests
             var sqlDataAccess = new SqlDataAccess(iConfig);
             var userRetriever = new TFWikiUserRetriever(wikiAccessLogic);
             var retriever = new TFWikRequestRetriever(iConfig, logger, sqlDataAccess);
-            var job = new JobRetrievalJob(iConfig, logger, retriever, userRetriever, requestData);
+            var job = new RequestRetrievalJob(iConfig, logger, retriever, userRetriever, requestData);
             job.Execute();
         }
 

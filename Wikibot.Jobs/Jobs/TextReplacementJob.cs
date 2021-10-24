@@ -49,8 +49,6 @@ namespace Wikibot.Logic.Jobs
                     var PageList = GetPageList(site);
 
                     string filename = "";
-                    string diff = "";
-                    string filePath = "";
                     string folderName = Request.ID.ToString();
 
                     foreach (WikiPage page in PageList)

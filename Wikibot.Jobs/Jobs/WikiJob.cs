@@ -82,10 +82,6 @@ namespace Wikibot.Logic.Jobs
             }
 
         }
-        //public WikiJob(IWikiJobRetriever jobRetriever, IConfigurationSection config) {
-        //    Retriever = jobRetriever;
-        //    Configuration = config;
-        //}
 
         public void SetJobStart()
         {

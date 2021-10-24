@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using Wikibot.DataAccess;
 using Wikibot.DataAccess.Objects;
@@ -15,7 +14,6 @@ using Wikibot.Logic.Logic;
 using WikiClientLibrary.Client;
 using WikiClientLibrary.Pages;
 using WikiClientLibrary.Sites;
-using WikiFunctions;
 
 namespace Wikibot.Logic.Jobs
 {
@@ -55,9 +53,6 @@ namespace Wikibot.Logic.Jobs
                     var PageList = GetBackLinksPageList(site, fromLinkTarget);
                     var storyLinkPageList = GetStoryLinksPageList(site, toLinkTarget);
 
-                    //string filename = "";
-                    //string diff = "";
-                    //string filePath = "";
                     var folderName = Request.ID.ToString();
                     var folderPath = Path.Combine(Configuration["DiffDirectory"], folderName);
                     if (!Directory.Exists(folderPath))
@@ -228,18 +223,6 @@ namespace Wikibot.Logic.Jobs
 
             return linkList.Select(link => new WikiPage(site, link.Title));
 
-            //var page = new WikiPage(site, link.Target.ToPlainText());
-            //var provider = WikiPageQueryProvider.FromOptions(PageQueryOptions.None);
-            //provider.Properties.Add(new LinksHerePropertyProvider());
-            //await page.RefreshAsync(new WikiPageQueryProvider
-            //{
-            //    Properties =
-            //    {
-            //        new LinksHerePropertyProvider()
-            //    },
-
-            //});
-            //return page.GetPropertyGroup<LinksHerePropertyGroup>().LinkedPages.Select(page=> new WikiPage(site, page.Title));
         }
 
         private IEnumerable<WikiPage> GetStoryLinksPageList(WikiSite site, string pageTitle)

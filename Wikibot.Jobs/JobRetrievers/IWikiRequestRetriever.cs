@@ -7,7 +7,7 @@ namespace Wikibot.Logic.JobRetrievers
 {
     public interface IWikiRequestRetriever
     {
-        public List<WikiJobRequest> JobDefinitions { get; }
+        public List<WikiJobRequest> RequestDefinitions { get; }
 
         WikiJob GetJobForRequest(WikiJobRequest request);
         public Task<List<WikiJobRequest>> GetNewJobDefinitions();

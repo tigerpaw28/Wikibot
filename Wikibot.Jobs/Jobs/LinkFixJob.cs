@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Wikibot.DataAccess;
 using Wikibot.DataAccess.Objects;
 using Wikibot.Logic.Extensions;
@@ -13,10 +12,7 @@ using Wikibot.Logic.JobRetrievers;
 using Wikibot.Logic.Logic;
 using WikiClientLibrary.Client;
 using WikiClientLibrary.Pages;
-using WikiClientLibrary.Pages.Queries;
-using WikiClientLibrary.Pages.Queries.Properties;
 using WikiClientLibrary.Sites;
-using WikiFunctions;
 
 namespace Wikibot.Logic.Jobs
 {
@@ -53,9 +49,6 @@ namespace Wikibot.Logic.Jobs
 
                     var PageList = GetBackLinksPageList(site, fromLinkTarget);
 
-                    string filename = "";
-                    string diff = "";
-                    string filePath = "";
                     var folderName = Request.ID.ToString();
                     var folderPath = Path.Combine(Configuration["DiffDirectory"], folderName);
                     if (!Directory.Exists(folderPath))
@@ -109,13 +102,6 @@ namespace Wikibot.Logic.Jobs
                             {
                                 Log.Information("Generating diff for page {PageName}", page.Title);
                                 Utilities.GenerateAndSaveDiff(beforeContent, afterContent, page.Title, Request.ID, Configuration["DiffDirectory"], folderName);
-                                //var wikiDiff = new WikiDiff();
-                                //diff = $"{WikiDiff.DiffHead()}</head><body>{WikiDiff.TableHeader}{wikiDiff.GetDiff(beforeContent, afterContent, 1)}</table></body></html>";
-                                //filename = "Diff-" + Request.ID + "-" + page.Title + ".txt"; //Set filename for this page
-                                //filename = Utilities.SanitizeFilename(filename, '_');
-
-                                //filePath = Path.Combine(Configuration["DiffDirectory"], folderName, filename);
-                                //File.WriteAllText(filePath, diff);
                                 JobData.SaveWikiJobRequest(Request); //Save page list                        
                             }
                             else //Apply changes
@@ -155,18 +141,6 @@ namespace Wikibot.Logic.Jobs
 
             return linkList.Select(link => new WikiPage(site, link.Title));
 
-            //var page = new WikiPage(site, link.Target.ToPlainText());
-            //var provider = WikiPageQueryProvider.FromOptions(PageQueryOptions.None);
-            //provider.Properties.Add(new LinksHerePropertyProvider());
-            //await page.RefreshAsync(new WikiPageQueryProvider
-            //{
-            //    Properties =
-            //    {
-            //        new LinksHerePropertyProvider()
-            //    },
-
-            //});
-            //return page.GetPropertyGroup<LinksHerePropertyGroup>().LinkedPages.Select(page=> new WikiPage(site, page.Title));
         }
 
         public bool CompareLinks(string x, string y)
