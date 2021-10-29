@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Wikibot.DataAccess;
 using Wikibot.DataAccess.Objects;
+using Wikibot.Logic;
 using Wikibot.Logic.Extensions;
 using Wikibot.Logic.Factories;
 using Wikibot.Logic.Logic;
@@ -97,7 +98,12 @@ namespace Wikibot.Tests
         public static IUserRetriever GetUserRetriever(IConfiguration config, ILogger log)
         {
             var accessLogic = new WikiAccessLogic(config, log);
-            return new TFWikiUserRetriever(accessLogic);
+            return new TFWikiUserRetriever(accessLogic, config);
+        }
+
+        public static INotificationService GetNotificationService(IWikiAccessLogic wikiAccessLogic, IConfiguration config)
+        {
+           return new WikiNotificationService(wikiAccessLogic, config);
         }
 
         public static WikiJobRequest GetSampleJobRequest()

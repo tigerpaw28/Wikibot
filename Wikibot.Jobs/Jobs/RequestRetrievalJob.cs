@@ -16,14 +16,15 @@ namespace Wikibot.Logic.Jobs
 
         private IWikiRequestRetriever _requestRetriever;
         private IUserRetriever _userRetriever;
+        private INotificationService _notificationService;
 
-        public RequestRetrievalJob(IConfiguration config, Serilog.ILogger log, IWikiRequestRetriever requestRetriever, IUserRetriever userRetriever, RequestData jobData )
+        public RequestRetrievalJob(IConfiguration config, Serilog.ILogger log, IWikiRequestRetriever requestRetriever, IUserRetriever userRetriever, INotificationService notifcationService, RequestData jobData )
         {
             Configuration = config;
             Log = log;
             _requestRetriever = requestRetriever;
             _userRetriever = userRetriever;
-
+            _notificationService = notifcationService;
             JobData = jobData;
         }
 
@@ -62,6 +63,9 @@ namespace Wikibot.Logic.Jobs
 
                                 //Add to update list
                                 requestsToUpdate.Add(request);
+
+                                //Send notification
+                                _notificationService.SendNewRequestNotification(_userRetriever.GetReviewerUsers(), request.RequestingUsername, request.Comment);
                             }
                             else
                             {

@@ -8,5 +8,7 @@ namespace Wikibot.Logic.UserRetrievers
         public List<User> GetAutoApprovedUsers();
 
         public User GetUser(string username);
+
+        public List<User> GetReviewerUsers();
     }
 }

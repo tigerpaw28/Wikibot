@@ -1,4 +1,6 @@
-﻿using Xunit;
+﻿using System.Collections.Generic;
+using Wikibot.DataAccess;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Wikibot.Tests
@@ -28,6 +30,17 @@ namespace Wikibot.Tests
             var users = userRetriever.GetAutoApprovedUsers();
             Assert.NotNull(users);
             Assert.NotEmpty(users);
+        }
+
+        [Fact]
+        public void GetReviewerUsers()
+        {
+            var iConfig = Utilities.GetIConfigurationRoot();
+            var userRetriever = Utilities.GetUserRetriever(iConfig, Utilities.GetLogger(iConfig, _output));
+            List<User> reviewers = userRetriever.GetReviewerUsers();
+  
+            Assert.NotNull(reviewers);
+            Assert.NotEmpty(reviewers);
         }
     }
 }

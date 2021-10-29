@@ -7,6 +7,7 @@ using System.Linq;
 using Wikibot.DataAccess;
 using Wikibot.DataAccess.Objects;
 using Wikibot.Logic.JobRetrievers;
+using Wikibot.Logic.UserRetrievers;
 
 namespace Wikibot.Logic.Jobs
 {
@@ -21,6 +22,8 @@ namespace Wikibot.Logic.Jobs
                 return Configuration.GetSection("WikiLogin");
             }
         }
+
+        public INotificationService Notifier { get; set; }
 
         private string _fromText;
         public string FromText 
@@ -104,14 +107,24 @@ namespace Wikibot.Logic.Jobs
                 Request.TimePreFinishedUTC = DateTime.UtcNow;
                 Request.Status = JobStatus.PendingApproval;
                 Log.Information("Job ended at {DateTime}", Request.TimePreFinishedUTC);
+                Notifier.SendRequestPreApprovedNotification(this.Request.RequestingUsername, this.Request.Comment, this.Request.JobType.ToString());
+                Notifier.SendNewApprovalNotification(UserRetriever.GetReviewerUsers(), this.Request.RequestingUsername, this.Request.Comment);
             }
             else if (Request.Status == JobStatus.Approved)
             {
                 Request.TimeFinishedUTC = DateTime.UtcNow;
                 Request.Status = JobStatus.Done;
                 Log.Information("Job ended at {DateTime}", Request.TimeFinishedUTC);
+                Notifier.SendRequestCompletedNotification(this.Request.RequestingUsername, this.Request.Comment, this.Request.JobType.ToString());
             }
 
+        }
+
+        public void FailJob(Exception ex)
+        {
+            Request.Status = JobStatus.Failed;
+            Notifier.SendErrorNotification(UserRetriever.GetReviewerUsers(), Request.RequestingUsername, Request.Comment);
+            Log.Error(ex, $"TextReplacementJob with ID: {Request.ID} failed.");
         }
 
         public void SaveRequest()
@@ -122,6 +135,7 @@ namespace Wikibot.Logic.Jobs
             Retriever.UpdateRequests(new List<WikiJobRequest> { Request });
         }
 
-        public IWikiRequestRetriever Retriever;
+        public IWikiRequestRetriever Retriever { get; set; }
+        public IUserRetriever UserRetriever { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +22,9 @@ using System.Threading.Tasks;
 using Wikibot.App.Data;
 using Wikibot.App.Extensions;
 using Wikibot.App.Models;
+using Wikibot.App.Services;
 using Wikibot.DataAccess;
+using Wikibot.Logic;
 using Wikibot.Logic.JobRetrievers;
 using Wikibot.Logic.Logic;
 using Wikibot.Logic.UserRetrievers;
@@ -131,11 +134,12 @@ namespace Wikibot.App
             var logger = logConfig.CreateLogger();
             services.AddSingleton<Serilog.ILogger>(logger);
 
-            //services.AddTransient<IEmailSender, EmailSender>();
+            services.AddTransient<IEmailSender, SmtpSender>();
             services.AddTransient<IWikiAccessLogic, WikiAccessLogic>();
             services.AddTransient<IWikiRequestRetriever, TFWikRequestRetriever>();
             services.AddTransient<IDataAccess, SqlDataAccess>();
             services.AddTransient<IUserRetriever, TFWikiUserRetriever>();
+            services.AddTransient<INotificationService, WikiNotificationService>();
 
             services.AddSwaggerGen(options =>
             {
@@ -177,7 +181,7 @@ namespace Wikibot.App
                 });
                 options.OperationFilter<AuthorizeCheckOperationFilter>();
             });
-            //services.Configure<AuthMessageSenderOptions>(Configuration);
+           services.Configure<EmailSenderOptions>(Configuration.GetSection("EmailSenderOptions"));
 
             services.AddCors(c =>
             {
