@@ -14,7 +14,6 @@ namespace Wikibot.App.Models
         public DateTime? TimePreStartedUTC { get; set; }
         public JobType JobType { get; set; }
         public string RawRequest { get; set; }
-        public string Notes { get; set; }
         public List<string> Diffs { get; set; }
 
     }

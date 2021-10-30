@@ -37,24 +37,29 @@
         </div>
     </div>
     <div class="request-review-button-div">
-        <div class="float-button request-review-prev-button button" *ngIf="lastPage > 1" (click)="prevPage()">
+        <div class="float-button request-review-prev-button button" *ngIf="lastPage > 1" (click)="prevPage()" [ngClass]="{'hide': !showDiff}">
             <fa-icon [icon]="faAngleLeft"></fa-icon>
             <span class="prev-button-text">Prev</span>
         </div>
-        <div class="float-button request-review-next-button button" *ngIf="lastPage > 1" (click)="nextPage()"> 
+        <div class="float-button request-review-next-button button" *ngIf="lastPage > 1" (click)="nextPage()"  [ngClass]="{'hide': !showDiff}"> 
             <span class="next-button-text">Next</span> 
             <fa-icon [icon]="faAngleRight"></fa-icon>
         </div>
+        <div class="comments-div">
+            <span class="label">Comment (optional):</span>
+            <textarea cols="30" rows="5" #approvalComment></textarea> 
+        </div>
         <div class="approve-reject-div">
-            <div *ngIf="original_request_status == 'PendingPreApproval'" (click)="preApprove()" [ngClass]="{'button': true, 'request-review-button': (!success && !error), 'disabled-review-button': (success || error), 'approval-button': true}">
+            <div *ngIf="original_request_status == 'PendingPreApproval'" (click)="preApprove()" [ngClass]="{'button': true, 'request-review-button': true, 'disabled-review-button': (success || error), 'approval-button': true}">
                 Pre Approve
             </div>
-            <div *ngIf="original_request_status == 'PendingApproval'" (click)="Approve()" [ngClass]="{'button': true, 'request-review-button': (!success && !error), 'disabled-review-button': (success || error), 'approval-button': true}">
+            <div *ngIf="original_request_status == 'PendingApproval'" (click)="Approve()" [ngClass]="{'button': true, 'request-review-button': true, 'disabled-review-button': (success || error), 'approval-button': true}">
                 Approve
             </div>
-            <div [ngClass]="{'button': true, 'request-review-button': (!success && !error), 'disabled-review-button': (success || error), 'reject-button': true, 'approval-button': true}"  (click)="Reject()" >
+            <div [ngClass]="{'button': true, 'request-review-button': true, 'disabled-review-button': (success || error), 'reject-button': true}"  (click)="Reject(approvalComment.value)" >
                 Reject
             </div>
         </div>
+
     </div>
 </div>

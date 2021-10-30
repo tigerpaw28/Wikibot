@@ -4,7 +4,6 @@
 	[Comment]            NVARCHAR (MAX)  NOT NULL,
     [StatusID]           INT             NULL,
     [RequestingUsername] NVARCHAR (50)   NULL,
-    [Notes]              NVARCHAR (1000) NULL,
     [RawRequest]         NVARCHAR (MAX)  NULL,
     [SubmittedDateUTC]   DATETIME2 (7)   NULL,
     [TimePreStartedUTC]  DATETIME2 (7)   NULL,

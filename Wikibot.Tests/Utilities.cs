@@ -148,6 +148,21 @@ namespace Wikibot.Tests
             return requests;
         }
 
+        public static List<ReviewComment> GetSampleReviewComments()
+        {
+            var comments = new List<ReviewComment>();
+            for(var x=0; x<5; x++)
+            {
+                var comment = new ReviewComment();
+                comment.Id = x;
+                comment.Text = "Sample comment";
+                comment.TimestampUtc = DateTime.UtcNow;
+                comments.Add(comment);
+            }
+
+            return comments;
+        }
+
         private static string[] GetRawRequestArray()
         {
             string[] raws = new string[5];
@@ -159,7 +174,7 @@ namespace Wikibot.Tests
             return raws;
         }
 
-        public static Mock<IDataAccess> GetMockDataAccess()
+        public static Mock<IDataAccess> GetMockDataAccess(DateTime now)
         {
             var mock = new Mock<IDataAccess>();
             var request = GetSampleJobRequest();
@@ -191,13 +206,13 @@ namespace Wikibot.Tests
 
             var updateStatus = GetUpdateStatusParams();
 
-            var updateTimePreStart = GetTimePreStartParams(DateTime.UtcNow);
+            var updateTimePreStart = GetTimePreStartParams(now);
 
-            var updateTimeStart = GetTimeStartParams(DateTime.UtcNow);
+            var updateTimeStart = GetTimeStartParams(now);
 
-            var updateTimePreFinish = GetTimePreFinishParams(DateTime.UtcNow);
+            var updateTimePreFinish = GetTimePreFinishParams(now);
 
-            var updateTimeFinish = GetTimeFinishParams(DateTime.UtcNow);
+            var updateTimeFinish = GetTimeFinishParams(now);
 
             var pages = new List<DataAccess.Objects.Page>();
             pages.Add(new DataAccess.Objects.Page(0, "NewPage"));
@@ -221,11 +236,31 @@ namespace Wikibot.Tests
             mock.Setup(dataAccess => dataAccess.SaveData<dynamic>("dbo.spUpdateWikiJobRequestTimeFinished", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, updateTimeFinish)), "JobDb"));
             mock.Setup(dataAccess => dataAccess.SaveData<dynamic>("dbo.spCreatePages", It.IsAny<List<DataAccess.Objects.Page>>(), "JobDb"));
             mock.Setup(dataAccess => dataAccess.SaveData<dynamic>("dbo.spUpdatePagesForWikiJobRequest", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, updatePages)), "JobDb"));
+            mock.Setup(dataAccess => dataAccess.SaveData<dynamic>("dbo.spCreateReviewComment", It.Is<object>(y=> VerifyHelper.AreEqualObjects(y, GetAddCommentParams(1,"Sample comment", now))), "JobDb"));
+            mock.Setup(dataAccess => dataAccess.LoadData<ReviewComment, dynamic>("dbo.spGetReviewCommentsForRequest", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, GetGetReviewCommentParams())), "JobDb")).Returns(GetSampleReviewComments());
             var result = mock.Object.LoadDataComplex<WikiJobRequest, DataAccess.Objects.Page, dynamic>("dbo.spGetWikiJobRequestById", ldcParams, "JobDb", types, MapPageToWikiJobRequest, "PageID");
             mock.Verify(dataAccess => dataAccess.LoadDataComplex<WikiJobRequest, DataAccess.Objects.Page, dynamic>("dbo.spGetWikiJobRequestById", ldcParams, "JobDb", types, MapPageToWikiJobRequest, "PageID"));
 
             return mock;
 
+        }
+
+        public static object GetGetReviewCommentParams()
+        {
+            return new
+            {
+                requestId = 1,
+            };
+        }
+
+        public static object GetAddCommentParams(int requestId, string text, DateTime now)
+        {
+            return new
+            {
+                requestId = requestId,
+                comment = text,
+                timestamp = now
+            };
         }
 
         public static object GetUpdateStatusParams()
@@ -286,11 +321,22 @@ namespace Wikibot.Tests
         {
             if (dataAccess == null)
             {
-                dataAccess = GetMockDataAccess().Object;
+                dataAccess = GetMockDataAccess(DateTime.UtcNow).Object;
             }
             var requestData = new RequestData(dataAccess);
 
             return requestData;
+        }
+
+        public static ReviewCommentData GetReviewCommentData(IDataAccess dataAccess)
+        {
+            if (dataAccess == null)
+            {
+                dataAccess = GetMockDataAccess(DateTime.UtcNow).Object;
+            }
+            var reviewCommentData = new ReviewCommentData(dataAccess);
+
+            return reviewCommentData;
         }
 
         private static WikiJobRequest MapPageToWikiJobRequest(WikiJobRequest request, DataAccess.Objects.Page page)

@@ -16,7 +16,6 @@ namespace Wikibot.DataAccess.Objects
         public DateTime? TimePreFinishedUTC { get; set; }
         public JobType JobType { get; set; }
         public string RawRequest { get; set; }
-        public string Notes { get; set; }
 
         public List<Page> Pages { get; set; }
     }

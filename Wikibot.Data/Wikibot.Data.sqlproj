@@ -76,6 +76,9 @@
     <Build Include="Stored Procedures\spGetWikiJobRequestByID.sql" />
     <Build Include="Stored Procedures\spUpdateWikiJobRequestRaw.sql" />
     <Build Include="Stored Procedures\spGetWikiJobRequestsForApproval.sql" />
+    <Build Include="Tables\ReviewComment.sql" />
+    <Build Include="Stored Procedures\spCreateReviewComment.sql" />
+    <Build Include="Stored Procedures\spGetReviewCommentForRequest.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="Wikibot.Data.refactorlog" />

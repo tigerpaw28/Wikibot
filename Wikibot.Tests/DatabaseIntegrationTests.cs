@@ -30,7 +30,8 @@ namespace Wikibot.Tests
         [Fact]
         public void SaveRequest()
         {
-            var mockDataAccess = Utilities.GetMockDataAccess();
+            var now = DateTime.UtcNow;
+            var mockDataAccess = Utilities.GetMockDataAccess(now);
             var requestData = Utilities.GetRequestData(mockDataAccess.Object);
             var request = BuildRequest();
 
@@ -52,7 +53,8 @@ namespace Wikibot.Tests
         [Fact]
         public void GetJobs()
         {
-            var mockDataAccess = Utilities.GetMockDataAccess();
+            var now = DateTime.UtcNow;
+            var mockDataAccess = Utilities.GetMockDataAccess(now);
             var jobList = Utilities.GetRequestData(mockDataAccess.Object).GetWikiJobRequests();
             Assert.NotEmpty(jobList);
         }
@@ -60,7 +62,8 @@ namespace Wikibot.Tests
         [Fact]
         public void GetJobs2()
         {
-            var mockDataAccess = Utilities.GetMockDataAccess();
+            var now = DateTime.UtcNow;
+            var mockDataAccess = Utilities.GetMockDataAccess(now);
             var jobList = Utilities.GetRequestData(mockDataAccess.Object).GetWikiJobRequestsWithPages(1,10,"ASC","ID");
             Assert.NotEmpty(jobList);
         }
@@ -68,7 +71,8 @@ namespace Wikibot.Tests
         [Fact]
         public void GetJobs3()
         {
-            var mockDataAccess = Utilities.GetMockDataAccess();
+            var now = DateTime.UtcNow;
+            var mockDataAccess = Utilities.GetMockDataAccess(now);
             var requestData = Utilities.GetRequestData(mockDataAccess.Object);
             var jobList = requestData.GetWikiJobRequestsForApproval(1, 10, "ASC", "ID");
             Assert.NotEmpty(jobList);
@@ -77,7 +81,8 @@ namespace Wikibot.Tests
         [Fact]
         public void GetWikiJobRequestByID()
         {
-            var mockDataAccess = Utilities.GetMockDataAccess();
+            var now = DateTime.UtcNow;
+            var mockDataAccess = Utilities.GetMockDataAccess(now);
             var requestData = Utilities.GetRequestData(mockDataAccess.Object);
             var requestList = requestData.GetWikiJobRequestByID(2);
             Assert.NotNull(requestList);
@@ -86,7 +91,8 @@ namespace Wikibot.Tests
         [Fact]
         public void UpdateRequestStatus()
         {
-            var mockDataAccess = Utilities.GetMockDataAccess();
+            var now = DateTime.UtcNow;
+            var mockDataAccess = Utilities.GetMockDataAccess(now);
             var requestData = Utilities.GetRequestData(mockDataAccess.Object);
             var requestList = requestData.GetWikiJobRequests();
             var request = requestList.First();
@@ -98,23 +104,23 @@ namespace Wikibot.Tests
         [Fact]
         public void UpdateRequestTimePreStarted()
         {
-            var mockDataAccess = Utilities.GetMockDataAccess();
+            var now = DateTime.UtcNow; 
+            var mockDataAccess = Utilities.GetMockDataAccess(now);
             var requestData = Utilities.GetRequestData(mockDataAccess.Object);
             var requestList = requestData.GetWikiJobRequests();
-            var request = requestList.First();
-            var now = DateTime.UtcNow; 
+            var request = requestList.First();      
             requestData.UpdateTimePreStarted(request.ID, now);
             mockDataAccess.Verify(dataAccess => dataAccess.SaveData<dynamic>("dbo.spUpdateWikiJobRequestTimePreStarted", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, Utilities.GetTimePreStartParams(now))), "JobDb"), Times.Exactly(1));
         }
 
         [Fact]
         public void UpdateRequestTimeStarted()
-        {
-            var mockDataAccess = Utilities.GetMockDataAccess();
+        {   
+            var now = DateTime.UtcNow;
+            var mockDataAccess = Utilities.GetMockDataAccess(now);
             var requestData = Utilities.GetRequestData(mockDataAccess.Object);
             var requestList = requestData.GetWikiJobRequests();
             var request = requestList.First();
-            var now = DateTime.UtcNow;
             requestData.UpdateTimeStarted(request.ID, now);
             mockDataAccess.Verify(dataAccess => dataAccess.SaveData<dynamic>("dbo.spUpdateWikiJobRequestTimeStarted", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, Utilities.GetTimeStartParams(now))), "JobDb"), Times.Exactly(1));
 
@@ -123,11 +129,11 @@ namespace Wikibot.Tests
         [Fact]
         public void UpdateRequestTimePreFinished()
         {
-            var mockDataAccess = Utilities.GetMockDataAccess();
+            var now = DateTime.UtcNow;
+            var mockDataAccess = Utilities.GetMockDataAccess(now);
             var requestData = Utilities.GetRequestData(mockDataAccess.Object);
             var requestList = requestData.GetWikiJobRequests();
-            var request = requestList.First();
-            var now = DateTime.UtcNow;
+            var request = requestList.First();        
             requestData.UpdateTimePreFinished(request.ID, now);
             mockDataAccess.Verify(dataAccess => dataAccess.SaveData<dynamic>("dbo.spUpdateWikiJobRequestTimePreFinished", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, Utilities.GetTimePreFinishParams(now))), "JobDb"), Times.Exactly(1));
 
@@ -136,11 +142,12 @@ namespace Wikibot.Tests
         [Fact]
         public void UpdateRequestTimeFinished()
         {
-            var mockDataAccess = Utilities.GetMockDataAccess();
+            var now = DateTime.UtcNow;
+            var mockDataAccess = Utilities.GetMockDataAccess(now);
             var requestData = Utilities.GetRequestData(mockDataAccess.Object);
             var requestList = requestData.GetWikiJobRequests();
             var request = requestList.First();
-            var now = DateTime.UtcNow;
+            
             requestData.UpdateTimeFinished(request.ID, now);
             mockDataAccess.Verify(dataAccess => dataAccess.SaveData<dynamic>("dbo.spUpdateWikiJobRequestTimeFinished", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, Utilities.GetTimeFinishParams(now))), "JobDb"), Times.Exactly(1));
 
@@ -149,7 +156,8 @@ namespace Wikibot.Tests
         [Fact]
         public void UpdatePages()
         {
-            var mockDataAccess = Utilities.GetMockDataAccess();
+            var now = DateTime.UtcNow;
+            var mockDataAccess = Utilities.GetMockDataAccess(now);
             var requestData = Utilities.GetRequestData(mockDataAccess.Object);
             var requestList = requestData.GetWikiJobRequests();
             var request = requestList.First();
@@ -158,6 +166,38 @@ namespace Wikibot.Tests
             var pageData = new PageData(mockDataAccess.Object);
             pageData.UpdatePagesForWikiJobRequest(pages, request.ID);
             mockDataAccess.Verify(dataAccess => dataAccess.SaveData<dynamic>("dbo.spUpdatePagesForWikiJobRequest", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, Utilities.GetUpdatePageParams(pages,request.ID))), "JobDb"), Times.Exactly(1));
+        }
+
+
+        [Fact]
+        public void SaveReviewComment()
+        {
+            var now = DateTime.Now;
+            var mockDataAccess = Utilities.GetMockDataAccess(now);
+            var reviewCommentData = Utilities.GetReviewCommentData(mockDataAccess.Object);
+            var request = BuildRequest();
+
+            
+            var r = new
+            {
+                requestId = 1,
+                comment = "Sample comment",
+                timestamp = now
+            };
+
+            reviewCommentData.AddComment(1, "Sample comment", now);
+            mockDataAccess.Verify(dataAccess => dataAccess.SaveData<dynamic>("dbo.spCreateReviewComment", It.Is<object>(y => VerifyHelper.AreEqualObjects(y, Utilities.GetAddCommentParams(1, "Sample comment", now))), "JobDb"), Times.Exactly(1));
+        }
+
+        [Fact]
+        public void GetReviewComments()
+        {
+            var now = DateTime.UtcNow;
+            var mockDataAccess = Utilities.GetMockDataAccess(now);
+            var reviewCommentData = Utilities.GetReviewCommentData(mockDataAccess.Object);
+
+            var reviewComment = reviewCommentData.GetMostRecentCommentForRequest(1);
+            Assert.NotNull(reviewComment);
         }
     }
 }

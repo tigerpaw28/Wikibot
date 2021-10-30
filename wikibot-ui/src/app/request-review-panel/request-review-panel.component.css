@@ -78,8 +78,8 @@
 }
 
 .disabled-review-button {
-    padding: 10px;
-    cursor: pointer;
+    /*padding: 10px;
+    cursor: pointer;*/
     opacity: 70%;
 }
 
@@ -238,6 +238,23 @@ table.diff td div {
   .active:after {
     content: '\02795'; /* Unicode character for "plus" sign (+) */
     
+  }
+
+  .hide{
+      display: none;
+  }
+
+  .label {
+    vertical-align: top;
+    padding-right: 1%;
+    font-weight: bold;
+  }
+
+  .comments-div{
+    display: flow-root;
+    margin-left: 23%;
+    margin-right: 15%;
+    margin-top:3%;
   }
   
   @media only screen and (max-height: 465px) {

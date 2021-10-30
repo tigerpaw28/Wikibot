@@ -30,7 +30,7 @@ export class RequestService implements OnInit{
     this.auth_token = localStorage.getItem('auth_token');
     this.httpOptions = {
       headers: new HttpHeaders({
-        //'Content-Type':  'application/json',
+        'Content-Type':  'application/json',
         'Authorization': 'Bearer '+ this.auth_token,
         'Access-Control-Allow-Origin': environment.requestServiceURL
       })
@@ -51,7 +51,7 @@ export class RequestService implements OnInit{
     return this.http.post<void>(this.requestUrl+"/api/Request/approve?requestId="+id, id, this.httpOptions);
   }
 
-  RejectRequest(id: number){
-    return this.http.post<void>(this.requestUrl+"/api/Request/reject?requestId="+id, id, this.httpOptions);
+  RejectRequest(id: number, commentText: string){
+    return this.http.post<void>(this.requestUrl+"/api/Request/reject?requestId="+id, JSON.stringify(commentText), this.httpOptions);
   }
 }

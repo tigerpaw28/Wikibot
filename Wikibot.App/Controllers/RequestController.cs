@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Wikibot.DataAccess;
@@ -19,11 +20,13 @@ namespace Wikibot.App.Controllers
     public class RequestController : ControllerBase
     {
         private RequestData _requestData;
+        private ReviewCommentData _reviewCommentData;
         private string diffFileNamePattern = "";
         private IWikiRequestRetriever _jobRetriever;
         public RequestController(IDataAccess dataAccess, IWikiRequestRetriever jobRetriever, IConfiguration config)
         {
             _requestData = new RequestData(dataAccess);
+            _reviewCommentData = new ReviewCommentData(dataAccess);
             diffFileNamePattern = config["DiffFileNamePattern"];
             _jobRetriever = jobRetriever;
         }
@@ -64,9 +67,10 @@ namespace Wikibot.App.Controllers
         }
         //Reject Request
         [HttpPost("reject")]
-        public IActionResult RejectRequest(int requestId)
+        public IActionResult RejectRequest(int requestId, [FromBody] string commentText)
         {
             _requestData.UpdateStatus(requestId, JobStatus.Rejected);
+            _reviewCommentData.AddComment(requestId, commentText, DateTime.UtcNow);
             var requests = _requestData.GetWikiJobRequestByID(requestId);
             _jobRetriever.UpdateRequests(new List<WikiJobRequest> { requests });
             return new OkObjectResult("Request status successfully updated");

@@ -116,11 +116,11 @@ export class RequestReviewPanelComponent implements OnInit {
     }
   }
 
-  Reject(){
+  Reject(comment:string){
     if(!this.success && !this.error)
     {
       this.loading = true;
-      var result = this._requestService.RejectRequest(this.request.id).subscribe(
+      var result = this._requestService.RejectRequest(this.request.id,comment).subscribe(
         res => {
           this.error = false;
           this.loading = false;
