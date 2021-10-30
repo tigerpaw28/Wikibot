@@ -163,8 +163,7 @@ namespace Wikibot.Logic.Jobs
             }
             catch (Exception ex)
             {
-                Request.Status = JobStatus.Failed;
-                Log.Error(ex, $"TextReplacementJob with ID: {Request.ID} failed.");
+                FailJob(ex);
             }
             finally
             {

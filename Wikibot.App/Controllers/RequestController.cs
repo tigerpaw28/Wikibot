@@ -23,19 +23,21 @@ namespace Wikibot.App.Controllers
         private ReviewCommentData _reviewCommentData;
         private string diffFileNamePattern = "";
         private IWikiRequestRetriever _jobRetriever;
-        public RequestController(IDataAccess dataAccess, IWikiRequestRetriever jobRetriever, IConfiguration config)
+        private INotificationService _notifier;
+        public RequestController(IDataAccess dataAccess, IWikiRequestRetriever jobRetriever, IConfiguration config, INotificationService notificationService)
         {
             _requestData = new RequestData(dataAccess);
             _reviewCommentData = new ReviewCommentData(dataAccess);
             diffFileNamePattern = config["DiffFileNamePattern"];
             _jobRetriever = jobRetriever;
+            _notifier = notificationService;
         }
 
         //Get Requests
         [HttpGet("requests")]
         public IActionResult GetRequests()
         {
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<WikiJobRequest, Wikibot.App.Models.WikiJobRequest>()
+            var config = new MapperConfiguration(cfg => cfg.CreateMap<WikiJobRequest, Models.WikiJobRequest>()
                 .ForMember(dest => dest.Diffs, opt => opt.MapFrom(src =>src.Pages.Select(x=>  Utilities.SanitizeFilename(string.Format(diffFileNamePattern, src.ID, x.Name),'_'))))
                 .ForMember(dest => dest.RequestingUsername, opt=> opt.MapFrom(src => src.RequestingUsername))
                 .ForMember(dest => dest.StatusName, opt=> opt.MapFrom(src => src.Status))
@@ -51,8 +53,9 @@ namespace Wikibot.App.Controllers
         public IActionResult PreApproveRequest(int requestId)
         {
             _requestData.UpdateStatus(requestId, JobStatus.PreApproved);
-            var requests = _requestData.GetWikiJobRequestByID(requestId);
-            _jobRetriever.UpdateRequests(new List<WikiJobRequest> { requests });
+            var request = _requestData.GetWikiJobRequestByID(requestId);
+            _jobRetriever.UpdateRequests(new List<WikiJobRequest> { request });
+            _notifier.SendRequestPreApprovedNotification(request.RequestingUsername, request.Comment, request.JobType.ToString());
             return new OkObjectResult("Request status successfully updated");
         }
 
@@ -61,8 +64,9 @@ namespace Wikibot.App.Controllers
         public IActionResult ApproveRequest(int requestId)
         {
             _requestData.UpdateStatus(requestId, JobStatus.Approved);
-            var requests = _requestData.GetWikiJobRequestByID(requestId);
-            _jobRetriever.UpdateRequests(new List<WikiJobRequest> { requests });
+            var request = _requestData.GetWikiJobRequestByID(requestId);
+            _jobRetriever.UpdateRequests(new List<WikiJobRequest> { request });
+            _notifier.SendRequestApprovedNotification(request.RequestingUsername, request.Comment, request.JobType.ToString());
             return new OkObjectResult("Request status successfully updated");   
         }
         //Reject Request
@@ -70,9 +74,12 @@ namespace Wikibot.App.Controllers
         public IActionResult RejectRequest(int requestId, [FromBody] string commentText)
         {
             _requestData.UpdateStatus(requestId, JobStatus.Rejected);
+            var request = _requestData.GetWikiJobRequestByID(requestId);
+            _jobRetriever.UpdateRequests(new List<WikiJobRequest> { request });
+            //UI does not currently pass rejection comments back. The notes field was intended for this but it's probably better to split that out to a separate table in the DB. That's a bug for another day.
+            _notifier.SendRequestRejectedNotification(request.RequestingUsername, request.Comment, request.JobType.ToString(), request.Notes, User.Identity.Name); 
             _reviewCommentData.AddComment(requestId, commentText, DateTime.UtcNow);
-            var requests = _requestData.GetWikiJobRequestByID(requestId);
-            _jobRetriever.UpdateRequests(new List<WikiJobRequest> { requests });
+      
             return new OkObjectResult("Request status successfully updated");
         }
     }

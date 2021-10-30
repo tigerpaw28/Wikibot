@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using System;
 using Wikibot.DataAccess;
+using Wikibot.Logic;
 using Wikibot.Logic.JobRetrievers;
 using Wikibot.Logic.Jobs;
 using Wikibot.Logic.Logic;
@@ -39,10 +40,11 @@ namespace Wikibot.App
                     var jobRetriever = services.GetRequiredService<IWikiRequestRetriever>();
                     var logger = services.GetRequiredService<ILogger>();
                     var dataAccess = services.GetRequiredService<IDataAccess>();
+                    var notifier = services.GetRequiredService<INotificationService>();
                     var jobData = new RequestData(dataAccess);
 
                     Log.Information("Starting background job retrieval job");
-                    JobManager.AddJob(() => new RequestRetrievalJob(config, logger, jobRetriever, userRetriever, jobData).Execute(), (s) => s.ToRunEvery(15).Minutes());
+                    JobManager.AddJob(() => new RequestRetrievalJob(config, logger, jobRetriever, userRetriever, notifier, jobData).Execute(), (s) => s.ToRunEvery(15).Minutes());
                 }
                 
                 Log.Information("Application Start");

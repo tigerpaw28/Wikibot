@@ -78,12 +78,26 @@ namespace Wikibot.Logic.Extensions
             return result;
         }
 
+        /// <summary>
+        /// Get a list of backlinks for a given page. Backlinks are pages that link to a page. 
+        /// </summary>
+        /// <param name="pageTitle">Name of the page to get backlinks for.</param>
+        /// <param name="defaultNamespaceId">The namespace in which to look for the page.</param>
+        /// <returns>List of pages.</returns>
         public static async Task<IList<SearchResultEntry>> BackLinks(this WikiSite site, string pageTitle, int? defaultNamespaceId = null)
         {
             return await BackLinks(site, pageTitle, MaxCount, defaultNamespaceId, CancellationToken.None);
         }
 
-        public static async Task<IList<SearchResultEntry>> BackLinks(this WikiSite site, string pageTitle, int maxCount,
+        /// <summary>
+        /// Get a list of backlinks for a given page. Backlinks are pages that link to a page. 
+        /// </summary>
+        /// <param name="pageTitle">Name of the page to get backlinks for.</param>
+        /// <param name="maxCount">Maximum number of results to return. No more than 500 (5000 for bots) allowed.</param>
+        /// <param name="defaultNamespaceId">The namespace in which to look for the page.</param>
+        /// <param name="cancellationToken">The cancellation token that will be checked prior to completing the returned task.</param>
+        /// <returns>List of pages.</returns>
+        public static async Task<IList<SearchResultEntry>> BackLinks (this WikiSite site, string pageTitle, int maxCount,
     int? defaultNamespaceId, CancellationToken cancellationToken)
         {
             int offset = 0;
@@ -130,6 +144,58 @@ namespace Wikibot.Logic.Extensions
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Sends an email to a user via API:Emailuser
+        /// </summary>
+        /// <param name="target">The username of the user to send the email to.</param>
+        /// <param name="text">The body of the email. This is treated as plaintext by the API.</param>
+        /// <param name="cancellationToken">The cancellation token that will be checked prior to completing the returned task.</param>
+        /// <param name="subject">The subject of the email. (optional)</param>
+        /// <param name="ccme">Should the sending user be CC'd? (optional)</param>
+        /// <returns>EmailResult</returns>
+        public static async Task<EmailResult> SendEmailToUser(this WikiSite site, string target, string text, CancellationToken cancellationToken, string subject = null, bool? ccme = null)
+        {
+            string emailToken = site.GetTokenAsync("email").Result;
+
+            var payload = new ExpandoObject();
+
+            payload.TryAdd("action", "emailuser");
+            payload.TryAdd("target", target);           
+            payload.TryAdd("text", text);
+            payload.TryAdd("token", emailToken);
+            payload.TryAdd("format", "json");
+
+            if (!string.IsNullOrEmpty(subject))
+            {
+                payload.TryAdd("subject", subject ?? "");
+            }
+
+            if(ccme.HasValue && ccme.Value)
+            {
+                payload.TryAdd("ccme", ccme);
+            }
+
+            var jresult = await site.InvokeMediaWikiApiAsync(new MediaWikiFormRequestMessage(payload.ToList()), cancellationToken);
+            string result = jresult["emailuser"]["result"].ToString();
+
+            var emailResult = new EmailResult(result, (result.Equals("Success")));
+
+            return emailResult;
+        }
+
+        /// <summary>
+        /// Sends an email to a user via API:Emailuser
+        /// </summary>
+        /// <param name="target">The username of the user to send the email to.</param>
+        /// <param name="text">The body of the email. This is treated as plaintext by the API.</param>
+        /// <param name="subject">The subject of the email. (optional)</param>
+        /// <param name="ccme">Should the sending user be CC'd? (optional)</param>
+        /// <returns>EmailResult</returns>
+        public static async Task<EmailResult> SendEmailToUser(this WikiSite site, string target, string text, string subject = null, bool? ccme = null)
+        {
+            return await SendEmailToUser(site, target, text, CancellationToken.None, subject, ccme);
         }
 
         /// <summary>
