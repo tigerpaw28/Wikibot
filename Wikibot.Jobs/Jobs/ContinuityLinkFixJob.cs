@@ -46,7 +46,7 @@ namespace Wikibot.Logic.Jobs
                     var site = _wikiAccessLogic.GetLoggedInWikiSite(client);
                     var parser = new WikitextParser();
                     var wikiText = parser.Parse(FromText);
-                    var fromLinkTarget = wikiText.Lines.SelectMany(x => x.EnumDescendants().OfType<WikiLink>()).FirstOrDefault().Target.ToPlainText();
+                    var fromLinkTarget = wikiText.Lines.SelectMany(x => x.EnumDescendants().OfType<WikiLink>()).FirstOrDefault()?.Target.ToPlainText() ?? FromText;
                     wikiText = parser.Parse(ToText);
                     var toLinkTarget = wikiText.Lines.SelectMany(x => x.EnumDescendants().OfType<WikiLink>()).FirstOrDefault().Target.ToPlainText();
 
@@ -127,7 +127,7 @@ namespace Wikibot.Logic.Jobs
                             foreach (WikiLink link in matchingLinks)
                             {
                                 Log.Debug($"Link target starts: {link.Target}");
-                                var newTarget = parser.Parse(ToText).Lines.SelectMany(x => x.EnumDescendants().OfType<WikiLink>()).FirstOrDefault().Target.ToPlainText();
+                                var newTarget = parser.Parse(ToText).Lines.SelectMany(x => x.EnumDescendants().OfType<WikiLink>()).FirstOrDefault()?.Target.ToPlainText() ?? ToText;
                                 if (link.Text == null)
                                 {
                                     link.Text = new Run(new PlainText(link.Target.ToPlainText())); //Maintain original link text if the link had no custom text

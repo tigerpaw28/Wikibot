@@ -124,6 +124,26 @@ namespace Wikibot.Tests
             return request;
         }
 
+        public static WikiJobRequest GetSampleMultiLineLinkFixJobRequest()
+        {
+            var parser = new WikitextParser();
+            var text = @"{{TeletraanXRequest
+                |before= Silverbolt (BW)
+                |after= Silverbolt (Fuzor)
+                |pages= 
+                |comment= Moving page to disambiguate from the other BW Silverbolt
+                |username= ItsWalky
+                |timestamp= 09:44, 21 June 2021 (EDT)
+                |type= Link Fix
+                |headers= 
+                |media=
+                |status=Failed|id=10016}}";
+            var ast = parser.Parse(text);
+            var templates = ast.Lines.First<LineNode>().EnumDescendants().OfType<Template>();
+            var request = WikiJobRequestFactory.GetWikiJobRequest(JobType.LinkFixJob, TimeZoneInfo.Local, templates.First());
+            return request;
+        }
+
         public static WikiJobRequest GetSampleContinuityLinkFixJobRequest()
         {
             var parser = new WikitextParser();
