@@ -33,7 +33,7 @@ namespace Wikibot.Logic.Jobs
                 if (_fromText == null)
                 {
                     var template = new WikitextParser().Parse(Request.RawRequest).Lines.SelectMany(x => x.EnumDescendants().OfType<Template>()).Single();
-                    _fromText =  template.Arguments.Single(arg => arg.Name.ToPlainText() == "before").Value.ToString();
+                    _fromText =  template.Arguments.Single(arg => arg.Name.ToPlainText() == "before").Value.ToString().Trim();
                 }
                 return _fromText;
             }
@@ -47,7 +47,7 @@ namespace Wikibot.Logic.Jobs
                 if (_toText == null)
                 {
                     var template = new WikitextParser().Parse(Request.RawRequest).Lines.SelectMany(x => x.EnumDescendants().OfType<Template>()).Single();
-                    _toText = template.Arguments.Single(arg => arg.Name.ToPlainText() == "after").Value.ToString();
+                    _toText = template.Arguments.Single(arg => arg.Name.ToPlainText() == "after").Value.ToString().Trim();
                 }
                 return _toText;
             } 

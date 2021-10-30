@@ -80,5 +80,21 @@ namespace Wikibot.Tests
             job.Configuration = iConfig;
             job.Execute();
         }
+
+        [Fact]
+        public void ExecuteLinkFixJobWithMultiLineRequest()
+        {
+            var iConfig = Utilities.GetIConfigurationRoot();
+            var logger = Utilities.GetLogger(iConfig, _output);
+            var wikiAccessLogic = new WikiAccessLogic(iConfig, logger);
+            var log = Utilities.GetLogger(iConfig, _output);
+            var jobData = Utilities.GetRequestData(null);
+            var request = Utilities.GetSampleMultiLineLinkFixJobRequest();
+            var textFileManager = new TextFileManager();
+            var jobRetriever = new TextFileRequestRetriever(iConfig, "WikiJobTest.txt", textFileManager);
+            LinkFixJob job = (LinkFixJob)WikiJobFactory.GetWikiJob(request, log, wikiAccessLogic, iConfig, jobData, jobRetriever);
+            job.Configuration = iConfig;
+            job.Execute();
+        }
     }
 }

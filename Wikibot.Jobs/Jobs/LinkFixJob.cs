@@ -44,7 +44,7 @@ namespace Wikibot.Logic.Jobs
                     var site = _wikiAccessLogic.GetLoggedInWikiSite(client);
                     var parser = new WikitextParser();
                     var wikiText = parser.Parse(FromText);
-                    var fromLinkTarget = wikiText.Lines.SelectMany(x => x.EnumDescendants().OfType<WikiLink>()).FirstOrDefault().Target.ToPlainText();
+                    var fromLinkTarget = wikiText.Lines.SelectMany(x => x.EnumDescendants().OfType<WikiLink>()).FirstOrDefault()?.Target.ToPlainText() ?? FromText;
                     
 
                     var PageList = GetBackLinksPageList(site, fromLinkTarget);
@@ -85,7 +85,7 @@ namespace Wikibot.Logic.Jobs
                             foreach (WikiLink link in matchingLinks)
                             {
                                 Log.Debug($"Link target starts: {link.Target}");
-                                var newTarget = parser.Parse(ToText).Lines.SelectMany(x => x.EnumDescendants().OfType<WikiLink>()).FirstOrDefault().Target.ToPlainText();
+                                var newTarget = parser.Parse(ToText).Lines.SelectMany(x => x.EnumDescendants().OfType<WikiLink>()).FirstOrDefault()?.Target.ToPlainText() ?? ToText;
                                 if (link.Text == null && (!link.Target.ToPlainText().Contains("(") && newTarget.Contains("(")))
                                 {
                                     link.Text = new Run(new PlainText(link.Target.ToPlainText())); //Maintain original link text if the link had no custom text and no disambig
