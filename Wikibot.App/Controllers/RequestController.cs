@@ -77,7 +77,7 @@ namespace Wikibot.App.Controllers
             var request = _requestData.GetWikiJobRequestByID(requestId);
             _jobRetriever.UpdateRequests(new List<WikiJobRequest> { request });
             //UI does not currently pass rejection comments back. The notes field was intended for this but it's probably better to split that out to a separate table in the DB. That's a bug for another day.
-            _notifier.SendRequestRejectedNotification(request.RequestingUsername, request.Comment, request.JobType.ToString(), request.Notes, User.Identity.Name); 
+            _notifier.SendRequestRejectedNotification(request.RequestingUsername, request.Comment, request.JobType.ToString(), commentText, User.Identity.Name); 
             _reviewCommentData.AddComment(requestId, commentText, DateTime.UtcNow);
       
             return new OkObjectResult("Request status successfully updated");
