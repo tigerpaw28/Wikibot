@@ -42,9 +42,11 @@ namespace Wikibot.App
                     var dataAccess = services.GetRequiredService<IDataAccess>();
                     var notifier = services.GetRequiredService<INotificationService>();
                     var jobData = new RequestData(dataAccess);
+                    var welcomeInterval = config.GetValue<int>("WelcomeInterval");
 
                     Log.Information("Starting background job retrieval job");
                     JobManager.AddJob(() => new RequestRetrievalJob(config, logger, jobRetriever, userRetriever, notifier, jobData).Execute(), (s) => s.ToRunEvery(15).Minutes());
+                    JobManager.AddJob(() => new WelcomeJob(wikiAccessLogic, config, logger).Execute(false), (s) => s.ToRunEvery(welcomeInterval).Minutes());
                 }
                 
                 Log.Information("Application Start");

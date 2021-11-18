@@ -96,5 +96,17 @@ namespace Wikibot.Tests
             job.Configuration = iConfig;
             job.Execute();
         }
+
+        [Fact]
+        public void ExecuteWelcomeJob()
+        {
+            var iConfig = Utilities.GetIConfigurationRoot();
+            var logger = Utilities.GetLogger(iConfig, _output);
+            var wikiAccessLogic = new WikiAccessLogic(iConfig, logger);
+
+            var job = new WelcomeJob(wikiAccessLogic, iConfig, logger);
+
+            job.Execute(true);
+        }
     }
 }
