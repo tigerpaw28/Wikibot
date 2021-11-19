@@ -4,6 +4,7 @@ using FluentEmail.Razor;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
 
@@ -18,8 +19,9 @@ namespace Wikibot.App.Services
             {
                 EnableSsl = false,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
-                Port = 25
-            });
+                Port = 25,
+                Credentials = new NetworkCredential(Options.Username, Options.Password)
+        });
 
             Email.DefaultSender = sender;
             Email.DefaultRenderer = new RazorRenderer();
