@@ -32,7 +32,7 @@ jobs:
         WikiLogin.APIPath: "${{ secrets.WikiLoginAPIPath }}"
         WelcomeTemplateMarkup: "${{ secrets.WelcomeTemplateMarkup }}"
         WelcomeInterval: "${{ secrets.WelcomeInterval }}"
-        WelcomeEditSummary: "${{ secrets.WelcomeSummary }}"
+        WelcomeEditSummary: "${{ secrets.WelcomeEditSummary }}"
         EmailSubjects: "${{secrets.EmailSubjects }}"
         EmailSenderOptions.SmtpUrl: "${{secrets.EmailSenderOptions_SmtpUrl }}"
         EmailSenderOptions.FromName: "${{secrets.EmailSenderOptions_FromName }}" 
