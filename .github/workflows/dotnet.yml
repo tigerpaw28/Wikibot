@@ -30,11 +30,24 @@ jobs:
         WikiLogin.Password: "${{ secrets.WikiLoginPassword }}"
         WikiLogin.APIUrl: "${{ secrets.WikiLoginAPIUrl }}"
         WikiLogin.APIPath: "${{ secrets.WikiLoginAPIPath }}"
+        WelcomeTemplateMarkup: "${{ secrets.WelcomeTemplateMarkup }}"
+        WelcomeInterval: "${{ secrets.WelcomeInterval }}"
+        WelcomeEditSummary: "${{ secrets.WelcomeEditSummary }}"
+        EmailSubjects: "${{secrets.EmailSubjects }}"
+        EmailSenderOptions.SmtpUrl: "${{secrets.EmailSenderOptions_SmtpUrl }}"
+        EmailSenderOptions.FromName: "${{secrets.EmailSenderOptions_FromName }}" 
+        RootAdminUsername: "${{secrets.RootAdminUserName }}"
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-    - name: Test Phase 1
-      run: dotnet test --no-build --filter DisplayName!~Execute --verbosity normal
-    - name: Test Phase 2
+    - name: Database Integration Tests
+      run: dotnet test --no-build --filter FullyQualifiedName~DatabaseIntegrationTests --verbosity normal
+    - name: Job Retriever Tests
+      run: dotnet test --no-build --filter FullyQualifiedName~JobRetrieverTests --verbosity normal
+    - name: Notification Tests
+      run: dotnet test --no-build --filter FullyQualifiedName~NotificationTests --verbosity normal
+    - name: User Tests
+      run: dotnet test --no-build --filter FullyQualifiedName~UserTests --verbosity normal
+    - name: Job Tests
       run: dotnet test --no-build --filter FullyQualifiedName~JobTests --verbosity normal
