@@ -43,8 +43,6 @@ jobs:
       run: dotnet build --no-restore
     - name: Database Integration Tests
       run: dotnet test --no-build --filter FullyQualifiedName~DatabaseIntegrationTests --verbosity normal
-    - name: Email Sender Tests
-      run: dotnet test --no-build --filter FullyQualifiedName~EmailSenderTests --verbosity normal
     - name: Job Retriever Tests
       run: dotnet test --no-build --filter FullyQualifiedName~JobRetrieverTests --verbosity normal
     - name: Notification Tests
