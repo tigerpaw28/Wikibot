@@ -30,6 +30,13 @@ jobs:
         WikiLogin.Password: "${{ secrets.WikiLoginPassword }}"
         WikiLogin.APIUrl: "${{ secrets.WikiLoginAPIUrl }}"
         WikiLogin.APIPath: "${{ secrets.WikiLoginAPIPath }}"
+        WelcomeTemplateMarkup: "${{ secrets.WelcomeTemplateMarkup }}"
+        WelcomeInterval: "${{ secrets.WelcomeInterval }}"
+        WelcomeEditSummary: "${{ secrets.WelcomeSummary }}"
+        EmailSubjects: "${{secrets.EmailSubjects }}"
+        EmailSenderOptions.SmtpUrl: "${{secrets.EmailSenderOptions_SmtpUrl }}"
+        EmailSenderOptions.FromName: "${{secrets.EmailSenderOptions_FromName }}" 
+        
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
