@@ -39,6 +39,12 @@ jobs:
         WikiLogin.Password: "${{ secrets.WikiLoginPassword }}"
         WikiLogin.APIUrl: "${{ secrets.WikiLoginAPIUrl }}"
         WikiLogin.APIPath: "${{ secrets.WikiLoginAPIPath }}"
+        WelcomeTemplateMarkup: "${{ secrets.WelcomeTemplateMarkup }}"
+        WelcomeInterval: "${{ secrets.WelcomeInterval }}"
+        WelcomeEditSummary: "${{ secrets.WelcomeEditSummary }}"
+        EmailSubjects: "${{secrets.EmailSubjects }}"
+        EmailSenderOptions: "${{secrets.EmailSenderOptions }}"
+        RootAdminUsername: "${{secrets.RootAdminUserName }}"
     - name: Build
       run: dotnet build --no-restore -c:Release
    
