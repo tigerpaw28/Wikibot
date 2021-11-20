@@ -95,7 +95,8 @@ namespace Wikibot.Tests
             var request = Utilities.GetSampleMultiLineLinkFixJobRequest();
             var textFileManager = new TextFileManager();
             var jobRetriever = new TextFileRequestRetriever(iConfig, "WikiJobTest.txt", textFileManager);
-            LinkFixJob job = (LinkFixJob)WikiJobFactory.GetWikiJob(request, log, wikiAccessLogic, iConfig, jobData, jobRetriever);
+            var notifier = Utilities.GetNotificationService(wikiAccessLogic, iConfig);
+            LinkFixJob job = (LinkFixJob)WikiJobFactory.GetWikiJob(request, log, wikiAccessLogic, iConfig, notifier, jobData, jobRetriever);
             job.Configuration = iConfig;
             job.Execute();
         }
