@@ -17,7 +17,7 @@ using WikiClientLibrary.Pages;
 
 namespace Wikibot.Logic.JobRetrievers
 {
-    public class TFWikRequestRetriever: IWikiRequestRetriever
+    public class TFWikiRequestRetriever: IWikiRequestRetriever
     {
         private List<WikiJobRequest> _requestDefinitions;
  
@@ -40,7 +40,7 @@ namespace Wikibot.Logic.JobRetrievers
             }
         }
 
-        public TFWikRequestRetriever(IConfiguration configuration, ILogger log, IDataAccess dataAccess, INotificationService notificationService)
+        public TFWikiRequestRetriever(IConfiguration configuration, ILogger log, IDataAccess dataAccess, INotificationService notificationService)
         {
             _config = configuration;
             _wikiRequestPage = configuration["WikiRequestPage"];

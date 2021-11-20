@@ -153,7 +153,7 @@ namespace Wikibot.Logic.Jobs
                             {
                                 Log.Information("Applying replacement for page {PageName}", page.Title);
                                 var editMessage = $"{WikiConfig["Username"]} Text Replacement {FromText} => {ToText}";
-                                ((TFWikRequestRetriever)Retriever).UpdatePageContent(afterContent, editMessage, page).Wait();
+                                ((TFWikiRequestRetriever)Retriever).UpdatePageContent(afterContent, editMessage, page).Wait();
                             }
                         }
                    
