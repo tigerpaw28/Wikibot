@@ -25,13 +25,14 @@ namespace Wikibot.Logic.Jobs
         public ContinuityLinkFixJob()
         { }
 
-        public ContinuityLinkFixJob(Serilog.ILogger log, IWikiAccessLogic wikiAccessLogic, IWikiRequestRetriever retriever, RequestData jobData, int throttleSpeedInSeconds)
+        public ContinuityLinkFixJob(Serilog.ILogger log, IWikiAccessLogic wikiAccessLogic, IWikiRequestRetriever retriever, INotificationService notificationService, RequestData jobData, int throttleSpeedInSeconds)
         {
             Log = log;
             _wikiAccessLogic = wikiAccessLogic;
             JobData = jobData;
             _throttleSpeedInSeconds = throttleSpeedInSeconds;
             Retriever = retriever;
+            Notifier = notificationService;
         }
 
         public override void Execute()

@@ -24,13 +24,14 @@ namespace Wikibot.Logic.Jobs
         public LinkFixJob()
         { }
 
-        public LinkFixJob(Serilog.ILogger log, IWikiAccessLogic wikiAccessLogic, IWikiRequestRetriever retriever, RequestData jobData, int throttleSpeedInSeconds)
+        public LinkFixJob(Serilog.ILogger log, IWikiAccessLogic wikiAccessLogic, IWikiRequestRetriever retriever, INotificationService notificationService, RequestData jobData, int throttleSpeedInSeconds)
         {
             Log = log;
             _wikiAccessLogic = wikiAccessLogic;
             JobData = jobData;
             _throttleSpeedInSeconds = throttleSpeedInSeconds;
             Retriever = retriever;
+            Notifier = notificationService;
         }
 
         public override void Execute()
