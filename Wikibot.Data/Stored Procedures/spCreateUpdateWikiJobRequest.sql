@@ -8,7 +8,7 @@
 	@ID BIGINT Output
 AS
 BEGIN
-	IF(ID = 0)
+	IF(@ID = 0)
 	BEGIN
 		SET @ID = (SELECT Id FROM [dbo].WikiJobRequest WHERE RawRequest = @RawRequest)
 	END
