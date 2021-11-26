@@ -126,12 +126,12 @@ namespace Wikibot.Logic.Jobs
 
                     if (Request.Status == JobStatus.PreApproved)
                     {
-                        PageList = PageList.Except(pagesToRemove);
+                        PageList = PageList.Except(pagesToRemove, new WikiPageComparer());
+
                         Request.Pages = PageList.Select(x => new Page(0, x.Title)).ToList();
 
                         JobData.UpdateWikiJobRequest(Request); //Save page list
                     }
-                    //Retriever.UpdateRequests(new List<WikiJobRequest> { Request });
                     site.LogoutAsync().Wait();
                     
                 }
@@ -180,6 +180,22 @@ namespace Wikibot.Logic.Jobs
             var wikiText = parser.Parse(content);
             page.Content = wikiText.ToString();
             page.UpdateContentAsync(editMessage).Wait();
+        }
+    }
+
+    class WikiPageComparer : IEqualityComparer<WikiPage>
+    {
+        public bool Equals(WikiPage x, WikiPage y)
+        {
+            if (x.Title == y.Title && x.Title.ToLower() == y.Title.ToLower())
+                return true;
+
+            return false;
+        }
+
+        public int GetHashCode(WikiPage obj)
+        {
+            return obj.Title.GetHashCode();
         }
     }
 }
