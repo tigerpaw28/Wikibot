@@ -35,6 +35,6 @@ jobs:
         cache: 'npm'
         cache-dependency-path: ./wikibot-ui
     - run: npm install --save @fortawesome/fontawesome-free
-    - run: npm ci
+    - run: npm ci --legacy-peer-deps
     - run: npm run build --if-present
     - run: npm test
