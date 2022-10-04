@@ -39,6 +39,5 @@ jobs:
     - run: npm install nan@2.16.0 --legacy-peer-deps
     - run: npm install file-uri-to-path@1.0.0 --legacy-peer-deps
     - run: npm ci --legacy-peer-deps
-    - run: npm install --save @fortawesome/fontawesome-free
-    - run: npm run build --if-present
+    - run: npm run build --if-present --legacy-peer-deps
     - run: npm test
