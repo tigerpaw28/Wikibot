@@ -105,6 +105,6 @@
           }
         }
       }
-    }},
-  "defaultProject": "wikibot-ui"
+    }
+  }
 }
