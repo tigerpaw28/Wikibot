@@ -40,13 +40,13 @@ export class RequestReviewPanelComponent implements OnInit {
   private _requestService;
   private _diffService:DiffService;
   
-  constructor( @Inject(CONTAINER_DATA) public componentData:any, private requestService: RequestService, private diffService: DiffService) { 
+  constructor( @Inject(CONTAINER_DATA) public componentData:Request, private requestService: RequestService, private diffService: DiffService) { 
     this.request = componentData;
     //this.request.diffPaths = ["Diff-Alana-0-0.txt", "Diff-Alien-0-0.txt", "Diff-Comics-0-0.txt"];
-    this.lastPage = this.request.diffs.length;
-    this._requestService = requestService;
-    this._diffService = diffService;
-    this.original_request_status = this.request.statusName;
+      this.lastPage = this.request.diffs.length;
+      this._requestService = requestService;
+      this._diffService = diffService;
+      this.original_request_status = this.request.statusName;
   }
 
 

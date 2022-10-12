@@ -1,4 +1,4 @@
-export interface Request {
+export class Request {
     id: number;
     statusName: string;
     comment: string;

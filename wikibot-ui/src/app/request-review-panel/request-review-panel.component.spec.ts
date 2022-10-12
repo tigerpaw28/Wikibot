@@ -1,20 +1,42 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientModule } from '@angular/common/http';
+import { async, ComponentFixture, TestBed, inject, getTestBed } from '@angular/core/testing';
+import { Request as WikiRequest } from '../request';
 
-import { RequestReviewPanelComponent } from './request-review-panel.component';
+import { CONTAINER_DATA, RequestReviewPanelComponent } from './request-review-panel.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 describe('RequestReviewPanelComponent', () => {
   let component: RequestReviewPanelComponent;
   let fixture: ComponentFixture<RequestReviewPanelComponent>;
+  const testRequest:WikiRequest = {
+    id: 1, 
+    statusName: 'Approved',
+    comment: 'Someone messed up',
+    requestingUsername: 'Tigerpaw28',
+    submittedDateUTC:  new Date('09/28/2020'),
+    timePreStartedUTC: null,
+    timeStartedUTC: null,
+    timePreFinishedUTC: null,
+    timeFinishedUTC: null,
+    rawRequest: 'Convert a=>b',
+    notes: 'Nada',
+    diffs: []
+  }
+  const injectorTokens = new WeakMap();
+  injectorTokens.set(CONTAINER_DATA, testRequest);
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ RequestReviewPanelComponent ]
+      declarations: [ RequestReviewPanelComponent],
+      imports: [HttpClientModule, FontAwesomeModule],
+      providers: [{ provide: CONTAINER_DATA, useValue:testRequest }]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(RequestReviewPanelComponent);
+    TestBed.inject(CONTAINER_DATA);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

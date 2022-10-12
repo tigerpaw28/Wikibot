@@ -1,3 +1,4 @@
+import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ResultsTableComponent } from './results-table.component';
@@ -8,7 +9,8 @@ describe('ResultsTableComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ResultsTableComponent ]
+      declarations: [ ResultsTableComponent ],
+      imports: [ HttpClientModule ]
     })
     .compileComponents();
   });

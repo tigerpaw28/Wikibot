@@ -1,4 +1,6 @@
+import { OverlayModule } from '@angular/cdk/overlay';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { SpinnerComponent } from '../spinner/spinner.component';
 
 import { SpinnerOverlayComponent } from './spinner-overlay.component';
 
@@ -8,7 +10,9 @@ describe('SpinnerOverlayComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SpinnerOverlayComponent ]
+      declarations: [ SpinnerOverlayComponent, SpinnerComponent],
+      imports: [OverlayModule],
+      providers: []
     })
     .compileComponents();
   });
