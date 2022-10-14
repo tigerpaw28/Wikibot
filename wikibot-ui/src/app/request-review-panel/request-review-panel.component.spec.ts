@@ -1,9 +1,11 @@
 import { HttpClientModule } from '@angular/common/http';
 import { async, ComponentFixture, TestBed, inject, getTestBed } from '@angular/core/testing';
 import { Request as WikiRequest } from '../request';
+import { MockRequestService } from '../mock-request-service';
 
 import { CONTAINER_DATA, RequestReviewPanelComponent } from './request-review-panel.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { RequestService } from '../request.service';
 
 describe('RequestReviewPanelComponent', () => {
   let component: RequestReviewPanelComponent;
@@ -29,7 +31,9 @@ describe('RequestReviewPanelComponent', () => {
     TestBed.configureTestingModule({
       declarations: [ RequestReviewPanelComponent],
       imports: [HttpClientModule, FontAwesomeModule],
-      providers: [{ provide: CONTAINER_DATA, useValue:testRequest }]
+      providers: [{ provide: CONTAINER_DATA, useValue:testRequest },
+        { provides: RequestService, useClass: MockRequestService }
+      ]
     })
     .compileComponents();
   }));

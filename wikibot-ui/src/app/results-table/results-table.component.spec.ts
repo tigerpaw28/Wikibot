@@ -1,5 +1,7 @@
 import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MockRequestService } from '../mock-request-service';
+import { RequestService } from '../request.service';
 
 import { ResultsTableComponent } from './results-table.component';
 
@@ -10,7 +12,8 @@ describe('ResultsTableComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ ResultsTableComponent ],
-      imports: [ HttpClientModule ]
+      imports: [ HttpClientModule ],
+      providers: [{ provides: RequestService, useClass: MockRequestService }]
     })
     .compileComponents();
   });

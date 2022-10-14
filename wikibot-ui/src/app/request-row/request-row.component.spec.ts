@@ -1,5 +1,6 @@
 import { Overlay, OverlayModule } from '@angular/cdk/overlay';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { MockRequestService } from '../mock-request-service';
 import { Request } from '../request';
 import { RequestService } from '../request.service';
 import { RequestRowComponent } from './request-row.component';
@@ -26,6 +27,7 @@ describe('RequestRowComponent', () => {
     TestBed.configureTestingModule({
       declarations: [ RequestRowComponent ],
       imports: [OverlayModule],
+      providers: [{ provides: RequestService, useClass: MockRequestService }]
     })
     .compileComponents();
   }));
