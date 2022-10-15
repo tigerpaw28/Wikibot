@@ -1,4 +1,5 @@
 import { HttpClient } from "@angular/common/http";
+import { HttpClientTestingModule } from "@angular/common/http/testing";
 import { Injectable } from "@angular/core";
 import { Observable, of } from "rxjs";
 import { Request } from "./request";
@@ -6,7 +7,7 @@ import { Request } from "./request";
 @Injectable({
     providedIn: 'root'
   })
-  
+
 export class MockRequestService {
 
     testRequest:Request = {

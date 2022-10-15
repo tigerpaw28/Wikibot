@@ -1,4 +1,4 @@
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { async, ComponentFixture, TestBed, inject, getTestBed } from '@angular/core/testing';
 import { Request as WikiRequest } from '../request';
 import { MockRequestService } from '../mock-request-service';
@@ -30,7 +30,7 @@ describe('RequestReviewPanelComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ RequestReviewPanelComponent],
-      imports: [HttpClientModule, FontAwesomeModule],
+      imports: [HttpClientTestingModule, FontAwesomeModule],
       providers: [{ provide: CONTAINER_DATA, useValue:testRequest },
         { provides: RequestService, useClass: MockRequestService }
       ]
