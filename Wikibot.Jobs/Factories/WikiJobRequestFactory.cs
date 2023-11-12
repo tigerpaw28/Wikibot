@@ -42,7 +42,15 @@ namespace Wikibot.Logic.Factories
                 {
                     timeString = timeString.Substring(timeString.IndexOf(",")).Trim(); //Grab everything after first comma
                 }
-                jobRequest.SubmittedDateUTC = DateTime.ParseExact($"{timeString}{timeZoneString}", "HH:mm, dd MMMM yyyyKKKK", new CultureInfo("en-US")).ToUniversalTime();
+                DateTime parsedTime; 
+                if(DateTime.TryParseExact($"{timeString}{timeZoneString}", "HH:mm, dd MMMM yyyyKKKK", new CultureInfo("en-US"), DateTimeStyles.AdjustToUniversal, out parsedTime))
+                {
+                     jobRequest.SubmittedDateUTC = parsedTime;
+                }
+                else
+                {
+                    jobRequest.SubmittedDateUTC = DateTime.ParseExact($"{timeString}{timeZoneString}", "HH:mm, d MMMM yyyyKKKK", new CultureInfo("en-US"), DateTimeStyles.AdjustToUniversal);
+                }
             }
             else
             {
