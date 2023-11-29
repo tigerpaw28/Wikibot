@@ -135,15 +135,12 @@ namespace Wikibot.Logic.Jobs
                     site.LogoutAsync().Wait();
                     
                 }
+                SetJobEnd();
+                SaveRequest();
             }
             catch(Exception ex)
             {
                 FailJob(ex);
-            }
-            finally
-            {
-                SetJobEnd();
-                SaveRequest();
             }
         }
 

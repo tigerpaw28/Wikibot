@@ -15,15 +15,12 @@ namespace Wikibot.Logic.Jobs
             try
             {
                 Console.WriteLine("Test Job writing to console.");
+                SetJobEnd();
+                SaveRequest();
             }
             catch(Exception ex)
             {
                Console.WriteLine($"An error occurred: {ex.StackTrace}");
-            }
-            finally
-            {
-                SetJobEnd();
-                SaveRequest();
             }
         }
     }
