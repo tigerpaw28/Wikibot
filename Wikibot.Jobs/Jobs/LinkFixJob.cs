@@ -118,6 +118,8 @@ namespace Wikibot.Logic.Jobs
                     }
                 }
                 Thread.Sleep(1000);
+                SetJobEnd();
+                SaveRequest();
             }
             catch (Exception ex)
             {
@@ -125,8 +127,6 @@ namespace Wikibot.Logic.Jobs
             }
             finally
             {
-                SetJobEnd();
-                SaveRequest();
                 JobData.UpdateWikiJobRequest(Request); //Save page list 
             }
         }
