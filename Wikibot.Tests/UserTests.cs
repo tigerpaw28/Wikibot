@@ -17,8 +17,10 @@ namespace Wikibot.Tests
         public void GetUser()
         {
             var iConfig = Utilities.GetIConfigurationRoot();
+            var wikiLoginConfig = iConfig.GetSection("WikiLogin");
+            var username = wikiLoginConfig["Username"];
             var userRetriever = Utilities.GetUserRetriever(iConfig, Utilities.GetLogger(iConfig, _output));
-            var user = userRetriever.GetUser("Tigerpaw28");
+            var user = userRetriever.GetUser(username);
             Assert.NotNull(user);
         }
 
