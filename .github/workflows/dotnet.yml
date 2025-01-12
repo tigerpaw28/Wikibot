@@ -37,6 +37,7 @@ jobs:
         EmailSenderOptions.SmtpUrl: "${{secrets.EmailSenderOptions_SmtpUrl }}"
         EmailSenderOptions.FromName: "${{secrets.EmailSenderOptions_FromName }}" 
         RootAdminUsername: "${{secrets.RootAdminUserName }}"
+        ExampleSysOp: "${{secrets.ExampleSysOp }}"
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
