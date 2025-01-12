@@ -13,7 +13,7 @@ namespace Wikibot.Logic.Logic
         }
         public bool IsUserAutoApproved(User userToValidate)
         {
-            return _userRetriever.GetAutoApprovedUsers().Where(user => user == userToValidate).Any();
+            return _userRetriever.GetAutoApprovedUsers().Where(user => user.UserId == userToValidate.UserId).Any();
         }
 
         public bool IsUserAuthentic(User userToValidate, string pageName)
