@@ -40,7 +40,7 @@ namespace Wikibot.Logic.UserRetrievers
 
         public User GetUser(string username)
         {
-            return _wiki.Query.allusers().Where(user => user.activeusers).ToEnumerable().Where(x => x.name.Equals(username))
+            return _wiki.Query.allusers().ToEnumerable().Where(x => x.name.Equals(username))
                     .Select(user => new User { Username = user.name, UserId = user.userid }).SingleOrDefault();
         }
 
