@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Wikibot.DataAccess;
+using Wikibot.Logic.Logic;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -43,6 +44,16 @@ namespace Wikibot.Tests
   
             Assert.NotNull(reviewers);
             Assert.NotEmpty(reviewers);
+        }
+
+        [Fact]
+        public void SysOpUserIsApproved()
+        {
+            var iConfig = Utilities.GetIConfigurationRoot();
+            var userRetriever = Utilities.GetUserRetriever(iConfig, Utilities.GetLogger(iConfig, _output));
+            var jobApprovalLogic = new JobApprovalLogic(userRetriever);
+            var user = userRetriever.GetUser(iConfig["ExampleSysOp"]);
+            Assert.True(jobApprovalLogic.IsUserAutoApproved(user));
         }
     }
 }
