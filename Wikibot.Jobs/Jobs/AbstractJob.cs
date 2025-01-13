@@ -16,6 +16,14 @@ namespace Wikibot.Logic.Jobs
         [NotMapped]
         public RequestData JobData { get; set; }
 
+        [NotMapped]
+        public bool UsePendingPreApproval 
+        {
+            get {
+                return bool.Parse(Configuration["EnablePendingPreApproval"]);
+            }
+        }
+
         public virtual void Execute() { }
 
     }
