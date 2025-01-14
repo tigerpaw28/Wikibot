@@ -56,7 +56,7 @@ namespace Wikibot.Logic.Jobs
                             {
                                 Log.Information("Request is ToBeProcessed");
                                 //Check For Automatic Approval
-                                CheckForUserApproval(request, jobApprovalLogic);
+                                CheckForUserApproval(request, jobApprovalLogic, UsePendingPreApproval);
 
                                 //Save Job
                                 JobData.CreateWikiJobRequest(request);
@@ -113,11 +113,11 @@ namespace Wikibot.Logic.Jobs
 
         }
 
-        private void CheckForUserApproval(WikiJobRequest request, JobApprovalLogic jobApprovalLogic)
+        private void CheckForUserApproval(WikiJobRequest request, JobApprovalLogic jobApprovalLogic, bool usePendingPreApproval)
         {
             var user = _userRetriever.GetUser(request.RequestingUsername);
 
-            if (jobApprovalLogic.IsUserAutoApproved(user))
+            if (jobApprovalLogic.IsUserAutoApproved(user) || !usePendingPreApproval)
             {
                 request.Status = JobStatus.PreApproved;
             }
