@@ -68,14 +68,16 @@ namespace Wikibot.Logic.JobRetrievers
                 {
                     _log.Information($"Logging into Wiki");
                     var site = _wikiAccessLogic.GetLoggedInWikiSite(client);
+                    
                     var page = new WikiPage(site, _wikiRequestPage);
-
                     _log.Information($"Fetching content from job request page {page.Title}");
                     // Fetch content from the job request page so we can build jobs from it
                     await page.RefreshAsync(PageQueryOptions.FetchContent
                                             | PageQueryOptions.ResolveRedirects);
                     if ((page?.Content ?? "").Length > 1)
-                    {
+                    {                    
+                        var revisions = await site.Revisions(page.Title, "", 5, new System.Threading.CancellationToken());
+
                         var ast = new WikitextParser().Parse(page?.Content);
                         var templates = ast.EnumDescendants().OfType<Template>();
 
@@ -85,6 +87,8 @@ namespace Wikibot.Logic.JobRetrievers
                         {
                             _log.Information($"Request {request.RawRequest} has status {request.Status}");
                         }
+
+                        jobs = jobs.Where(t => DoesUserHaveEditInLast15Minutes(revisions, t.RequestingUsername, t.RawRequest));
 
                     }
                     await site.LogoutAsync();
@@ -180,6 +184,17 @@ namespace Wikibot.Logic.JobRetrievers
         private TimeZoneInfo GetTimeZone()
         {
             return TimeZoneInfo.FindSystemTimeZoneById(_timeZoneID);
+        }
+
+        private bool DoesUserHaveEditInLast15Minutes(IList<Revision> revisions, string user, string content)
+        {
+            if(revisions.Any(r=> r.UserName == user && r.TimeStamp.ToLocalTime() >= DateTime.Now.AddMinutes(-15)))
+            {
+                var latestRevision = revisions.Where(r => r.UserName == user
+                && r.TimeStamp.ToLocalTime() >= DateTime.Now.AddMinutes(-15)).OrderBy(r => r.TimeStamp).Last();
+                return latestRevision.Content.Contains(content);
+            }
+            return false;
         }
     }
 }

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using WikiClientLibrary;
 using WikiClientLibrary.Client;
+using WikiClientLibrary.Pages;
 using WikiClientLibrary.Sites;
 
 namespace Wikibot.Logic.Extensions
@@ -146,6 +147,63 @@ namespace Wikibot.Logic.Extensions
             return result;
         }
 
+        /// <summary>
+        /// Get a list of revisions for a given page. 
+        /// </summary>
+        /// <param name="pageTitle">Name of the page to get backlinks for.</param>
+        /// <param name="maxCount">Maximum number of results to return. No more than 500 (5000 for bots) allowed.</param>
+        /// <param name="defaultNamespaceId">The namespace in which to look for the page.</param>
+        /// <param name="cancellationToken">The cancellation token that will be checked prior to completing the returned task.</param>
+        /// <returns>List of pages.</returns>
+        public static async Task<IList<Revision>> Revisions(this WikiSite site, string pageTitle, string user, int maxCount,
+          CancellationToken cancellationToken)
+        {
+            int offset = 0;
+            string continueToken = null;
+            var results = new JArray();
+            while (offset >= 0)
+            {
+                var payload = new ExpandoObject();
+
+                payload.TryAdd("action", "query");
+                payload.TryAdd("prop", "revisions");
+                payload.TryAdd("titles", pageTitle);
+                payload.TryAdd("rvlimit", maxCount);
+                payload.TryAdd("rvprop", "ids");
+
+                if(!string.IsNullOrWhiteSpace(user))
+                {
+                    payload.TryAdd("rvuser", user);
+                }
+
+
+                if (continueToken != null)
+                {
+                    payload.TryAdd("rvstartid", continueToken);
+                }
+                var jresult = await site.InvokeMediaWikiApiAsync(new MediaWikiFormRequestMessage(payload.ToList()), cancellationToken);
+
+                var query = jresult["query"]["pages"].FirstOrDefault()?.FirstOrDefault();
+                results.Merge((JArray)query["revisions"]);
+                var querycontinue = jresult["query-continue"];
+                if (querycontinue != null)
+                {
+                    continueToken = querycontinue["revisions"]["rvstartid"].ToString();
+                }
+                else
+                {
+                    offset = -1;
+                }
+            }
+            var result = new List<int>();
+            foreach (JToken token in results)
+            {
+                var entry = int.Parse(token["revid"].ToString());
+                result.Add(entry);
+            }
+
+            return Revision.FetchRevisionsAsync(site, result.ToArray()).ToListAsync().Result;
+        }
         /// <summary>
         /// Sends an email to a user via API:Emailuser
         /// </summary>

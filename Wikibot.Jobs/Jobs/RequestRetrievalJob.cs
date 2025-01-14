@@ -126,6 +126,5 @@ namespace Wikibot.Logic.Jobs
                 request.Status = JobStatus.PendingPreApproval;
             }
         }
-
     }
 }
