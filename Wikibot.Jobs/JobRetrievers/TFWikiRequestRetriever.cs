@@ -169,7 +169,7 @@ namespace Wikibot.Logic.JobRetrievers
         public async Task UpdatePageContent(string content, string message, WikiPage page)
         {
             page.Content = content;
-            await page.UpdateContentAsync(message);
+            await page.UpdateContentAsync(message,true,true);
         }
 
         public WikiJob GetJobForRequest(WikiJobRequest request)
