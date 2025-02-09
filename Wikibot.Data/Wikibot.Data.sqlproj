@@ -65,7 +65,6 @@
     <Build Include="Tables\Page.sql" />
     <Build Include="Tables\Status.sql" />
     <Build Include="Tables\WikiJobRequest.sql" />
-    <Build Include="Stored Procedures\spCreateUpdateWikiJobRequest.sql" />
     <Build Include="PageUDT.sql" />
     <Build Include="Stored Procedures\spCreatePages.sql" />
     <Build Include="Stored Procedures\spUpdatePagesForWikiJobRequest.sql" />
@@ -80,6 +79,8 @@
     <Build Include="Tables\ReviewComment.sql" />
     <Build Include="Stored Procedures\spCreateReviewComment.sql" />
     <Build Include="Stored Procedures\spGetReviewCommentForRequest.sql" />
+    <Build Include="Stored Procedures\spCreateWikiJobRequest.sql" />
+    <Build Include="Stored Procedures\spUpdateWikiJobRequest.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="Wikibot.Data.refactorlog" />

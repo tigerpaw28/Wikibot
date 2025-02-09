@@ -11,6 +11,7 @@
     [TimeStartedUTC]     DATETIME2 (7)   NULL,
     [TimeFinishedUTC]    DATETIME2 (7)   NULL,
     [JobType]            NVARCHAR (50)   NULL,
+    [StatusMessage]      NVARCHAR(MAX)   NULL, 
     CONSTRAINT [PK_WikiJobRequest] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [FK_WikiJobRequest_Status] FOREIGN KEY ([StatusID]) REFERENCES [dbo].[Status] ([Id])
 
