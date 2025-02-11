@@ -55,8 +55,18 @@ namespace Wikibot.Logic.Jobs
                             if (request.Status == JobStatus.ToBeProcessed)
                             {
                                 Log.Information("Request is ToBeProcessed");
+
                                 //Check For Automatic Approval
-                                CheckForUserApproval(request, jobApprovalLogic, UsePendingPreApproval);
+                                try
+                                {
+                                    CheckForUserApproval(request, jobApprovalLogic, UsePendingPreApproval);
+                                }
+                                catch (Exception ex)
+                                {
+                                    request.Status = JobStatus.Rejected;
+                                    if (ex.Message.Equals("Requesting user not found."))
+                                        request.StatusMessage += "Job Rejected. Requesting user not found in Users";
+                                }
 
                                 //Save Job
                                 JobData.CreateWikiJobRequest(request);
@@ -117,14 +127,18 @@ namespace Wikibot.Logic.Jobs
         {
             var user = _userRetriever.GetUser(request.RequestingUsername);
 
-            if (jobApprovalLogic.IsUserAutoApproved(user) || !usePendingPreApproval)
+            if (user != null)
             {
-                request.Status = JobStatus.PreApproved;
+                if (jobApprovalLogic.IsUserAutoApproved(user) || !usePendingPreApproval)
+                {
+                    request.Status = JobStatus.PreApproved;
+                }
+                else
+                {
+                    request.Status = JobStatus.PendingPreApproval;
+                }
             }
-            else
-            {
-                request.Status = JobStatus.PendingPreApproval;
-            }
+            throw new Exception("Requesting user not found.");
         }
 
     }

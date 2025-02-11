@@ -148,6 +148,12 @@ namespace Wikibot.Logic.JobRetrievers
                             singletemplate.Arguments.Add(templateArgument);
                         }
 
+                        if (singletemplate.Arguments.SingleOrDefault(arg => arg.Name.ToPlainText().Equals("statusmessage")) == null) //ID argument doesn't exist in the template
+                        {
+                            var templateArgument = new TemplateArgument { Name = parser.Parse("statusmessage"), Value = parser.Parse(request.StatusMessage.ToString()) };
+                            singletemplate.Arguments.Add(templateArgument);
+                        }
+
                         request.RawRequest = singletemplate.ToString();
                         _database.UpdateRaw(request.ID, request.RawRequest); //TODO: Make batch operation
                     }

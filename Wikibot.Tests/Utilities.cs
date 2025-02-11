@@ -226,6 +226,7 @@ namespace Wikibot.Tests
             sdParams.Add("@Status", request.Status, System.Data.DbType.Int32);
             sdParams.Add("@SubmittedDate", request.SubmittedDateUTC, System.Data.DbType.DateTime2);
             sdParams.Add("@Username", request.RequestingUsername, System.Data.DbType.String);
+            sdParams.Add("@Message", request.StatusMessage, System.Data.DbType.String, System.Data.ParameterDirection.Input);
             sdParams.Add("@ID", request.ID, System.Data.DbType.Int64, System.Data.ParameterDirection.Output);
 
             sdParams.RemoveUnused = true;
