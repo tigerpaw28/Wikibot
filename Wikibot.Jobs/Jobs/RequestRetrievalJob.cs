@@ -64,7 +64,7 @@ namespace Wikibot.Logic.Jobs
                                 catch (Exception ex)
                                 {
                                     request.Status = JobStatus.Rejected;
-                                    if (ex.Message.Equals("Requesting user not found."))
+                                    if (ex.Message.StartsWith("Requesting user not found"))
                                         request.StatusMessage += "Job Rejected. Requesting user not found in Users";
                                 }
 
@@ -74,8 +74,11 @@ namespace Wikibot.Logic.Jobs
                                 //Add to update list
                                 requestsToUpdate.Add(request);
 
-                                //Send notification
-                                _notificationService.SendNewRequestNotification(_userRetriever.GetReviewerUsers(), request.RequestingUsername, request.Comment);
+                                if (UsePendingPreApproval)
+                                {
+                                    //Send notification
+                                    _notificationService.SendNewRequestNotification(_userRetriever.GetReviewerUsers(), request.RequestingUsername, request.Comment);
+                                }
                             }
                             else
                             {
@@ -138,7 +141,8 @@ namespace Wikibot.Logic.Jobs
                     request.Status = JobStatus.PendingPreApproval;
                 }
             }
-            throw new Exception("Requesting user not found.");
+            else
+                throw new Exception($"Requesting user not found: {request.RequestingUsername}.");
         }
 
     }
