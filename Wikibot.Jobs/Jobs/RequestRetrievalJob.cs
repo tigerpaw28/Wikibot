@@ -132,14 +132,19 @@ namespace Wikibot.Logic.Jobs
 
             if (user != null)
             {
-                if (jobApprovalLogic.IsUserAutoApproved(user) || !usePendingPreApproval)
+                if (usePendingPreApproval)
                 {
-                    request.Status = JobStatus.PreApproved;
+                    if (jobApprovalLogic.IsUserAutoApproved(user))
+                    {
+                        request.Status = JobStatus.PreApproved;
+                    }
+                    else
+                    {
+                        request.Status = JobStatus.PendingPreApproval;
+                    }
                 }
                 else
-                {
-                    request.Status = JobStatus.PendingPreApproval;
-                }
+                    request.Status = JobStatus.PendingApproval;
             }
             else
                 throw new Exception($"Requesting user not found: {request.RequestingUsername}.");
