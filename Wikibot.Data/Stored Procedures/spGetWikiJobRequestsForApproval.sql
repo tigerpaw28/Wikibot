@@ -26,7 +26,7 @@ BEGIN
 	[WJ].[Comment], 
 	[WJ].[StatusID] AS ''Status'', 
 	[WJ].[RequestingUsername], 
-	[WJ].[Notes], 
+	[WJ].[StatusMessage], 
 	[WJ].[RawRequest], 
 	[WJ].[SubmittedDateUTC], 
 	[WJ].[TimePreStartedUTC], 
